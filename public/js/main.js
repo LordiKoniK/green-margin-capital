@@ -96,14 +96,14 @@ class Navigation {
 
 class Carousel {
   constructor(element) {
-    this.carousel = element;
-    this.slides = element.querySelectorAll('.carousel-slide');
-    this.dots = element.querySelectorAll('.carousel-dot');
-    this.prevBtn = element.querySelector('.carousel-prev');
-    this.nextBtn = element.querySelector('.carousel-next');
+    // Always use the parent .hero-carousel as the root for queries
+    this.carousel = element.closest('.hero-carousel') || element;
+    this.slides = this.carousel.querySelectorAll('.carousel-slide');
+    this.dots = this.carousel.querySelectorAll('.carousel-dot');
+    this.prevBtn = this.carousel.querySelector('.carousel-prev');
+    this.nextBtn = this.carousel.querySelector('.carousel-next');
     this.currentSlide = 0;
     this.autoPlayInterval = null;
-    
     this.init();
   }
   
@@ -180,7 +180,7 @@ class Carousel {
   
   startAutoPlay() {
     this.stopAutoPlay();
-    this.autoPlayInterval = setInterval(() => this.nextSlide(), 5000);
+    this.autoPlayInterval = setInterval(() => this.nextSlide(), 4000);
   }
   
   stopAutoPlay() {
@@ -370,9 +370,10 @@ document.addEventListener('DOMContentLoaded', () => {
   new Navigation();
   
   // Initialize carousels
-  document.querySelectorAll('.carousel').forEach(carousel => {
-    new Carousel(carousel);
-  });
+  const heroCarousel = document.querySelector('.hero-carousel');
+  if (heroCarousel) {
+    new Carousel(heroCarousel);
+  }
   
   // Initialize smooth scroll
   initSmoothScroll();
