@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Green Margin Capital - A Kenyan organic investment house with a solid reputation and deep experience of the continent's capital markets.">
+    <meta name="keywords" content="investment, capital markets, Kenya, trading, bonds, equity, brokerage">
+    <title>Green Margin Capital - Home</title>
+    
+    <!-- Preconnect to Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/home.css">
+</head>
+<body>
+    
+    <!-- ========================================
+         TOP BAR (Static - doesn't scroll with page)
+         ======================================== -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="top-bar-content">
+                <a href="#" class="top-bar-link">OPEN CDSC ACCOUNT</a>
+                <span class="top-bar-divider">|</span>
+                <a href="#" class="top-bar-link">DOWNLOAD OUR TRADING APP</a>
+                <span class="top-bar-divider">|</span>
+                <a href="#" class="top-bar-link">TRADE ONLINE</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         NAVIGATION (Sticky - scrolls with page)
+         ======================================== -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="/images/logo.png" alt="Green Margin Capital Logo">
+            </a>
+            
+            <ul class="nav-menu">
+                <li><a href="/" class="active">Home</a></li>
+                <li><a href="/about">About Us</a></li>
+                <li><a href="/products">Products</a></li>
+                <li><a href="/downloads">Downloads</a></li>
+                <li><a href="/news">Latest News</a></li>
+                <li><a href="/contact">Contact Us</a></li>
+            </ul>
+            
+            <button class="nav-search" aria-label="Search">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+            </button>
+            
+            <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ========================================
+         HERO CAROUSEL / HIGHLIGHTS SECTION
+         ======================================== -->
+    <section class="hero-carousel">
+        <div class="carousel-container">
+            <!-- Slide 1: Debt -->
+            <div class="carousel-slide active">
+                <div class="carousel-image">
+                    <img src="/images/hero-debt.jpg" alt="Debt Investment Solutions">
+                </div>
+                <div class="carousel-content">
+                    <div class="container">
+                        <h1 class="carousel-title">Debt</h1>
+                        <p class="carousel-subtitle">...a wide range of bond offerings, including government and corporate bonds</p>
+                        <a href="/products#debt" class="btn btn-primary">More</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Equity -->
+            <div class="carousel-slide">
+                <div class="carousel-image">
+                    <img src="/images/hero-equity.jpg" alt="Equity Investment Solutions">
+                </div>
+                <div class="carousel-content">
+                    <div class="container">
+                        <h1 class="carousel-title">Equity</h1>
+                        <p class="carousel-subtitle">...a powerful vehicle for wealth creation and portfolio diversification</p>
+                        <a href="/products#equity" class="btn btn-primary">More</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: Brokerage -->
+            <div class="carousel-slide">
+                <div class="carousel-image">
+                    <img src="/images/hero-brokerage.jpg" alt="Brokerage Services">
+                </div>
+                <div class="carousel-content">
+                    <div class="container">
+                        <h1 class="carousel-title">Brokerage</h1>
+                        <p class="carousel-subtitle">...professional trading services with expert market insights and execution</p>
+                        <a href="/products#brokerage" class="btn btn-primary">More</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: Research -->
+            <div class="carousel-slide">
+                <div class="carousel-image">
+                    <img src="/images/hero-research.jpg" alt="Market Research">
+                </div>
+                <div class="carousel-content">
+                    <div class="container">
+                        <h1 class="carousel-title">Research</h1>
+                        <p class="carousel-subtitle">...in-depth market analysis and insights to inform your investment decisions</p>
+                        <a href="/products#research" class="btn btn-primary">More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carousel Navigation -->
+        <button class="carousel-nav carousel-prev" aria-label="Previous slide">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+        <button class="carousel-nav carousel-next" aria-label="Next slide">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+
+        <!-- Carousel Indicators -->
+        <div class="carousel-indicators">
+            <button class="carousel-dot active" aria-label="Go to slide 1"></button>
+            <button class="carousel-dot" aria-label="Go to slide 2"></button>
+            <button class="carousel-dot" aria-label="Go to slide 3"></button>
+            <button class="carousel-dot" aria-label="Go to slide 4"></button>
+        </div>
+    </section>
+
+    <!-- ========================================
+         MARKET TICKER (Stock Market Updates)
+         ======================================== -->
+    <section class="market-ticker-wrapper">
+        <div class="market-ticker-container" id="market-ticker">
+            <!-- Market ticker content will be injected by JavaScript API -->
+            <div class="market-ticker-placeholder">
+                <span class="ticker-loading">Loading market data...</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         WELCOME SECTION
+         ======================================== -->
+    <section class="welcome-section section">
+        <div class="container">
+            <div class="welcome-grid">
+                <!-- Left Column: Images -->
+                <div class="welcome-images" data-animate="fade-in-left">
+                    <div class="image-group">
+                        <div class="image-circle image-circle-1">
+                            <img src="/images/team-meeting-1.jpg" alt="Professional team meeting">
+                        </div>
+                        <div class="image-circle image-circle-2">
+                            <img src="/images/team-meeting-2.jpg" alt="Investment consultation">
+                        </div>
+                    </div>
+                    <div class="experience-badge">
+                        <div class="badge-content">
+                            <span class="badge-number">15+</span>
+                            <span class="badge-text">Years of experience</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Content -->
+                <div class="welcome-content" data-animate="fade-in-right">
+                    <h2 class="section-title">
+                        <span class="title-accent">WELCOME TO</span>
+                        <span class="title-main">GREEN MARGIN CAPITAL</span>
+                    </h2>
+                    
+                    <div class="welcome-description">
+                        <p>A Kenyan organic investment house with a solid reputation and deep experience of the continent's capital markets. Founded on the principle of democratizing access to investment solutions, Green Margin Capital is poised to revolutionize the way individuals and institutions engage with financial markets.</p>
+                    </div>
+
+                    <!-- Services List -->
+                    <div class="services-list">
+                        <div class="service-item">
+                            <div class="service-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </div>
+                            <div class="service-content">
+                                <h3>Equity</h3>
+                                <p>Access to diverse equity portfolios across East African markets with expert guidance</p>
+                            </div>
+                        </div>
+
+                        <div class="service-item">
+                            <div class="service-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </div>
+                            <div class="service-content">
+                                <h3>Debt</h3>
+                                <p>Comprehensive bond offerings including government securities and corporate bonds</p>
+                            </div>
+                        </div>
+
+                        <div class="service-item">
+                            <div class="service-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </div>
+                            <div class="service-content">
+                                <h3>Brokerage</h3>
+                                <p>Professional brokerage services with real-time execution and competitive rates</p>
+                            </div>
+                        </div>
+
+                        <div class="service-item">
+                            <div class="service-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </div>
+                            <div class="service-content">
+                                <h3>Research</h3>
+                                <p>In-depth market research and analysis to inform strategic investment decisions</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="welcome-cta">
+                        <a href="/about" class="btn btn-primary">Learn More About Us</a>
+                        <a href="/contact" class="btn btn-secondary">Get Started</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         WHY CHOOSE US SECTION
+         ======================================== -->
+    <section class="why-choose-section section section-light">
+        <div class="container">
+            <div class="section-header text-center" data-animate="fade-in">
+                <h2 class="section-title">
+                    <span class="title-main">Why Choose Green Margin Capital</span>
+                </h2>
+                <p class="section-subtitle">A financial markets startup driven by a vision for financial empowerment through strategic capital markets investment solutions.</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card" data-animate="fade-in-up">
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <h3>Expert Team</h3>
+                    <p>Seasoned professionals with deep knowledge of African capital markets and decades of combined experience</p>
+                </div>
+
+                <div class="feature-card" data-animate="fade-in-up">
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                    </div>
+                    <h3>Innovative Solutions</h3>
+                    <p>Cutting-edge trading platforms and investment tools designed for the modern investor</p>
+                </div>
+
+                <div class="feature-card" data-animate="fade-in-up">
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                    </div>
+                    <h3>Secure & Regulated</h3>
+                    <p>Fully licensed and regulated by the Capital Markets Authority of Kenya with robust security measures</p>
+                </div>
+
+                <div class="feature-card" data-animate="fade-in-up">
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                    </div>
+                    <h3>Competitive Rates</h3>
+                    <p>Transparent pricing and competitive brokerage rates to maximize your investment returns</p>
+                </div>
+
+                <div class="feature-card" data-animate="fade-in-up">
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                    </div>
+                    <h3>Easy Access</h3>
+                    <p>Multiple channels to invest including our mobile app, web platform, and dedicated support team</p>
+                </div>
+
+                <div class="feature-card" data-animate="fade-in-up">
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                    </div>
+                    <h3>Real-Time Insights</h3>
+                    <p>Access to live market data, research reports, and expert analysis to guide your investment strategy</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         CALL TO ACTION SECTION
+         ======================================== -->
+    <section class="cta-section section">
+        <div class="container">
+            <div class="cta-content" data-animate="fade-in">
+                <h2>Ready to Start Your Investment Journey?</h2>
+                <p>Open your account today and gain access to Kenya's leading capital markets platform</p>
+                <div class="cta-buttons">
+                    <a href="#" class="btn btn-primary btn-large">Open CDSC Account</a>
+                    <a href="/contact" class="btn btn-light btn-large">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         FOOTER
+         ======================================== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <!-- Company Info -->
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="/images/logo-white.png" alt="Green Margin Capital">
+                    </div>
+                    <p class="footer-description">A financial markets startup driven by a vision for financial empowerment through strategic capital markets investment solutions.</p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Twitter" class="social-link">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="Facebook" class="social-link">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="Instagram" class="social-link">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path>
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="LinkedIn" class="social-link">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"></path>
+                                <circle cx="4" cy="4" r="2"></circle>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Useful Links -->
+                <div class="footer-section">
+                    <h3>Useful Links</h3>
+                    <ul>
+                        <li><a href="https://www.cma.or.ke/">CMA</a></li>
+                        <li><a href="https://www.nse.co.ke/">NSE</a></li>
+                        <li><a href="https://www.cdsckenya.com/">CDSC</a></li>
+                        <li><a href="https://www.centralbank.go.ke/">CBK</a></li>
+                        <li><a href="http://www.kenyalaw.org/">Constitution of Kenya</a></li>
+                        <li><a href="https://www.kasib.co.ke/">KASIB</a></li>
+                    </ul>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/about">About Us</a></li>
+                        <li><a href="/products">Products</a></li>
+                        <li><a href="/downloads">Downloads</a></li>
+                        <li><a href="/news">Latest News</a></li>
+                        <li><a href="/contact">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="footer-section">
+                    <h3>Our Contacts</h3>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <span>The Exchange, 55 Westlands Road, Nairobi, Kenya</span>
+                        </div>
+                        <div class="contact-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <a href="mailto:info@greenmargincapital.com">info@greenmargincapital.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Green Margin Capital. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/js/main.js"></script>
+</body>
+</html>
