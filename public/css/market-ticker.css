@@ -1,0 +1,132 @@
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: scroll-left linear infinite;
+  gap: 2rem;
+}
+
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  /* padding: 0 10px; */
+  white-space: nowrap;
+  border-right: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.ticker-item:last-child {
+  border-right: none;
+}
+
+.ticker-symbol {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--accent-orange);
+  min-width: 60px;
+}
+
+.ticker-price {
+  font-weight: 600;
+  color: var(--white);
+  font-size: 1rem;
+  min-width: 100px;
+}
+
+.ticker-change {
+  font-weight: 600;
+  font-size: 0.95rem;
+  min-width: 80px;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ticker-change.positive {
+  color: #00ff88;
+}
+
+.ticker-change.negative {
+  color: #ff4444;
+}
+
+.ticker-error {
+  width: 100%;
+  text-align: center;
+  padding: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+}
+
+/* Scrolling Animation */
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Pause animation on hover */
+.market-ticker-container:hover .ticker-track {
+  animation-play-state: paused;
+}
+
+/* Loading state animation */
+.ticker-loading {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .ticker-item {
+    gap: 0.75rem;
+    padding: 0 1rem;
+  }
+
+  .ticker-symbol {
+    font-size: 1rem;
+    min-width: 50px;
+  }
+
+  .ticker-price {
+    font-size: 0.9rem;
+    min-width: 70px;
+  }
+
+  .ticker-change {
+    font-size: 0.85rem;
+    min-width: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ticker-item {
+    gap: 0.5rem;
+    padding: 0 0.75rem;
+  }
+
+  .ticker-symbol {
+    font-size: 0.9rem;
+    min-width: 45px;
+  }
+
+  .ticker-price {
+    font-size: 0.85rem;
+    min-width: 60px;
+  }
+
+  .ticker-change {
+    font-size: 0.8rem;
+    min-width: 70px;
+  }
+}
