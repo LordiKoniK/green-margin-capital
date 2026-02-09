@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'"],
+      defaultSrc: ["'self'", "https://nairobi-stock-exchange-nse.p.rapidapi.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
@@ -36,27 +36,27 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'html', 'home.html'));
 });
 
 app.get('/about', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'about.html'));
+  res.sendFile(path.join(__dirname, 'public', 'html', 'about.html'));
 });
 
 app.get('/products', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'products.html'));
+  res.sendFile(path.join(__dirname, 'public', 'html', 'products.html'));
 });
 
 app.get('/downloads', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'downloads.html'));
+  res.sendFile(path.join(__dirname, 'public', 'html', 'downloads.html'));
 });
 
 app.get('/news', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'news.html'));
+  res.sendFile(path.join(__dirname, 'public', 'html', 'news.html'));
 });
 
 app.get('/contact', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'contact.html'));
+  res.sendFile(path.join(__dirname, 'public', 'html', 'contact.html'));
 });
 
 // API Routes (for future use)
@@ -67,10 +67,15 @@ app.post('/api/contact', (req, res) => {
   res.json({ success: true, message: 'Thank you for contacting us!' });
 });
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", "default-src 'self'; connect-src 'self' https://nairobi-stock-exchange-nse.p.rapidapi.com;");
+  next();
 });
+
+// // 404 handler
+// app.use((req, res) => {
+//   res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+// });
 
 // Error handler
 app.use((err, req, res, next) => {

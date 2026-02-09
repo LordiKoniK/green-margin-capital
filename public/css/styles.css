@@ -74,7 +74,7 @@ body {
 }
 
 img {
-  max-width: 100%;
+  max-width: 100%;  
   height: auto;
   display: block;
 }
@@ -396,6 +396,65 @@ p {
   .section {
     padding: var(--spacing-md) 0;
   }
+
+  .logo img {
+  margin-left: -20px !important;
+  }
+
+  .nav-search {
+    margin-right: 20px !important;
+  }
+
+  .carousel-content p{
+    margin-bottom: 180px !important;
+  }
+
+  .carousel-content .btn{
+    transform: translateY(-50px) !important;
+  }
+
+  .welcome-section{
+    padding-top: 0px !important;
+  }
+
+  .welcome-images{
+    padding-top: 0px !important;
+  }
+
+  .image-group{
+    margin-bottom: 0px !important;
+  }
+
+  .image-circle-1{
+    transform: translate(-4rem, 3rem) !important;
+  }
+
+  .image-circle-2{
+    transform: translate(5.5rem, 10rem) !important;
+  }
+
+  .experience-badge{
+    margin-top: 0px !important;
+  }
+
+}
+
+@media (max-width: 1024px) {
+  .logo img{
+    margin-left: -10px !important;
+  }
+
+  .nav-menu {
+    justify-content: center !important;
+    text-align: center !important;
+    gap: 10px !important;
+  }
+
+  .nav-menu a {
+  text-align: center; /* ensures text inside link is centered */
+  display: block;     /* makes the link behave like a box */
+}
+
 }
 
 /* ==========================================
