@@ -180,7 +180,7 @@ class Carousel {
   
   startAutoPlay() {
     this.stopAutoPlay();
-    this.autoPlayInterval = setInterval(() => this.nextSlide(), 4000);
+    this.autoPlayInterval = setInterval(() => this.nextSlide(), 5000);
   }
   
   stopAutoPlay() {

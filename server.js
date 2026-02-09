@@ -16,7 +16,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
     },
   },
 }));
@@ -57,6 +57,10 @@ app.get('/news', (req, res) => {
 
 app.get('/contact', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'contact.html'));
+});
+
+app.get('/cdsc', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'html', 'cdsc-application-form.html'));
 });
 
 // API Routes (for future use)
