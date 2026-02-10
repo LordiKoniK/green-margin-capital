@@ -420,27 +420,6 @@ function toggleFundSourceFields2() {
     const fundSource = document.getElementById('fundSource2').value;
     const employmentFields = document.getElementById('employmentFields2');
     const businessFields = document.getElementById('businessFields2');
-
-    // Hide both sections first
-    employmentFields.style.display = 'none';
-    businessFields.style.display = 'none';
-    
-    // Show relevant section based on selection
-    if (fundSource === 'employment') {
-        employmentFields.style.display = 'contents';
-        // Clear business fields
-        businessFields.querySelectorAll('input').forEach(input => input.value = '');
-    } else if (fundSource === 'business') {
-        businessFields.style.display = 'contents';
-        // Clear employment fields
-        employmentFields.querySelectorAll('input').forEach(input => input.value = '');
-    }
-}
-
-function toggleFundSourceFields2() {
-    const fundSource = document.getElementById('fundSource2').value;
-    const employmentFields = document.getElementById('employmentFields2');
-    const businessFields = document.getElementById('businessFields2');
     
     // Hide both sections first
     employmentFields.style.display = 'none';
@@ -613,40 +592,125 @@ function setupBankAutocomplete() {
 // Branch code validation
 function validateBranchCode() {
     const bankName = document.getElementById('bankNameInput').value;
-    const branchCode = document.getElementById('branchCode').value;
+    const branchInput = document.getElementById('branchCode');
+    const branchValue = branchInput.value.trim();
     const resultDiv = document.getElementById('branchCodeResult');
     
-    // Clear previous result
+    // Clear previous results
     resultDiv.innerHTML = '';
+    removeBranchDropdown();
     
-    if (!bankName || !branchCode) {
-        return;
+    if (!bankName || !branchValue) return;
+    
+    const isNumeric = /^\d+$/.test(branchValue);
+    
+    if (isNumeric) {
+        // --- NUMERIC MODE: look up branch name by code ---
+        const match = bankData.find(item =>
+            item['Bank Name'] === bankName &&
+            item['Branch Code'] == branchValue
+        );
+        
+        if (match) {
+            resultDiv.innerHTML = `
+                <div style="color: var(--success-green); font-weight: 500; padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 6px; display: flex; align-items: center; gap: 8px;">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>${match['Branch Name']}</span>
+                </div>
+            `;
+        } else if (branchValue.length >= 2) {
+            resultDiv.innerHTML = `
+                <div style="color: var(--error-red); font-weight: 500; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 6px; display: flex; align-items: center; gap: 8px;">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Branch code not found for this bank</span>
+                </div>
+            `;
+        }
+        
+    } else {
+        // --- TEXT MODE: search branch names, show dropdown ---
+        if (branchValue.length < 2) return;
+        
+        const matches = bankData.filter(item =>
+            item['Bank Name'] === bankName &&
+            item['Branch Name'].toLowerCase().includes(branchValue.toLowerCase())
+        ).slice(0, 8);
+        
+        if (matches.length > 0) {
+            showBranchDropdown(matches, branchInput);
+        }
     }
+}
+
+function showBranchDropdown(matches, inputEl) {
+    removeBranchDropdown();
     
-    // Find matching branch
-    const match = bankData.find(item => 
-        item['Bank Name'] === bankName && 
-        item['Branch Code'] == branchCode
-    );
-    
-   if (match) {
-    resultDiv.innerHTML = `
-        <div style="color: var(--success-green); font-weight: 500; padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 6px; display: flex; align-items: center; gap: 8px;">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-            </svg>
-            <span>${match['Branch Name']}</span>
-        </div>
+    const dropdown = document.createElement('ul');
+    dropdown.id = 'branchSuggestions';
+    dropdown.style.cssText = `
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 2px solid var(--primary-blue);
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        max-height: 240px;
+        overflow-y: auto;
+        z-index: 100;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        list-style: none;
+        margin: 0;
+        padding: 0;
     `;
-    } else if (branchCode.length >= 2) {
-        resultDiv.innerHTML = `
-            <div style="color: var(--error-red); font-weight: 500; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 6px; display: flex; align-items: center; gap: 8px;">
-                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                </svg>
-                <span>Branch code not found for this bank</span>
-            </div>
+    
+    matches.forEach(branch => {
+        const li = document.createElement('li');
+        li.style.cssText = 'padding: 12px 16px; cursor: pointer; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color);';
+        li.innerHTML = `
+            <span>${branch['Branch Name']}</span>
+            <span style="font-family: monospace; color: var(--text-light); font-size: 0.85rem;">Code: ${branch['Branch Code']}</span>
         `;
+        
+        li.addEventListener('mouseenter', () => li.style.background = 'var(--bg-light)');
+        li.addEventListener('mouseleave', () => li.style.background = 'white');
+        
+        li.addEventListener('click', () => {
+            // Fill the input with the branch code and show the branch name as confirmation
+            inputEl.value = branch['Branch Code'];
+            removeBranchDropdown();
+            
+            // Trigger numeric validation to display the confirmation label
+            validateBranchCode();
+        });
+        
+        dropdown.appendChild(li);
+    });
+    
+    // Position relative to input
+    inputEl.parentElement.style.position = 'relative';
+    inputEl.parentElement.appendChild(dropdown);
+    
+    // Close on outside click
+    document.addEventListener('click', handleBranchOutsideClick);
+}
+
+function removeBranchDropdown() {
+    const existing = document.getElementById('branchSuggestions');
+    if (existing) existing.remove();
+    document.removeEventListener('click', handleBranchOutsideClick);
+}
+
+function handleBranchOutsideClick(e) {
+    const dropdown = document.getElementById('branchSuggestions');
+    const input = document.getElementById('branchCode');
+    if (dropdown && e.target !== input && !dropdown.contains(e.target)) {
+        removeBranchDropdown();
     }
 }
 

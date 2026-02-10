@@ -191,6 +191,61 @@ class Carousel {
 }
 
 // ==========================================
+// IPO Countdown Timer
+// ==========================================
+class CountdownTimer {
+  constructor(targetDateStr, ids) {
+    this.targetDate = new Date(targetDateStr);
+    this.ids = ids; // { days, hours, mins, secs }
+    this.interval = null;
+    this.init();
+  }
+  init() {
+    // Only run if the elements exist (i.e., IPO slide is on this page)
+    if (!document.getElementById(this.ids.days)) return;
+    this.tick();
+    this.interval = setInterval(() => this.tick(), 1000);
+  }
+  tick() {
+    const now = new Date();
+    const diff = this.targetDate - now;
+    if (diff <= 0) {
+      this.showExpired();
+      clearInterval(this.interval);
+      return;
+    }
+    const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours   = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    document.getElementById(this.ids.days).textContent  = String(days).padStart(2, '0');
+    document.getElementById(this.ids.hours).textContent = String(hours).padStart(2, '0');
+    document.getElementById(this.ids.mins).textContent  = String(minutes).padStart(2, '0');
+    document.getElementById(this.ids.secs).textContent  = String(seconds).padStart(2, '0');
+  }
+  showExpired() {
+    const container = document.querySelector('.ipo-countdown');
+    if (container) {
+      container.innerHTML = '<p class="countdown-expired">THIS OFFER HAS CLOSED</p>';
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // -------------------------------------------------------
+  // UPDATE THE IPO CLOSING DATE:
+  // Change the date string below to the new closing date.
+  // Format: 'YYYY-MM-DDTHH:MM:SS'
+  // -------------------------------------------------------
+  new CountdownTimer('2026-02-19T17:00:00', {
+    days:  'ipo-days',
+    hours: 'ipo-hours',
+    mins:  'ipo-mins',
+    secs:  'ipo-secs'
+  });
+});
+
+// ==========================================
 // Smooth Scroll
 // ==========================================
 

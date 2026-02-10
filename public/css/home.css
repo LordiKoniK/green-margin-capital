@@ -121,6 +121,20 @@
   animation: slideInUp 0.8s ease-out;
 }
 
+.carousel-tag {
+  display: inline-block;
+  background-color: var(--accent-orange);
+  color: var(--white);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 0.35rem 1rem;
+  border-radius: 2rem;
+  margin-bottom: 1.25rem;
+}
+
+
 .carousel-title {
   font-size: clamp(3rem, 8vw, 5rem);
   color: var(--white);
@@ -134,7 +148,7 @@
   font-size: clamp(1rem, 2vw, 1.5rem);
   color: var(--white);
   margin-bottom: 2rem;
-  max-width: 600px;
+  max-width: 800px;
   line-height: 1.6;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
@@ -206,9 +220,85 @@
   border-radius: 10px;
 }
 
+
+
+/* ==========================================
+   (TEMPORARY) IPO COUNTDOWN
+   ======================================== */
+
+.ipo-countdown {
+  margin: 1.5rem 0 2rem;
+}
+.countdown-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 0.75rem;
+}
+.countdown-blocks {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.countdown-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 1.1rem;
+  min-width: 72px;
+  backdrop-filter: blur(6px);
+}
+.countdown-num {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 2px;
+}
+.countdown-unit {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: 0.3rem;
+  text-transform: uppercase;
+}
+.countdown-sep {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 1.25rem;
+}
+/* Expired state */
+.countdown-expired {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent-orange);
+  letter-spacing: 1px;
+}
+@media (max-width: 480px) {
+  .countdown-block {
+    min-width: 56px;
+    padding: 0.5rem 0.75rem;
+  }
+  .countdown-num {
+    font-size: 1.5rem;
+  }
+  .countdown-sep {
+    font-size: 1.25rem;
+  }
+}
+
+
 /* ==========================================
    MARKET TICKER
    ======================================== */
+
 .market-ticker-wrapper {
   background-color: var(--dark-gray);
   border-top: 3px solid var(--accent-orange);
