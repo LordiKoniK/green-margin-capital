@@ -71,6 +71,46 @@ app.post('/api/contact', (req, res) => {
   res.json({ success: true, message: 'Thank you for contacting us!' });
 });
 
+
+// NSE Stocks Proxy Route to keep API key secure
+
+
+let stocksCache = { data: null, fetchedAt: 0 };
+const CACHE_TTL = 60 * 1000; // 60 seconds
+
+app.get('/api/stocks', async (req, res) => {
+  try {
+    const now = Date.now();
+
+    // Serve from cache if still fresh
+    if (stocksCache.data && (now - stocksCache.fetchedAt) < CACHE_TTL) {
+      return res.json(stocksCache.data);
+    }
+
+    const response = await fetch('https://nairobi-stock-exchange-nse.p.rapidapi.com/stocks', {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key':  process.env.RAPIDAPI_KEY,
+        'x-rapidapi-host': 'nairobi-stock-exchange-nse.p.rapidapi.com'
+      }
+    });
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Upstream API error' });
+    }
+
+    const data = await response.json();
+
+    // Update cache
+    stocksCache = { data, fetchedAt: now };
+
+    res.json(data);
+  } catch (err) {
+    console.error('NSE proxy error:', err.message);
+    res.status(500).json({ error: 'Failed to fetch stock data' });
+  }
+});
+
 app.use((req, res, next) => {
   res.setHeader("Content-Security-Policy", "default-src 'self'; connect-src 'self' https://nairobi-stock-exchange-nse.p.rapidapi.com;");
   next();

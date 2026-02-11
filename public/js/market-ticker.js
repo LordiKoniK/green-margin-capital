@@ -5,16 +5,9 @@
 class MarketTicker {
   constructor() {
     this.container = document.getElementById('market-ticker');
-    this.apiUrl = 'https://nairobi-stock-exchange-nse.p.rapidapi.com/stocks';
-    this.apiOptions = {
-      method: 'GET',
-      headers: {
-        'x-rapidapi-key': '9b1d87c4a6msha06b9a87fa526ffp1937ecjsn2214d4c06ade',
-        'x-rapidapi-host': 'nairobi-stock-exchange-nse.p.rapidapi.com'
-      }
-    };
+    this.apiUrl = '/api/stocks';
     this.stockData = [];
-    this.refreshInterval = 420000; // Refresh every 420 seconds
+    this.refreshInterval = 420000; // Refresh every 420 seconds (same time it takes to get to end of list)
     this.init();
   }
 
