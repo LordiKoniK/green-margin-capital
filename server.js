@@ -4,9 +4,51 @@ const helmet = require('helmet');
 const compression = require('compression');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
+const db = require('./database');
+const { fillCDSCForm, generateCDSCFormPDF } = require('./pdfFiller');
+const basicAuth = require('express-basic-auth');
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Configure file upload
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: function (req, file, cb) {
+    const allowedTypes = /jpeg|jpg|png|pdf/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only images (JPEG, PNG) and PDFs are allowed!'));
+    }
+  }
+});
+
+// Ensure uploads directory exists
+if (!fs.existsSync('uploads')){
+    fs.mkdirSync('uploads');
+}
+if (!fs.existsSync('generated-pdfs')){
+    fs.mkdirSync('generated-pdfs');
+}
+
 
 // Security middleware
 app.use(helmet({
@@ -15,7 +57,7 @@ app.use(helmet({
       defaultSrc: ["'self'", "https://nairobi-stock-exchange-nse.p.rapidapi.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
     },
   },
@@ -63,6 +105,23 @@ app.get('/cdsc', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'cdsc-application-form.html'));
 });
 
+// Admin route security
+app.use('/admin', basicAuth({
+    users: { 'admin': 'greenmnocap' },
+    challenge: true,
+    realm: 'CDSC Admin'
+}));
+
+app.use('/api/cdsc/applications', basicAuth({
+    users: { 'admin': 'greenmnocap' },
+    challenge: true
+}));
+
+// Admin route
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'html', 'admin.html'));
+});
+
 // API Routes (for future use)
 app.post('/api/contact', (req, res) => {
   // Handle contact form submission
@@ -70,6 +129,154 @@ app.post('/api/contact', (req, res) => {
   // TODO: Implement email sending or database storage
   res.json({ success: true, message: 'Thank you for contacting us!' });
 });
+
+// CDSC Application API Routes
+
+// Submit CDSC application
+app.post('/api/cdsc/submit', upload.fields([
+  { name: 'primaryPassportPhoto', maxCount: 1 },
+  { name: 'secondaryPassportPhoto', maxCount: 1 },
+  { name: 'signatureImage', maxCount: 1 },
+  { name: 'taxCertificate', maxCount: 1 }
+]), async (req, res) => {
+  try {
+    const data = JSON.parse(req.body.data);
+    
+    // Add file paths to data
+    if (req.files['primaryPassportPhoto']) {
+      data.primary_passport_photo_path = req.files['primaryPassportPhoto'][0].path;
+    }
+    if (req.files['secondaryPassportPhoto']) {
+      data.secondary_passport_photo_path = req.files['secondaryPassportPhoto'][0].path;
+    }
+    if (req.files['signatureImage']) {
+      data.signature_path = req.files['signatureImage'][0].path;
+    }
+    if (req.files['taxCertificate']) {
+      data.tax_cert_path = req.files['taxCertificate'][0].path;
+    }
+
+    // Insert into database
+    const applicationId = db.insertApplication(data);
+    
+    res.json({ 
+      success: true, 
+      message: 'Application submitted successfully!',
+      applicationId: applicationId
+    });
+  } catch (error) {
+    console.error('Error submitting application:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error submitting application',
+      error: error.message 
+    });
+  }
+});
+
+// Get all applications (admin only - you should add authentication)
+app.get('/api/cdsc/applications', (req, res) => {
+  try {
+    // TODO: Add authentication middleware
+    const applications = db.getAllApplications();
+    res.json({ success: true, applications });
+  } catch (error) {
+    console.error('Error fetching applications:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching applications' 
+    });
+  }
+});
+
+// Get single application
+app.get('/api/cdsc/applications/:id', (req, res) => {
+  try {
+    // TODO: Add authentication middleware
+    const application = db.getApplication(req.params.id);
+    if (application) {
+      res.json({ success: true, application });
+    } else {
+      res.status(404).json({ success: false, message: 'Application not found' });
+    }
+  } catch (error) {
+    console.error('Error fetching application:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching application' 
+    });
+  }
+});
+
+// Update application status
+app.patch('/api/cdsc/applications/:id/status', (req, res) => {
+  try {
+    // TODO: Add authentication middleware
+    const { status, notes } = req.body;
+    db.updateApplicationStatus(req.params.id, status, notes);
+    res.json({ success: true, message: 'Status updated successfully' });
+  } catch (error) {
+    console.error('Error updating status:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error updating status' 
+    });
+  }
+});
+
+// Delete application
+app.delete('/api/cdsc/applications/:id', (req, res) => {
+  try {
+    // TODO: Add authentication middleware
+    db.deleteApplication(req.params.id);
+    res.json({ success: true, message: 'Application deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting application:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error deleting application' 
+    });
+  }
+});
+
+// Generate filled PDF for an application
+app.get('/api/cdsc/applications/:id/pdf', async (req, res) => {
+  try {
+    // TODO: Add authentication middleware
+    const application = db.getApplication(req.params.id);
+    
+    if (!application) {
+      return res.status(404).json({ success: false, message: 'Application not found' });
+    }
+
+    const pdfPath = path.join(__dirname, 'generated-pdfs', `application-${req.params.id}.pdf`);
+    
+    // Try to fill the original PDF first, fallback to custom generation
+    try {
+      await fillCDSCForm(application, pdfPath);
+    } catch (fillError) {
+      console.log('Could not fill original PDF, generating custom PDF instead');
+      await generateCDSCFormPDF(application, pdfPath);
+    }
+
+    // Send the PDF file
+    res.download(pdfPath, `CDSC_Application_${req.params.id}.pdf`, (err) => {
+      if (err) {
+        console.error('Error sending PDF:', err);
+        res.status(500).json({ success: false, message: 'Error sending PDF' });
+      }
+    });
+
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error generating PDF',
+      error: error.message 
+    });
+  }
+});
+
 
 
 // NSE Stocks Proxy Route to keep API key secure

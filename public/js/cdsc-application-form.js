@@ -70,58 +70,13 @@ function updateProgress() {
     }
 }
 
-function nextStep() {
+async function nextStep() {
     if (currentStep < totalSteps) {
         currentStep++;
         updateProgress();
     } else {
-        // Submit form - convert signature to PNG
-        const canvas = document.getElementById('signatureCanvas');
-
-        // Check if signature is empty
-        const context = canvas.getContext('2d');
-        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        let isEmpty = true;
-        
-        for (let i = 0; i < data.length; i += 4) {
-            if (data[i + 3] !== 0) { // Check alpha channel
-                isEmpty = false;
-                break;
-            }
-        }
-        
-        if (isEmpty) {
-            alert('Please provide your signature before submitting.');
-            return;
-        }
-        
-        // Convert canvas (signature) to PNG 
-        canvas.toBlob(function(blob) {
-            // Create download link for testing
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'signature_' + Date.now() + '.png';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-            
-            // In production, you would send this blob to your backend:
-            // const formData = new FormData();
-            // formData.append('signature', blob, 'signature.png');
-            // fetch('/api/submit-application', {
-            //     method: 'POST',
-            //     body: formData
-            // });
-            
-            alert('Application submitted successfully! Signature downloaded for testing.');
-            closeModal();
-            currentStep = 1;
-            updateProgress();
-            clearSignature();
-        }, 'image/png');
+        // Submit form
+        await submitApplication();
     }
 }
 
@@ -131,6 +86,241 @@ function previousStep() {
         updateProgress();
     }
 }
+
+
+async function submitApplication() {
+
+    // Check for empty required fields
+    const requiredFields = document.querySelectorAll('[required]');
+    let firstEmpty = null;
+    requiredFields.forEach(field => {
+        if ((field.type === 'checkbox' || field.type === 'radio')) {
+            // For radio/checkbox, check if any in group is checked
+            if (field.type === 'radio') {
+                const group = document.getElementsByName(field.name);
+                const checked = Array.from(group).some(r => r.checked);
+                if (!checked && !firstEmpty) firstEmpty = field;
+            } else if (field.type === 'checkbox') {
+                if (!field.checked && !firstEmpty) firstEmpty = field;
+            }
+        } else if (!field.value && !firstEmpty) {
+            firstEmpty = field;
+        }
+    });
+    if (firstEmpty) {
+        alert('Please fill all required fields before submitting.');
+        return;
+    }
+
+    const canvas = document.getElementById('signatureCanvas');
+    // Check if signature is empty
+    const context = canvas.getContext('2d');
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    let isEmpty = true;
+    for (let i = 0; i < data.length; i += 4) {
+        if (data[i + 3] !== 0) {
+            isEmpty = false;
+            break;
+        }
+    }
+    if (isEmpty) {
+        alert('Please provide your signature before submitting.');
+        return;
+    }
+
+    // Show loading indicator
+    const submitBtn = document.getElementById('nextBtn');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    try {
+        // Prepare form data
+        const formData = new FormData();
+        
+        // Collect all form data
+        const applicationData = {
+            // Account Type
+            account_type: document.querySelector('input[name="accountType"]:checked').value,
+            cda_code: document.querySelector('input[placeholder="Enter CDA code if applicable"]').value,
+            cds_account_number: document.querySelector('input[placeholder="Leave blank for new account"]').value,
+            
+            // Primary Client Details
+            primary_surname: document.querySelectorAll('.form-step[data-step="2"] input')[0].value,
+            primary_other_names: document.querySelectorAll('.form-step[data-step="2"] input')[1].value,
+            primary_dob: document.querySelectorAll('.form-step[data-step="2"] input[type="date"]')[0].value,
+            primary_gender: document.querySelector('.form-step[data-step="2"] input[name="gender"]:checked')?.value,
+            primary_investor_category: document.querySelectorAll('.form-step[data-step="2"] select')[0].value,
+            primary_id_type: document.querySelectorAll('.form-step[data-step="2"] select')[1].value,
+            primary_id_number: document.querySelectorAll('.form-step[data-step="2"] input')[5].value,
+            primary_passport_expiry: document.querySelectorAll('.form-step[data-step="2"] input[type="date"]')[1].value,
+            primary_nationality: document.querySelectorAll('.form-step[data-step="2"] input')[7].value,
+            primary_country_residence: document.querySelectorAll('.form-step[data-step="2"] input')[8].value,
+            primary_kra_pin: document.querySelectorAll('.form-step[data-step="2"] input')[9].value,
+            
+            // Primary Contact
+            primary_country_code: document.querySelectorAll('.form-step[data-step="3"] input')[0].value,
+            primary_phone: document.querySelectorAll('.form-step[data-step="3"] input[type="tel"]')[0].value,
+            primary_email: document.querySelectorAll('.form-step[data-step="3"] input[type="email"]')[0].value,
+            primary_physical_location: document.querySelectorAll('.form-step[data-step="3"] input')[3].value,
+            primary_postal_code: document.querySelectorAll('.form-step[data-step="3"] input')[4].value,
+            primary_postal_address: document.querySelectorAll('.form-step[data-step="3"] input')[5].value,
+            
+            // Primary Employment/Business
+            primary_fund_source: document.getElementById('fundSource').value,
+            primary_employer_name: document.getElementById('employerName')?.value || '',
+            primary_employer_postal: document.getElementById('employerPostal')?.value || '',
+            primary_employer_phone: document.getElementById('employerPhone')?.value || '',
+            primary_employer_email: document.getElementById('employerEmail')?.value || '',
+            primary_business_name: document.getElementById('businessName')?.value || '',
+            primary_business_reg_number: document.getElementById('businessRegNumber')?.value || '',
+            primary_business_postal: document.getElementById('businessPostal')?.value || '',
+            primary_business_phone: document.getElementById('businessPhone')?.value || '',
+            primary_business_email: document.getElementById('businessEmail')?.value || '',
+            primary_business_office: document.getElementById('businessOffice')?.value || '',
+            
+            // PEP Status
+            is_pep: document.querySelector('input[name="pep"]:checked').value === 'yes' ? "Yes" : "No",
+            pep_details: document.querySelector('.form-step[data-step="3"] textarea').value,
+            
+            // Payment Details
+            payment_method: document.querySelector('input[name="paymentMethod"]:checked').value,
+            bank_name: document.getElementById('bankNameInput')?.value || '',
+            account_number: document.getElementById('bankAccountNumber')?.value || '',
+            account_name: document.getElementById('accountName')?.value || '',
+            branch_code: document.getElementById('branchCode')?.value || '',
+            swift_code: document.getElementById('swiftCode')?.value || '',
+            currency: document.getElementById('otherCurrency')?.value || Array.from(document.querySelectorAll('#currencyField input[type="checkbox"]:checked')).map(cb => cb.value).join(', '),
+            mobile_money_phone: document.getElementById('mobileMoneyPhone')?.value || '',
+            
+            // Tax Status
+            is_tax_exempt: document.querySelector('input[name="taxExempt"]:checked').value === 'yes' ? "Yes" : "No",
+            
+            // Declaration
+            signing_mandate: document.querySelectorAll('.form-step[data-step="5"] select')[0].value,
+            signer_names: document.getElementById('signName1')?.value || '',
+            signature_date: document.getElementById('signDate')?.value || ''
+        };
+
+
+        // Ensure all secondary fields are present, even if not joint
+        if (applicationData.account_type === 'joint') {
+            const jointInputs = document.querySelectorAll('.jointAccountSection input, .jointAccountSection select');
+            // TODO: Map these fields from the form for joint accounts
+            applicationData.secondary_surname = '';
+            applicationData.secondary_other_names = '';
+            // ... add all secondary fields from the form as needed
+        } else {
+            applicationData.secondary_surname = '';
+            applicationData.secondary_other_names = '';
+            applicationData.secondary_dob = '';
+            applicationData.secondary_gender = '';
+            applicationData.secondary_investor_category = '';
+            applicationData.secondary_id_type = '';
+            applicationData.secondary_id_number = '';
+            applicationData.secondary_passport_expiry = '';
+            applicationData.secondary_nationality = '';
+            applicationData.secondary_country_residence = '';
+            applicationData.secondary_kra_pin = '';
+            applicationData.secondary_passport_photo_path = '';
+            applicationData.secondary_country_code = '';
+            applicationData.secondary_phone = '';
+            applicationData.secondary_email = '';
+            applicationData.secondary_physical_location = '';
+            applicationData.secondary_postal_code = '';
+            applicationData.secondary_postal_address = '';
+            applicationData.secondary_fund_source = '';
+            applicationData.secondary_employer_name = '';
+            applicationData.secondary_employer_postal = '';
+            applicationData.secondary_employer_phone = '';
+            applicationData.secondary_employer_email = '';
+            applicationData.secondary_business_name = '';
+            applicationData.secondary_business_reg_number = '';
+            applicationData.secondary_business_postal = '';
+            applicationData.secondary_business_phone = '';
+            applicationData.secondary_business_email = '';
+            applicationData.secondary_business_office = '';
+        }
+
+        // Set empty strings for any missing optional fields 
+        if (applicationData.is_tax_exempt === 'No') {
+            applicationData.tax_cert_path = '';
+        }
+
+        // Add the main data as JSON
+        formData.append('data', JSON.stringify(applicationData));
+
+        // Convert signature to blob and add to form data
+        canvas.toBlob(function(blob) {
+            formData.append('signatureImage', blob, 'signature.png');
+            
+            // Add passport photos if uploaded
+            const primaryPhoto = document.getElementById('passportPhotoInput').files[0];
+            if (primaryPhoto) {
+                formData.append('primaryPassportPhoto', primaryPhoto);
+            }
+
+            const secondaryPhoto = document.getElementById('passportPhotoInput2')?.files[0];
+            if (secondaryPhoto) {
+                formData.append('secondaryPassportPhoto', secondaryPhoto);
+            }
+
+            // Add tax certificate if uploaded
+            const taxCert = document.getElementById('taxExemptionCertInput')?.files[0];
+            if (taxCert) {
+                formData.append('taxCertificate', taxCert);
+            }
+
+            // Submit to server
+            fetch('/api/cdsc/submit', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert(`Application submitted successfully! Your application ID is #${result.applicationId}. You will be contacted via email regarding the status of your application.`);
+                    closeModal();
+                    
+                    // Reset form
+                    currentStep = 1;
+                    updateProgress();
+                    clearSignature();
+                    document.querySelectorAll('input, select, textarea').forEach(field => {
+                        if (field.type !== 'radio' && field.type !== 'checkbox') {
+                            field.value = '';
+                        } else {
+                            field.checked = false;
+                        }
+                    });
+                } else {
+                    alert('Error submitting application: ' + (result.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error submitting application. Please try again.');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            });
+
+        }, 'image/png');
+
+    } catch (error) {
+        console.error('Error preparing application:', error);
+        alert('Error preparing application. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+    }
+}
+
+
+
+
+
 
 // Close modal on overlay click
 // document.getElementById('modalOverlay').addEventListener('click', function(e) {
@@ -841,4 +1031,4 @@ function clearSignature() {
 }
 
 
-// Payment Page
+
