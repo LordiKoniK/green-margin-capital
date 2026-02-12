@@ -287,7 +287,7 @@ async function fillCDSCForm(applicationData, outputPath) {
     };
     if (mandateCoords[applicationData.signing_mandate]) {
       const coords = mandateCoords[applicationData.signing_mandate];
-      drawCheckmark(page3, coords.x, coords.y, 8);
+      drawCheckmark(page2, coords.x, coords.y, 8);
     }
     
     // If joint account, add secondary client checkboxes
