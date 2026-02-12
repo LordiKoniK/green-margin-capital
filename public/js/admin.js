@@ -385,13 +385,33 @@ function viewDetails(id) {
 
         <h3 class="section-title">Actions</h3>
         <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-            <button class="btn btn-primary" onclick="updateStatus(${app.id}, 'approved')">Approve</button>
-            <button class="btn btn-danger" onclick="updateStatus(${app.id}, 'rejected')">Reject</button>
-            <button class="btn btn-secondary" onclick="downloadPDF(${app.id})">Download PDF</button>
+            <button class="btn btn-primary" id="approveBtn">Approve</button>
+            <button class="btn btn-danger" id="rejectBtn">Reject</button>
+            <button class="btn btn-secondary" id="downloadPdfBtn">Download PDF</button>
         </div>
     `;
     
     document.getElementById('detailsModal').classList.add('active');
+
+    // Add event listeners for action buttons in modal
+    const approveBtn = document.getElementById('approveBtn');
+    const rejectBtn = document.getElementById('rejectBtn');
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+    if (approveBtn) {
+        approveBtn.addEventListener('click', function() {
+            updateStatus(app.id, 'approved');
+        });
+    }
+    if (rejectBtn) {
+        rejectBtn.addEventListener('click', function() {
+            updateStatus(app.id, 'rejected');
+        });
+    }
+    if (downloadPdfBtn) {
+        downloadPdfBtn.addEventListener('click', function() {
+            downloadPDF(app.id);
+        });
+    }
 }
 
 // Close details modal

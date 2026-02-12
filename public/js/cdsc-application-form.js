@@ -90,25 +90,49 @@ function previousStep() {
 
 async function submitApplication() {
 
-    // Check for empty required fields
+    // Check for empty required fields and collect all empty ones, excluding joint fields if not joint account
+    const accountType = document.querySelector('input[name="accountType"]:checked')?.value;
     const requiredFields = document.querySelectorAll('[required]');
-    let firstEmpty = null;
+    let emptyFields = [];
     requiredFields.forEach(field => {
-        if ((field.type === 'checkbox' || field.type === 'radio')) {
+        // Exclude jointAccountSection fields if not joint
+        if (accountType !== 'joint' && field.closest('.jointAccountSection')) {
+            return;
+        }
+        if (field.type === 'checkbox' || field.type === 'radio') {
             // For radio/checkbox, check if any in group is checked
             if (field.type === 'radio') {
                 const group = document.getElementsByName(field.name);
                 const checked = Array.from(group).some(r => r.checked);
-                if (!checked && !firstEmpty) firstEmpty = field;
+                if (!checked && !emptyFields.some(f => f.name === field.name)) emptyFields.push(field);
             } else if (field.type === 'checkbox') {
-                if (!field.checked && !firstEmpty) firstEmpty = field;
+                if (!field.checked) emptyFields.push(field);
             }
-        } else if (!field.value && !firstEmpty) {
-            firstEmpty = field;
+        } else if (!field.value) {
+            emptyFields.push(field);
         }
     });
-    if (firstEmpty) {
-        alert('Please fill all required fields before submitting.');
+    if (emptyFields.length > 0) {
+        // Try to get a user-friendly label for each field
+        const fieldNames = emptyFields.map(field => {
+            // Try label[for] or parent label
+            let label = '';
+            if (field.labels && field.labels.length > 0) {
+                label = field.labels[0].innerText.trim();
+            } else if (field.getAttribute('aria-label')) {
+                label = field.getAttribute('aria-label');
+            } else if (field.placeholder) {
+                label = field.placeholder;
+            } else if (field.name) {
+                label = field.name;
+            } else if (field.id) {
+                label = field.id;
+            } else {
+                label = 'Unnamed field';
+            }
+            return label;
+        });
+        alert('Please fill all required fields before submitting.\n\nMissing: ' + fieldNames.join(', '));
         return;
     }
 
