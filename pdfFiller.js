@@ -7,7 +7,41 @@ const path = require('path');
  * @param {Object} applicationData - The application data from database
  * @param {string} outputPath - Where to save the filled PDF
  * @returns {Promise<string>} - Path to the generated PDF
+ * 
  */
+
+
+
+/**
+ * Draw a checkmark at specific coordinates on a PDF page
+ * @param {PDFPage} page - The PDF page to draw on
+ * @param {number} x - X coordinate
+ * @param {number} y - Y coordinate
+ * @param {number} size - Size of the checkmark (default: 10)
+ */
+
+// For checkboxes (not named in the code of the PDF document)
+function drawCheckmark(page, x, y, size = 10) {
+  // Draw a tick (checkmark)
+  // Start at bottom left, go to middle, then up to top right
+  const start = { x: x - size / 2, y: y };
+  const mid = { x: x - size / 8, y: y - size / 3 };
+  const end = { x: x + size / 2, y: y + size / 2 };
+  page.drawLine({
+    start: start,
+    end: mid,
+    thickness: 2,
+    color: rgb(0, 0, 0),
+  });
+  page.drawLine({
+    start: mid,
+    end: end,
+    thickness: 2,
+    color: rgb(0, 0, 0),
+  });
+}
+
+
 async function fillCDSCForm(applicationData, outputPath) {
   try {
     // Read the template PDF
@@ -171,7 +205,121 @@ async function fillCDSCForm(applicationData, outputPath) {
     setField('SignatureDate', applicationData.signature_date);
 
 
+    // Get pages for drawing checkmarks (before flattening)
+    const pages = pdfDoc.getPages();
     form.flatten(); // Flatten the form so images on top of field spaces
+    const page1 = pages[0];
+    const page2 = pages.length > 1 ? pages[1] : page1;
+    const page3 = pages.length > 2 ? pages[2] : page1;
+
+    form.flatten(); // Flatten the form so images on top of field spaces
+
+    // DRAW CHECKMARKS FOR UNNAMED CHECKBOX FIELDS
+ 
+    console.log('Drawing checkmarks for checkboxes...');
+    
+    // Account Type checkboxes 
+    if (applicationData.account_type === 'individual') {
+      drawCheckmark(page1, 212, 697, 8); // Example: Individual checkbox
+    } else if (applicationData.account_type === 'joint') {
+      drawCheckmark(page1, 338, 697, 8); // Example: Joint checkbox
+    }
+    
+    // Primary Gender 
+    if (applicationData.primary_gender === 'male') {
+      drawCheckmark(page1, 114, 630, 8); // Example: Male
+    } else if (applicationData.primary_gender === 'female') {
+      drawCheckmark(page1, 174, 630, 8); // Example: Female
+    }
+    
+    // Investor Category 
+    if (applicationData.primary_investor_category === 'LI') {
+      drawCheckmark(page1, 258, 564, 8);
+    } else if (applicationData.primary_investor_category === 'FI') {
+      drawCheckmark(page1, 367, 564, 8);
+    } else if (applicationData.primary_investor_category === 'EI') {
+      drawCheckmark(page1, 488, 564, 8);
+    }
+    
+    // Primary ID Type 
+    const primaryIdTypeCoords = {
+      'national': { x: 203, y: 580 },
+      'ea': { x: 298, y: 580 },
+      'passport': { x: 393, y: 580 },
+      'alien': { x: 488, y: 580 }
+    };
+    if (primaryIdTypeCoords[applicationData.primary_id_type]) {
+      const coords = primaryIdTypeCoords[applicationData.primary_id_type];
+      drawCheckmark(page1, coords.x, coords.y, 8);
+    }
+    
+    // PEP Status 
+    if (applicationData.is_pep === 'Yes' || applicationData.is_pep === true) {
+      drawCheckmark(page2, 51, 307, 8); // Yes
+    } else {
+      drawCheckmark(page2, 116, 307, 8); // No
+    }
+    
+    // Payment Method 
+    const paymentCoords = {
+      'domestic': { x: 254 , y: 655 },
+      'international': { x: 403, y: 655 },
+      'mobile': { x: 578, y: 655 }
+    };
+    if (paymentCoords[applicationData.payment_method]) {
+      const coords = paymentCoords[applicationData.payment_method];
+      drawCheckmark(page2, coords.x, coords.y, 8);
+    }
+    
+    // Tax Exempt Status 
+    if (applicationData.is_tax_exempt === 'Yes' || applicationData.is_tax_exempt === true) {
+      drawCheckmark(page2, 123, 712, 8); // Yes
+    } else {
+      drawCheckmark(page2, 194, 712, 8); // No
+    }
+    
+    // Signing Mandate 
+    const mandateCoords = {
+      'single': { x: 63, y: 444 },
+      'either': { x: 226, y: 444 },
+      'joint': { x: 397, y: 444 },
+      'two': { x: 574, y: 444 }
+    };
+    if (mandateCoords[applicationData.signing_mandate]) {
+      const coords = mandateCoords[applicationData.signing_mandate];
+      drawCheckmark(page3, coords.x, coords.y, 8);
+    }
+    
+    // If joint account, add secondary client checkboxes
+    if (applicationData.account_type === 'joint') {
+      // Secondary Gender
+      if (applicationData.secondary_gender === 'male') {
+        drawCheckmark(page1, 114, 309, 8);
+      } else if (applicationData.secondary_gender === 'female') {
+        drawCheckmark(page1, 174, 309, 8);
+      }
+      
+      // Secondary Investor Category
+      if (applicationData.secondary_investor_category === 'LI') {
+        drawCheckmark(page1, 258, 243, 8);
+      } else if (applicationData.secondary_investor_category === 'FI') {
+        drawCheckmark(page1, 367, 243, 8);
+      } else if (applicationData.secondary_investor_category === 'EI') {
+        drawCheckmark(page1, 488, 243, 8);
+      }
+    }
+
+    // Secondary ID Type 
+    const secondaryIdTypeCoords = {
+      'national': { x: 203, y: 259 },
+      'ea': { x: 298, y: 259 },
+      'passport': { x: 393, y: 259 },
+      'alien': { x: 488, y: 259 }
+    };
+    if (secondaryIdTypeCoords[applicationData.secondary_id_type]) {
+      const coords = secondaryIdTypeCoords[applicationData.secondary_id_type];
+      drawCheckmark(page1, coords.x, coords.y, 8);
+    }
 
     // Embed signature image if available
     if (applicationData.signature_path) {
@@ -188,7 +336,7 @@ async function fillCDSCForm(applicationData, outputPath) {
         const signatureScale = 0.2;
         lastPage.drawImage(signatureImage, {
           x: 440,
-          y: 385,
+          y: 390,
           width: signatureImage.width * signatureScale,
           height: signatureImage.height * signatureScale,
         });
