@@ -255,11 +255,11 @@ function viewDetails(id) {
         <h3 class="section-title">Source of Funds</h3>
         <div class="detail-grid">
             <div class="detail-group full-width">
-                <div class="detail-label">Source</div>
+                <div class="detail-label">Primary Client</div>
                 <div class="detail-value">${capitalize(app.primary_fund_source)}</div>
             </div>
             
-            ${app.primary_fund_source === 'employment' && app.primary_employer_name ? `
+            ${app.primary_fund_source === 'Employment' && app.primary_employer_name ? `
             <div class="detail-group">
                 <div class="detail-label">Employer Name</div>
                 <div class="detail-value">${app.primary_employer_name}</div>
@@ -270,7 +270,7 @@ function viewDetails(id) {
                 <div class="detail-value">${app.primary_employer_phone}</div>
             </div>` : ''}` : ''}
             
-            ${app.primary_fund_source === 'business' && app.primary_business_name ? `
+            ${app.primary_fund_source === 'Business' && app.primary_business_name ? `
             <div class="detail-group">
                 <div class="detail-label">Business Name</div>
                 <div class="detail-value">${app.primary_business_name}</div>
@@ -304,6 +304,35 @@ function viewDetails(id) {
                 <div class="detail-label">ID Number</div>
                 <div class="detail-value">${app.secondary_id_number}</div>
             </div>
+        </div>
+        <h3 class="section-title">Source of Funds</h3>
+        <div class="detail-grid">
+            <div class="detail-group full-width">
+                <div class="detail-label">Primary Client</div>
+                <div class="detail-value">${capitalize(app.secondary_fund_source)}</div>
+            </div>
+            
+            ${app.secondary_fund_source === 'Employment' && app.secondary_employer_name ? `
+            <div class="detail-group">
+                <div class="detail-label">Employer Name</div>
+                <div class="detail-value">${app.secondary_employer_name}</div>
+            </div>
+            ${app.secondary_employer_phone ? `
+            <div class="detail-group">
+                <div class="detail-label">Employer Phone</div>
+                <div class="detail-value">${app.secondary_employer_phone}</div>
+            </div>` : ''}` : ''}
+            
+            ${app.secondary_fund_source === 'Business' && app.secondary_business_name ? `
+            <div class="detail-group">
+                <div class="detail-label">Business Name</div>
+                <div class="detail-value">${app.secondary_business_name}</div>
+            </div>
+            ${app.secondary_business_reg_number ? `
+            <div class="detail-group">
+                <div class="detail-label">Registration Number</div>
+                <div class="detail-value">${app.secondary_business_reg_number}</div>
+            </div>` : ''}` : ''}
         </div>` : ''}
 
         <h3 class="section-title">Payment Details</h3>
