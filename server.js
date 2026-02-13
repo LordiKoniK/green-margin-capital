@@ -137,6 +137,7 @@ app.post('/api/cdsc/submit', upload.fields([
   { name: 'primaryPassportPhoto', maxCount: 1 },
   { name: 'secondaryPassportPhoto', maxCount: 1 },
   { name: 'signatureImage', maxCount: 1 },
+  { name: 'secondarySignatureImage', maxCount: 1 },
   { name: 'taxCertificate', maxCount: 1 }
 ]), async (req, res) => {
   try {
@@ -151,6 +152,9 @@ app.post('/api/cdsc/submit', upload.fields([
     }
     if (req.files['signatureImage']) {
       data.signature_path = req.files['signatureImage'][0].path;
+    }
+    if (req.files['secondarySignatureImage']) {
+      data.secondary_signature_path = req.files['secondarySignatureImage'][0].path;
     }
     if (req.files['taxCertificate']) {
       data.tax_cert_path = req.files['taxCertificate'][0].path;

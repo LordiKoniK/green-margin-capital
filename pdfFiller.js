@@ -121,12 +121,12 @@ async function fillCDSCForm(applicationData, outputPath) {
 
     // Fill Primary Employment/Business
     setField('Source of Investment Funds', applicationData.primary_fund_source);
-    if (applicationData.primary_fund_source === 'employment') {
+    if (applicationData.primary_fund_source === 'Employment') {
       setField('Name of Employer', applicationData.primary_employer_name);
       setField('Employer Postal Address', applicationData.primary_employer_postal);
       setField('Employer Telephone Number', applicationData.primary_employer_phone);
       setField('Employer Email Address', applicationData.primary_employer_email);
-    } else if (applicationData.primary_fund_source === 'business') {
+    } else if (applicationData.primary_fund_source === 'Business') {
       setField('If business provide name of business', applicationData.primary_business_name);
       setField('RegistrationIncorporation Certificate Number', applicationData.primary_business_reg_number);
       setField('Postal Address_2', applicationData.primary_business_postal);
@@ -148,6 +148,7 @@ async function fillCDSCForm(applicationData, outputPath) {
       setField('NationalityCitizenship_2', applicationData.secondary_nationality);
       setField('Country of Residence_2', applicationData.secondary_country_residence);
       setField('KRA PIN_2', applicationData.secondary_kra_pin);
+      setField('Name_2', applicationData.secondary_signer_names);
 
       // Secondary Contact
       setField('Country Code_2', applicationData.secondary_country_code);
@@ -158,12 +159,12 @@ async function fillCDSCForm(applicationData, outputPath) {
       setField('Postal Address_3', applicationData.secondary_postal_address);
 
       // Secondary Employment/Business
-      if (applicationData.secondary_fund_source === 'employment') {
+      if (applicationData.secondary_fund_source === 'Employment') {
         setField('Name of Employer_2', applicationData.secondary_employer_name);
         setField('Employer Postal Address_2', applicationData.secondary_employer_postal);
         setField('Employer Telephone Number_2', applicationData.secondary_employer_phone);
         setField('Employer Email Address_2', applicationData.secondary_employer_email);
-      } else if (applicationData.secondary_fund_source === 'business') {
+      } else if (applicationData.secondary_fund_source === 'Business') {
         setField('If business provide name of business_2', applicationData.secondary_business_name);
         setField('RegistrationIncorporation Certificate Number_2', applicationData.secondary_business_reg_number);
         setField('Postal Address_4', applicationData.secondary_business_postal);
@@ -272,7 +273,7 @@ async function fillCDSCForm(applicationData, outputPath) {
     }
 
     const currencyCoords = {
-      'EURO': { x: 218, y: 563 },
+      'EUR': { x: 218, y: 563 },
       'USD': { x: 275, y: 563 },
       'GBP': { x: 335, y: 563 },
       'KES': { x: 394, y: 563 },
@@ -280,9 +281,16 @@ async function fillCDSCForm(applicationData, outputPath) {
       'TZSH': { x: 514, y: 563 },
       'RFRANC': { x: 578, y: 563 }
     };
-    if (currencyCoords[applicationData.currency]) {
-      const coords = currencyCoords[applicationData.currency];
-      drawCheckmark(page2, coords.x, coords.y, 8);
+
+    if (applicationData.currency) {
+      // Support multiple currencies separated by comma or comma+space
+      const selectedCurrencies = applicationData.currency.split(',').map(c => c.trim().toUpperCase());
+      selectedCurrencies.forEach(curr => {
+        if (currencyCoords[curr]) {
+          const coords = currencyCoords[curr];
+          drawCheckmark(page2, coords.x, coords.y, 8);
+        }
+      });
     }
     
     // Tax Exempt Status 
@@ -359,6 +367,29 @@ async function fillCDSCForm(applicationData, outputPath) {
       }
     }
 
+    if (applicationData.secondary_signature_path) {
+      try {
+        const secondarySignaturePath = path.join(__dirname, applicationData.secondary_signature_path);
+        const secondarySignatureImageBytes = await fs.readFile(secondarySignaturePath);
+        const secondarySignatureImage = await pdfDoc.embedPng(secondarySignatureImageBytes);
+        
+        // Get the first page to add signature
+        const pages = pdfDoc.getPages();
+        const lastPage = pages[pages.length - 2];
+        
+        // Add signature image (adjust coordinates as needed)
+        const secondarySignatureScale = 0.2;
+        lastPage.drawImage(secondarySignatureImage, {
+          x: 440,
+          y: 350,
+          width: secondarySignatureImage.width * secondarySignatureScale,
+          height: secondarySignatureImage.height * secondarySignatureScale,
+        });
+      } catch (error) {
+        console.error('Error embedding secondary signature:', error);
+      }
+    }
+
     // Embed passport photos if available
     if (applicationData.primary_passport_photo_path) {
       try {
@@ -405,6 +436,54 @@ async function fillCDSCForm(applicationData, outputPath) {
         });
       } catch (error) {
         console.error('Error embedding primary passport photo:', error);
+      }
+    }
+
+    if (applicationData.secondary_passport_photo_path) {
+      try {
+        const photoPath = path.join(__dirname, applicationData.secondary_passport_photo_path);
+        const photoBytes = await fs.readFile(photoPath);
+        
+        // Determine image type
+        let photoImage;
+        if (photoPath.toLowerCase().endsWith('.png')) {
+          photoImage = await pdfDoc.embedPng(photoBytes);
+        } else {
+          photoImage = await pdfDoc.embedJpg(photoBytes);
+        }
+        
+        const pages = pdfDoc.getPages();
+        const firstPage = pages[0];
+        
+        // Add passport photo (adjust coordinates for the form)
+        // Define bounding box for the image
+        const boxLeft = 500;
+        const boxBottom = 196;
+        const boxRight = 586;
+        const boxTop = 311;
+        const maxWidth = boxRight - boxLeft; // 87
+        const maxHeight = boxTop - boxBottom; // 116
+
+        // Calculate scale to fit image within bounding box
+        const widthScale = maxWidth / photoImage.width;
+        const heightScale = maxHeight / photoImage.height;
+        const scale = Math.min(widthScale, heightScale, 1); // Never upscale
+
+        const photoWidth = photoImage.width * scale;
+        const photoHeight = photoImage.height * scale;
+
+        // Center the image in the box
+        const centerX = boxLeft + maxWidth / 2;
+        const centerY = boxBottom + maxHeight / 2;
+
+        firstPage.drawImage(photoImage, {
+          x: centerX - photoWidth / 2,
+          y: centerY - photoHeight / 2,
+          width: photoWidth,
+          height: photoHeight,
+        });
+      } catch (error) {
+        console.error('Error embedding secondary passport photo:', error);
       }
     }
 

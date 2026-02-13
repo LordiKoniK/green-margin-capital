@@ -7,6 +7,7 @@ function openModal() {
     document.body.style.overflow = 'hidden';
     // Initialize signature canvas after modal is fully rendered
     setTimeout(initSignatureCanvas, 300);
+    setTimeout(initSignatureCanvas2, 300);
 }
 
 function closeModal() {
@@ -51,6 +52,7 @@ function updateProgress() {
     // Initialize canvas when reaching step 5
     if (currentStep === 5) {
         setTimeout(initSignatureCanvas, 100);
+        setTimeout(initSignatureCanvas2, 100);
     }
 
     // Update buttons
@@ -135,9 +137,12 @@ async function submitApplication() {
         alert('Please fill all required fields before submitting.\n\nMissing: ' + fieldNames.join(', '));
         return;
     }
+    
 
+    // Check if signatures are empty
     const canvas = document.getElementById('signatureCanvas');
-    // Check if signature is empty
+    const canvas2 = document.getElementById('signatureCanvas2');
+
     const context = canvas.getContext('2d');
     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
@@ -151,6 +156,24 @@ async function submitApplication() {
     if (isEmpty) {
         alert('Please provide your signature before submitting.');
         return;
+    }
+
+    // If joint account signature 
+    if (accountType === 'joint' && canvas2) {
+        const context2 = canvas2.getContext('2d');
+        const imageData2 = context2.getImageData(0, 0, canvas2.width, canvas2.height);
+        const data2 = imageData2.data;
+        let isEmpty2 = true;
+        for (let i = 0; i < data2.length; i += 4) {
+            if (data2[i + 3] !== 0) {
+                isEmpty2 = false;
+                break;
+            }
+        }
+        if (isEmpty2) {
+            alert('Please provide the secondary signature before submitting.');
+            return;
+        }
     }
 
     // Show loading indicator
@@ -232,10 +255,37 @@ async function submitApplication() {
         // Ensure all secondary fields are present, even if not joint
         if (applicationData.account_type === 'joint') {
             const jointInputs = document.querySelectorAll('.jointAccountSection input, .jointAccountSection select');
-            // TODO: Map these fields from the form for joint accounts
-            applicationData.secondary_surname = '';
-            applicationData.secondary_other_names = '';
-            // ... add all secondary fields from the form as needed
+
+            // Map joint account fields to for secondary applicant
+            applicationData.secondary_surname = document.getElementById('secondarySurname')?.value;
+            applicationData.secondary_other_names = document.getElementById('secondaryOtherNames')?.value;
+            applicationData.secondary_dob = document.getElementById('secondaryDob')?.value;
+            applicationData.secondary_gender = document.querySelector('.form-step[data-step="2"] input[name="secondaryGender"]:checked')?.value;
+            applicationData.secondary_investor_category = document.getElementById('secondaryInvestorCategory')?.value;
+            applicationData.secondary_id_type = document.getElementById('secondaryIdType')?.value;
+            applicationData.secondary_id_number = document.getElementById('secondaryIdNumber')?.value;
+            applicationData.secondary_passport_expiry = document.getElementById('secondaryPassportExpiry')?.value;
+            applicationData.secondary_nationality = document.getElementById('secondaryNationality')?.value;
+            applicationData.secondary_country_residence = document.getElementById('secondaryCountryResidence')?.value;
+            applicationData.secondary_kra_pin = document.getElementById('secondaryKraPin')?.value;
+            applicationData.secondary_country_code = document.getElementById('secondaryCountryCode')?.value;
+            applicationData.secondary_phone = document.getElementById('secondaryPhone')?.value;
+            applicationData.secondary_email = document.getElementById('secondaryEmail')?.value;
+            applicationData.secondary_physical_location = document.getElementById('secondaryPhysicalLocation')?.value;
+            applicationData.secondary_postal_code = document.getElementById('secondaryPostalCode')?.value;
+            applicationData.secondary_postal_address = document.getElementById('secondaryPostalAddress')?.value;
+            applicationData.secondary_fund_source = document.getElementById('fundSource2')?.value;
+            applicationData.secondary_employer_name = document.getElementById('employerName2')?.value;
+            applicationData.secondary_employer_postal = document.getElementById('employerPostal2')?.value;
+            applicationData.secondary_employer_phone = document.getElementById('employerPhone2')?.value;
+            applicationData.secondary_employer_email = document.getElementById('employerEmail2')?.value;
+            applicationData.secondary_business_name = document.getElementById('businessName2')?.value;
+            applicationData.secondary_business_reg_number = document.getElementById('businessRegNumber2')?.value;
+            applicationData.secondary_business_postal = document.getElementById('businessPostal2')?.value;
+            applicationData.secondary_business_phone = document.getElementById('businessPhone2')?.value;
+            applicationData.secondary_business_email = document.getElementById('businessEmail2')?.value;
+            applicationData.secondary_business_office = document.getElementById('businessOffice2')?.value;
+            applicationData.secondary_signer_names = document.getElementById('signName2')?.value || '';
         } else {
             applicationData.secondary_surname = '';
             applicationData.secondary_other_names = '';
@@ -266,6 +316,8 @@ async function submitApplication() {
             applicationData.secondary_business_phone = '';
             applicationData.secondary_business_email = '';
             applicationData.secondary_business_office = '';
+            applicationData.secondary_signer_names = '';
+            applicationData.secondary_signature_path = '';
         }
 
         // Set empty strings for any missing optional fields 
@@ -279,7 +331,21 @@ async function submitApplication() {
         // Convert signature to blob and add to form data
         canvas.toBlob(function(blob) {
             formData.append('signatureImage', blob, 'signature.png');
+
+            // If joint account, add secondary signature
+            if (accountType === 'joint' && canvas2) {
+                canvas2.toBlob(function(blob2) {
+                    formData.append('secondarySignatureImage', blob2, 'signature2.png');
+                    // Continue with file uploads and submission
+                    appendAndSubmitFiles();
+                }, 'image/png');
+            } else {
+                // Only primary signature needed
+                appendAndSubmitFiles();
+            }
+            }, 'image/png');
             
+            function appendAndSubmitFiles() {
             // Add passport photos if uploaded
             const primaryPhoto = document.getElementById('passportPhotoInput').files[0];
             if (primaryPhoto) {
@@ -312,6 +378,7 @@ async function submitApplication() {
                     currentStep = 1;
                     updateProgress();
                     clearSignature();
+                    clearSignature2();
                     document.querySelectorAll('input, select, textarea').forEach(field => {
                         if (field.type !== 'radio' && field.type !== 'checkbox') {
                             field.value = '';
@@ -332,7 +399,7 @@ async function submitApplication() {
                 submitBtn.textContent = originalText;
             });
 
-        }, 'image/png');
+        }
 
     } catch (error) {
         console.error('Error preparing application:', error);
@@ -471,9 +538,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Clear signature button
 document.addEventListener('DOMContentLoaded', function() {
-    const clearSignatureBtn = document.querySelector('.btn-clear-signature');
+    const clearSignatureBtn = document.getElementById('clearSignature');
     if (clearSignatureBtn) {
         clearSignatureBtn.addEventListener('click', clearSignature);
+    }
+});
+    
+// Clear secondary signature 
+document.addEventListener('DOMContentLoaded', function() {
+    const clearSignatureBtn2 = document.getElementById('clearSignature2');
+    if (clearSignatureBtn2) {
+        clearSignatureBtn2.addEventListener('click', clearSignature2);
     }
 });
 
@@ -948,6 +1023,8 @@ let isDrawing = false;
 let lastX = 0;
 let lastY = 0;
 
+// Primary Client Signature
+
 function initSignatureCanvas() {
     const canvas = document.getElementById('signatureCanvas');
     if (!canvas) return;
@@ -1057,3 +1134,111 @@ function clearSignature() {
 
 
 
+// Secondary Client Signature
+
+function initSignatureCanvas2() {
+    const canvas = document.getElementById('signatureCanvas2');
+    if (!canvas) return;
+    
+    // Set explicit dimensions
+    canvas.width = 800;
+    canvas.height = 200;
+    
+    const ctx = canvas.getContext('2d');
+    
+    // Set drawing style
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    
+    // Remove old event listeners if any
+    const newCanvas = canvas.cloneNode(true);
+    canvas.parentNode.replaceChild(newCanvas, canvas);
+    
+    // Get the new canvas reference
+    const freshCanvas = document.getElementById('signatureCanvas2');
+    freshCanvas.width = 800;
+    freshCanvas.height = 200;
+    
+    // Mouse events
+    freshCanvas.addEventListener('mousedown', startDrawing2);
+    freshCanvas.addEventListener('mousemove', draw2);
+    freshCanvas.addEventListener('mouseup', stopDrawing2);
+    freshCanvas.addEventListener('mouseout', stopDrawing2);
+    
+    // Touch events for mobile
+    freshCanvas.addEventListener('touchstart', handleTouchStart2, { passive: false });
+    freshCanvas.addEventListener('touchmove', handleTouchMove2, { passive: false });
+    freshCanvas.addEventListener('touchend', stopDrawing2);
+}
+
+function getCanvasCoordinates2(canvas, clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+    };
+}
+
+function startDrawing2(e) {
+    isDrawing = true;
+    const canvas = document.getElementById('signatureCanvas2');
+    const coords = getCanvasCoordinates2(canvas, e.clientX, e.clientY);
+    lastX = coords.x;
+    lastY = coords.y;
+}
+
+function draw2(e) {
+    if (!isDrawing) return;
+    
+    const canvas = document.getElementById('signatureCanvas2');
+    const ctx = canvas.getContext('2d');
+    const coords = getCanvasCoordinates(canvas, e.clientX, e.clientY);
+    
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(coords.x, coords.y);
+    ctx.stroke();
+    
+    lastX = coords.x;
+    lastY = coords.y;
+}
+
+function stopDrawing2() {
+    isDrawing = false;
+}
+
+function handleTouchStart2(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const canvas = document.getElementById('signatureCanvas2');
+    const coords = getCanvasCoordinates(canvas, touch.clientX, touch.clientY);
+    isDrawing = true;
+    lastX = coords.x;
+    lastY = coords.y;
+}
+
+function handleTouchMove2(e) {
+    e.preventDefault();
+    if (!isDrawing) return;
+    
+    const touch = e.touches[0];
+    const canvas = document.getElementById('signatureCanvas2');
+    const ctx = canvas.getContext('2d');
+    const coords = getCanvasCoordinates(canvas, touch.clientX, touch.clientY);
+    
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(coords.x, coords.y);
+    ctx.stroke();
+    
+    lastX = coords.x;
+    lastY = coords.y;
+}
+
+function clearSignature2() {
+    const canvas = document.getElementById('signatureCanvas2');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}

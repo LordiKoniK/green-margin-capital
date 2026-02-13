@@ -109,6 +109,8 @@ function initializeDatabase() {
       signing_mandate TEXT NOT NULL,
       signer_names TEXT NOT NULL,
       signature_path TEXT NOT NULL,
+      secondary_signer_names TEXT,
+      secondary_signature_path TEXT,
       signature_date DATE NOT NULL,
       
       -- Status tracking
@@ -122,22 +124,6 @@ function initializeDatabase() {
 
 // Initialize the database
 initializeDatabase();
-
-db.exec(`
-  UPDATE applications
-  SET primary_fund_source = 
-    CASE 
-      WHEN primary_fund_source = 'employment' THEN 'Employment'
-      WHEN primary_fund_source = 'business' THEN 'Business'
-      ELSE primary_fund_source
-    END,
-    secondary_fund_source = 
-    CASE 
-      WHEN secondary_fund_source = 'employment' THEN 'Employment'
-      WHEN secondary_fund_source = 'business' THEN 'Business'
-      ELSE secondary_fund_source
-    END
-`);
 
 // Helper function to insert application
 function insertApplication(data) {
@@ -168,7 +154,7 @@ function insertApplication(data) {
       payment_method, bank_name, account_number, account_name,
       branch_code, swift_code, currency, other_currency, mobile_money_phone,
       is_tax_exempt, tax_cert_path,
-      signing_mandate, signer_names, signature_path, signature_date
+      signing_mandate, signer_names, signature_path, secondary_signer_names, secondary_signature_path, signature_date
     ) VALUES (
       @account_type, @cda_code, @cds_account_number,
       @primary_surname, @primary_other_names, @primary_dob, @primary_gender,
@@ -195,7 +181,7 @@ function insertApplication(data) {
       @payment_method, @bank_name, @account_number, @account_name,
       @branch_code, @swift_code, @currency, @other_currency, @mobile_money_phone,
       @is_tax_exempt, @tax_cert_path,
-      @signing_mandate, @signer_names, @signature_path, @signature_date
+      @signing_mandate, @signer_names, @signature_path, @secondary_signer_names, @secondary_signature_path, @signature_date
     )
   `);
 

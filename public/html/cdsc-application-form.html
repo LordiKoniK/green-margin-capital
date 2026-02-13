@@ -520,28 +520,28 @@
                         <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label required">Surname</label>
-                            <input type="text" class="form-input" required>
+                            <input type="text" class="form-input" id="secondarySurname" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Other Names</label>
-                            <input type="text" class="form-input" required>
+                            <input type="text" class="form-input" id="secondaryOtherNames" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Date of Birth</label>
-                            <input type="date" class="form-input" required>
+                            <input type="date" class="form-input" id="secondaryDob" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Gender</label>
                             <div class="form-radio-group">
                                 <label class="radio-option">
-                                    <input type="radio" name="gender" value="male">
+                                    <input type="radio" name="secondaryGender" value="male">
                                     <span>Male</span>
                                 </label>
                                 <label class="radio-option">
-                                    <input type="radio" name="gender" value="female">
+                                    <input type="radio" name="secondaryGender" value="female">
                                     <span>Female</span>
                                 </label>
                             </div>
@@ -549,7 +549,7 @@
 
                         <div class="form-group">
                             <label class="form-label required">Investor Category</label>
-                            <select class="form-select" required>
+                            <select class="form-select" id="secondaryInvestorCategory" required>
                                 <option value="">Select category</option>
                                 <option value="LI">Local Investor (LI)</option>
                                 <option value="FI">Foreign Investor (FI)</option>
@@ -559,7 +559,7 @@
 
                         <div class="form-group">
                             <label class="form-label required">ID Type</label>
-                            <select class="form-select" required>
+                            <select class="form-select" id="secondaryIdType" required>
                                 <option value="">Select ID type</option>
                                 <option value="national">National ID</option>
                                 <option value="ea">East African ID</option>
@@ -570,27 +570,27 @@
 
                         <div class="form-group">
                             <label class="form-label required">ID/Passport Number</label>
-                            <input type="text" class="form-input" required>
+                            <input type="text" class="form-input" id="secondaryIdNumber" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Passport Expiry Date</label>
-                            <input type="date" class="form-input" required>
+                            <input type="date" class="form-input" id="secondaryPassportExpiry" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Nationality/Citizenship</label>
-                            <input type="text" class="form-input" required>
+                            <input type="text" class="form-input" id="secondaryNationality" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Country of Residence</label>
-                            <input type="text" class="form-input" required>
+                            <input type="text" class="form-input" id="secondaryCountryResidence" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">KRA PIN</label>
-                            <input type="text" class="form-input" required>
+                            <input type="text" class="form-input" id="secondaryKraPin" required>
                         </div>
 
                         <div class="form-group full-width">
@@ -726,32 +726,32 @@
                         <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label required">Country Code</label>
-                            <input type="text" class="form-input" placeholder="e.g. +254" required>
+                            <input type="text" class="form-input" id="secondaryCountryCode" placeholder="e.g. +254" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Telephone Number</label>
-                            <input type="tel" class="form-input" placeholder="e.g. 0712345678" required>
+                            <input type="tel" class="form-input" id="secondaryPhone" placeholder="e.g. 0712345678" required>
                         </div>
 
                         <div class="form-group full-width">
                             <label class="form-label required">Email Address</label>
-                            <input type="email" class="form-input" required>
+                            <input type="email" class="form-input" id="secondaryEmail" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Physical Location (Town/City)</label>
-                            <input type="text" class="form-input" required>
+                            <input type="text" class="form-input" id="secondaryPhysicalLocation" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Postal Code</label>
-                            <input type="text" class="form-input">
+                            <input type="text" class="form-input" id="secondaryPostalCode">
                         </div>
 
                         <div class="form-group full-width">
                             <label class="form-label">Postal Address</label>
-                            <input type="text" class="form-input" placeholder="P.O. Box or Building Address">
+                            <input type="text" class="form-input" id="secondaryPostalAddress" placeholder="P.O. Box or Building Address">
                         </div>
 
                         <div class="form-group full-width">
@@ -767,22 +767,22 @@
                         <div id="employmentFields2" style="display: none;">
                             <div class="form-group">
                                 <label class="form-label required">Name of Employer</label>
-                                <input type="text" class="form-input" id="employerName">
+                                <input type="text" class="form-input" id="employerName2">
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Employer Postal Address</label>
-                                <input type="text" class="form-input" id="employerPostal">
+                                <input type="text" class="form-input" id="employerPostal2">
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Employer Telephone</label>
-                                <input type="tel" class="form-input" id="employerPhone">
+                                <input type="tel" class="form-input" id="employerPhone2">
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Employer Email</label>
-                                <input type="email" class="form-input" id="employerEmail">
+                                <input type="email" class="form-input" id="employerEmail2">
                             </div>
                         </div>
 
@@ -790,32 +790,32 @@
                         <div id="businessFields2" style="display: none;">
                             <div class="form-group">
                                 <label class="form-label required">Name of Business</label>
-                                <input type="text" class="form-input" id="businessName">
+                                <input type="text" class="form-input" id="businessName2">
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label required">Registration/Incorporation Certificate Number</label>
-                                <input type="text" class="form-input" id="businessRegNumber">
+                                <input type="text" class="form-input" id="businessRegNumber2">
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Business Postal Address</label>
-                                <input type="text" class="form-input" id="businessPostal">
+                                <input type="text" class="form-input" id="businessPostal2">
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Business Telephone</label>
-                                <input type="tel" class="form-input" id="businessPhone">
+                                <input type="tel" class="form-input" id="businessPhone2">
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Business Email</label>
-                                <input type="email" class="form-input" id="businessEmail">
+                                <input type="email" class="form-input" id="businessEmail2">
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Registered Office</label>
-                                <input type="text" class="form-input" id="businessOffice">
+                                <input type="text" class="form-input" id="businessOffice2">
                             </div>
                         </div>
                     </div>
@@ -1053,6 +1053,7 @@
                             </select>
                         </div>
                         
+                        <h3 class="form-section-title">Primary Signatory</h3>
                         <div class="form-group">
                             <label class="form-label required">Full Name(s)</label>
                             <input type="text" class="form-input" id="signName1" placeholder="e.g. &quot;Person1 & Person2&quot; (if multiple)" required>
@@ -1062,7 +1063,22 @@
                             <label class="form-label required">Signature(s)</label>
                             <div class="signature-area" style="padding: 0; position: relative;">
                                 <canvas id="signatureCanvas" style="border: 2px solid var(--border-color); border-radius: 8px; cursor: crosshair; display: block; width: 100%; height: 200px;"></canvas>
-                                <button type="button" class="btn-clear-signature">Clear</button>
+                                <button type="button" class="btn-clear-signature" id="clearSignature">Clear</button>
+                            </div>
+                        </div>
+
+                        <div class="jointAccountSection" id="secondarySignatureSection">
+                            <h3 class="form-section-title">Secondary Signatory</h3>
+                            <div class="form-group">
+                                <label class="form-label required">Full Name(s) (Secondary)</label>
+                                <input type="text" class="form-input" id="signName2" placeholder="e.g. 'Person2'" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">Signature (Secondary)</label>
+                                <div class="signature-area" style="padding: 0; position: relative;">
+                                    <canvas id="signatureCanvas2" style="border: 2px solid var(--border-color); border-radius: 8px; cursor: crosshair; display: block; width: 100%; height: 200px;"></canvas>
+                                    <button type="button" class="btn-clear-signature" id="clearSignature2">Clear</button>
+                                </div>
                             </div>
                         </div>
 
