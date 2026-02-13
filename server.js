@@ -249,14 +249,25 @@ app.get('/api/cdsc/applications/:id/pdf', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Application not found' });
     }
 
+    // Check tax exemption status unless forceDownload is set
+    const forceDownload = req.query.forceDownload === '1' || req.query.forceDownload === 'true';
+    if (!forceDownload && (application.is_tax_exempt === 'Yes' || application.is_tax_exempt === true)) {
+      return res.json({
+        success: true,
+        taxExempt: true,
+        message: 'Download tax exemption certificate?',
+        taxCertPath: application.tax_cert_path,
+        pdfAvailable: true
+      });
+    }
+
     const pdfPath = path.join(__dirname, 'generated-pdfs', `application-${req.params.id}.pdf`);
-    
+
     // Try to fill the original PDF first, fallback to custom generation
     try {
       await fillCDSCForm(application, pdfPath);
     } catch (fillError) {
-      console.log('Could not fill original PDF, generating custom PDF instead');
-      await generateCDSCFormPDF(application, pdfPath);
+      console.log('Error filling PDF:', fillError.message);
     }
 
     // Send the PDF file
@@ -274,6 +285,26 @@ app.get('/api/cdsc/applications/:id/pdf', async (req, res) => {
       message: 'Error generating PDF',
       error: error.message 
     });
+  }
+});
+
+// Download tax exemption certificate file
+app.get('/api/cdsc/applications/:id/tax-certificate', (req, res) => {
+  try {
+    const application = db.getApplication(req.params.id);
+    if (!application || !application.tax_cert_path) {
+      return res.status(404).json({ success: false, message: 'Tax certificate not found' });
+    }
+    const certPath = path.join(__dirname, application.tax_cert_path);
+    res.download(certPath, `Tax_Exemption_Certificate_${req.params.id}${path.extname(certPath)}`, (err) => {
+      if (err) {
+        console.error('Error sending tax certificate:', err);
+        res.status(500).json({ success: false, message: 'Error sending tax certificate' });
+      }
+    });
+  } catch (error) {
+    console.error('Error downloading tax certificate:', error);
+    res.status(500).json({ success: false, message: 'Error downloading tax certificate', error: error.message });
   }
 });
 

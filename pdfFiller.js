@@ -377,12 +377,31 @@ async function fillCDSCForm(applicationData, outputPath) {
         const firstPage = pages[0];
         
         // Add passport photo (adjust coordinates for the form)
-        const photoScale = 0.15;
+        // Define bounding box for the image
+        const boxLeft = 500;
+        const boxBottom = 517;
+        const boxRight = 586;
+        const boxTop = 633;
+        const maxWidth = boxRight - boxLeft; // 87
+        const maxHeight = boxTop - boxBottom; // 116
+
+        // Calculate scale to fit image within bounding box
+        const widthScale = maxWidth / photoImage.width;
+        const heightScale = maxHeight / photoImage.height;
+        const scale = Math.min(widthScale, heightScale, 1); // Never upscale
+
+        const photoWidth = photoImage.width * scale;
+        const photoHeight = photoImage.height * scale;
+
+        // Center the image in the box
+        const centerX = boxLeft + maxWidth / 2;
+        const centerY = boxBottom + maxHeight / 2;
+
         firstPage.drawImage(photoImage, {
-          x: 499, // Adjust based on form layout
-          y: 510,
-          width: photoImage.width * photoScale,
-          height: photoImage.height * photoScale,
+          x: centerX - photoWidth / 2,
+          y: centerY - photoHeight / 2,
+          width: photoWidth,
+          height: photoHeight,
         });
       } catch (error) {
         console.error('Error embedding primary passport photo:', error);
@@ -402,151 +421,6 @@ async function fillCDSCForm(applicationData, outputPath) {
   }
 }
 
-
-
-
-/* -----------------------------------------
-
- BACKUP IN CASE TEMPLATE AUTOFILL DOESNT WORK
-
-  ---------------------------------------- */
-
-
-
-
-
-async function generateCDSCFormPDF(applicationData, outputPath) {
-  try {
-    const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([595.28, 841.89]); // A4 size
-    const { width, height } = page.getSize();
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-    const fontSize = 10;
-    const lineHeight = 15;
-
-    let yPosition = height - 50;
-
-    // Helper to add text
-    const addText = (text, x = 50, bold = false) => {
-      page.drawText(text, {
-        x,
-        y: yPosition,
-        size: fontSize,
-        font: bold ? boldFont : font,
-        color: rgb(0, 0, 0),
-      });
-      yPosition -= lineHeight;
-    };
-
-    // Title
-    addText('CDSC ACCOUNT OPENING FORM', 50, true);
-    addText(`Application ID: ${applicationData.id}`, 50, true);
-    addText(`Submission Date: ${new Date(applicationData.submission_date).toLocaleDateString()}`, 50);
-    yPosition -= 10;
-
-    // Account Type
-    addText('ACCOUNT TYPE', 50, true);
-    addText(`Type: ${applicationData.account_type.toUpperCase()}`);
-    if (applicationData.cda_code) addText(`CDA Code: ${applicationData.cda_code}`);
-    if (applicationData.cds_account_number) addText(`CDS Account: ${applicationData.cds_account_number}`);
-    yPosition -= 10;
-
-    // Primary Client Details
-    addText('PRIMARY CLIENT DETAILS', 50, true);
-    addText(`Name: ${applicationData.primary_surname}, ${applicationData.primary_other_names}`);
-    addText(`Date of Birth: ${applicationData.primary_dob}`);
-    addText(`Gender: ${applicationData.primary_gender}`);
-    addText(`Investor Category: ${applicationData.primary_investor_category}`);
-    addText(`ID Type: ${applicationData.primary_id_type} | Number: ${applicationData.primary_id_number}`);
-    addText(`Nationality: ${applicationData.primary_nationality} | Residence: ${applicationData.primary_country_residence}`);
-    addText(`KRA PIN: ${applicationData.primary_kra_pin}`);
-    yPosition -= 10;
-
-    // Contact Information
-    addText('CONTACT INFORMATION', 50, true);
-    addText(`Phone: ${applicationData.primary_country_code} ${applicationData.primary_phone}`);
-    addText(`Email: ${applicationData.primary_email}`);
-    addText(`Location: ${applicationData.primary_physical_location}`);
-    if (applicationData.primary_postal_address) {
-      addText(`Postal: ${applicationData.primary_postal_address}${applicationData.primary_postal_code ? ' - ' + applicationData.primary_postal_code : ''}`);
-    }
-    yPosition -= 10;
-
-    // Employment/Business
-    addText('SOURCE OF FUNDS', 50, true);
-    addText(`Source: ${applicationData.primary_fund_source.toUpperCase()}`);
-    if (applicationData.primary_fund_source === 'employment') {
-      if (applicationData.primary_employer_name) addText(`Employer: ${applicationData.primary_employer_name}`);
-      if (applicationData.primary_employer_phone) addText(`Employer Phone: ${applicationData.primary_employer_phone}`);
-    } else {
-      if (applicationData.primary_business_name) addText(`Business: ${applicationData.primary_business_name}`);
-      if (applicationData.primary_business_reg_number) addText(`Reg Number: ${applicationData.primary_business_reg_number}`);
-    }
-    yPosition -= 10;
-
-    // Joint account details
-    if (applicationData.account_type === 'joint' && applicationData.secondary_surname) {
-      // Add new page if needed
-      if (yPosition < 150) {
-        const newPage = pdfDoc.addPage([595.28, 841.89]);
-        yPosition = height - 50;
-      }
-
-      addText('SECONDARY CLIENT DETAILS', 50, true);
-      addText(`Name: ${applicationData.secondary_surname}, ${applicationData.secondary_other_names}`);
-      addText(`Date of Birth: ${applicationData.secondary_dob}`);
-      addText(`Phone: ${applicationData.secondary_country_code} ${applicationData.secondary_phone}`);
-      addText(`Email: ${applicationData.secondary_email}`);
-      yPosition -= 10;
-    }
-
-    // Payment Details
-    addText('PAYMENT DETAILS', 50, true);
-    addText(`Method: ${applicationData.payment_method.toUpperCase()}`);
-    if (applicationData.payment_method !== 'mobile') {
-      addText(`Bank: ${applicationData.bank_name}`);
-      addText(`Account: ${applicationData.account_number} | ${applicationData.account_name}`);
-      if (applicationData.branch_code) addText(`Branch Code: ${applicationData.branch_code}`);
-      if (applicationData.swift_code) addText(`SWIFT: ${applicationData.swift_code}`);
-    } else {
-      addText(`Mobile Money: ${applicationData.mobile_money_phone}`);
-    }
-    yPosition -= 10;
-
-    // PEP Status
-    addText('PEP STATUS', 50, true);
-    addText(`Is PEP: ${applicationData.is_pep ? 'YES' : 'NO'}`);
-    if (applicationData.is_pep && applicationData.pep_details) {
-      addText(`Details: ${applicationData.pep_details}`);
-    }
-    yPosition -= 10;
-
-    // Tax Status
-    addText('TAX STATUS', 50, true);
-    addText(`Tax Exempt: ${applicationData.is_tax_exempt ? 'YES' : 'NO'}`);
-    yPosition -= 10;
-
-    // Declaration
-    addText('DECLARATION', 50, true);
-    addText(`Signing Mandate: ${applicationData.signing_mandate}`);
-    addText(`Signatories: ${applicationData.signer_names}`);
-    addText(`Date: ${applicationData.signature_date}`);
-
-    // Save the PDF
-    const pdfBytes = await pdfDoc.save();
-    await fs.writeFile(outputPath, pdfBytes);
-    
-    console.log(`Custom PDF generated successfully: ${outputPath}`);
-    return outputPath;
-
-  } catch (error) {
-    console.error('Error generating custom PDF:', error);
-    throw error;
-  }
-}
-
 module.exports = {
-  fillCDSCForm,
-  generateCDSCFormPDF
+  fillCDSCForm
 };

@@ -361,10 +361,10 @@ function viewDetails(id) {
         <div class="detail-grid">
             <div class="detail-group">
                 <div class="detail-label">PEP Status</div>
-                <div class="detail-value">${app.is_pep ? 'Yes' : 'No'}</div>
+                <div class="detail-value">${(app.is_pep === 'Yes' || app.is_pep === true) ? 'Yes' : 'No'}</div>
             </div>
             
-            ${app.is_pep && app.pep_details ? `
+            ${(app.is_pep === 'Yes' || app.is_pep === true) && app.pep_details ? `
             <div class="detail-group full-width">
                 <div class="detail-label">PEP Details</div>
                 <div class="detail-value">${app.pep_details}</div>
@@ -372,7 +372,7 @@ function viewDetails(id) {
             
             <div class="detail-group">
                 <div class="detail-label">Tax Exempt</div>
-                <div class="detail-value">${app.is_tax_exempt ? 'Yes' : 'No'}</div>
+                <div class="detail-value">${(app.is_tax_exempt === 'Yes' || app.is_tax_exempt === true) ? 'Yes' : 'No'}</div>
             </div>
         </div>
 
@@ -463,7 +463,28 @@ async function updateStatus(id, status) {
 // Download filled PDF
 async function downloadPDF(id) {
     try {
-        window.location.href = `/api/cdsc/applications/${id}/pdf`;
+        // Fetch PDF info to check tax exemption status
+        const response = await fetch(`/api/cdsc/applications/${id}/pdf`);
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            const data = await response.json();
+            if (data.taxExempt && data.taxCertPath) {
+                if (confirm(data.message)) {
+                    // Download both tax certificate and PDF
+                    window.open(`/api/cdsc/applications/${id}/tax-certificate`, '_blank');
+                    window.open(`/api/cdsc/applications/${id}/pdf?forceDownload=1`, '_blank');
+                } else {
+                    // Only download PDF
+                    window.open(`/api/cdsc/applications/${id}/pdf?forceDownload=1`, '_blank');
+                }
+            } else {
+                // Fallback: just download PDF
+                window.open(`/api/cdsc/applications/${id}/pdf?forceDownload=1`, '_blank');
+            }
+        } else {
+            // If not JSON, it's the PDF file
+            window.open(`/api/cdsc/applications/${id}/pdf`, '_blank');
+        }
     } catch (error) {
         console.error('Error downloading PDF:', error);
         alert('Error downloading PDF');
@@ -530,3 +551,4 @@ document.getElementById('detailsModal').addEventListener('click', function(e) {
         closeDetailsModal();
     }
 });
+
