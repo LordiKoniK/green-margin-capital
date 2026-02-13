@@ -52,6 +52,44 @@ async function fillCDSCForm(applicationData, outputPath) {
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
     const form = pdfDoc.getForm();
 
+    // Helper function to safely set field value
+    const setField = (fieldName, value) => {
+      try {
+        const field = form.getTextField(fieldName);
+        if (field && value) {
+          field.setText(String(value));
+        }
+      } catch (error) {
+        console.log(`Field ${fieldName} not found or cannot be set`);
+      }
+    };
+
+    const setCheckbox = (fieldName, isChecked) => {
+      try {
+        const field = form.getCheckBox(fieldName);
+        if (field) {
+          if (isChecked) {
+            field.check();
+          } else {
+            field.uncheck();
+          }
+        }
+      } catch (error) {
+        console.log(`Checkbox ${fieldName} not found`);
+      }
+    };
+
+    const setRadio = (fieldName, value) => {
+      try {
+        const field = form.getRadioGroup(fieldName);
+        if (field && value) {
+          field.select(String(value));
+        }
+      } catch (error) {
+        console.log(`Radio ${fieldName} not found`);
+      }
+    };
+
     // Fill Account Type
     setRadio('AccountType', applicationData.account_type);
     setField('CDA Code', applicationData.cda_code);
@@ -108,6 +146,7 @@ async function fillCDSCForm(applicationData, outputPath) {
       setField('Country of Residence_2', applicationData.secondary_country_residence);
       setField('KRA PIN_2', applicationData.secondary_kra_pin);
       setField('Name_2', applicationData.secondary_signer_names);
+      setField('Name_4', applicationData.secondary_signer_names);
 
       // Secondary Contact
       setField('Country Code_2', applicationData.secondary_country_code);
@@ -163,6 +202,8 @@ async function fillCDSCForm(applicationData, outputPath) {
     setField('SigningMandate', applicationData.signing_mandate);
     setField('Name', applicationData.signer_names);
     setField('SignatureDate', applicationData.signature_date);
+    setField('Name_3', applicationData.signer_names);
+
 
 
     // Get pages for drawing checkmarks (before flattening)
@@ -309,15 +350,22 @@ async function fillCDSCForm(applicationData, outputPath) {
         const signatureImageBytes = await fs.readFile(signaturePath);
         const signatureImage = await pdfDoc.embedPng(signatureImageBytes);
         
-        // Get the first page to add signature
         const pages = pdfDoc.getPages();
-        const lastPage = pages[pages.length - 2];
-        
-        // Add signature image (adjust coordinates as needed)
+        const secondlastPage = pages[pages.length - 2];
+        const lastPage = pages[pages.length - 1];    
+
+        // Add signature image 
         const signatureScale = 0.2;
-        lastPage.drawImage(signatureImage, {
+        secondlastPage.drawImage(signatureImage, {
           x: 440,
           y: 390,
+          width: signatureImage.width * signatureScale,
+          height: signatureImage.height * signatureScale,
+        });
+
+        lastPage.drawImage(signatureImage, {
+          x: 274,
+          y: 670,
           width: signatureImage.width * signatureScale,
           height: signatureImage.height * signatureScale,
         });
@@ -332,15 +380,23 @@ async function fillCDSCForm(applicationData, outputPath) {
         const secondarySignatureImageBytes = await fs.readFile(secondarySignaturePath);
         const secondarySignatureImage = await pdfDoc.embedPng(secondarySignatureImageBytes);
         
-        // Get the first page to add signature
         const pages = pdfDoc.getPages();
-        const lastPage = pages[pages.length - 2];
+        const secondlastPage = pages[pages.length - 2];
+        const lastPage = pages[pages.length - 1];
         
-        // Add signature image (adjust coordinates as needed)
+        // Add signature image 
         const secondarySignatureScale = 0.2;
-        lastPage.drawImage(secondarySignatureImage, {
+
+        secondlastPage.drawImage(secondarySignatureImage, {
           x: 440,
           y: 350,
+          width: secondarySignatureImage.width * secondarySignatureScale,
+          height: secondarySignatureImage.height * secondarySignatureScale,
+        });
+
+        lastPage.drawImage(secondarySignatureImage, {
+          x: 274,
+          y: 618,
           width: secondarySignatureImage.width * secondarySignatureScale,
           height: secondarySignatureImage.height * secondarySignatureScale,
         });
