@@ -52,47 +52,6 @@ async function fillCDSCForm(applicationData, outputPath) {
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
     const form = pdfDoc.getForm();
 
-    console.log('Form fields found:', form.getFields().map(f => f.getName()));
-    console.log('Filling PDF with application data:', applicationData);
-    
-    // Helper function to safely set field value
-    const setField = (fieldName, value) => {
-      try {
-        const field = form.getTextField(fieldName);
-        if (field && value) {
-          field.setText(String(value));
-        }
-      } catch (error) {
-        console.log(`Field ${fieldName} not found or cannot be set`);
-      }
-    };
-
-    const setCheckbox = (fieldName, isChecked) => {
-      try {
-        const field = form.getCheckBox(fieldName);
-        if (field) {
-          if (isChecked) {
-            field.check();
-          } else {
-            field.uncheck();
-          }
-        }
-      } catch (error) {
-        console.log(`Checkbox ${fieldName} not found`);
-      }
-    };
-
-    const setRadio = (fieldName, value) => {
-      try {
-        const field = form.getRadioGroup(fieldName);
-        if (field && value) {
-          field.select(String(value));
-        }
-      } catch (error) {
-        console.log(`Radio ${fieldName} not found`);
-      }
-    };
-
     // Fill Account Type
     setRadio('AccountType', applicationData.account_type);
     setField('CDA Code', applicationData.cda_code);
