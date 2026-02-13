@@ -215,7 +215,8 @@ async function submitApplication() {
             account_name: document.getElementById('accountName')?.value || '',
             branch_code: document.getElementById('branchCode')?.value || '',
             swift_code: document.getElementById('swiftCode')?.value || '',
-            currency: document.getElementById('otherCurrency')?.value || Array.from(document.querySelectorAll('#currencyField input[type="checkbox"]:checked')).map(cb => cb.value).join(', '),
+            currency: Array.from(document.querySelectorAll('#currencyField input[type="checkbox"]:checked')).map(cb => cb.value).join(', '),
+            other_currency: document.getElementById('otherCurrency')?.value || '',
             mobile_money_phone: document.getElementById('mobileMoneyPhone')?.value || '',
             
             // Tax Status
@@ -619,11 +620,11 @@ function toggleFundSourceFields() {
     businessFields.style.display = 'none';
     
     // Show relevant section based on selection
-    if (fundSource === 'employment') {
+    if (fundSource === 'Employment') {
         employmentFields.style.display = 'contents';
         // Clear business fields
         businessFields.querySelectorAll('input').forEach(input => input.value = '');
-    } else if (fundSource === 'business') {
+    } else if (fundSource === 'Business') {
         businessFields.style.display = 'contents';
         // Clear employment fields
         employmentFields.querySelectorAll('input').forEach(input => input.value = '');
@@ -640,11 +641,11 @@ function toggleFundSourceFields2() {
     businessFields.style.display = 'none';
     
     // Show relevant section based on selection
-    if (fundSource === 'employment') {
+    if (fundSource === 'Employment') {
         employmentFields.style.display = 'contents';
         // Clear business fields
         businessFields.querySelectorAll('input').forEach(input => input.value = '');
-    } else if (fundSource === 'business') {
+    } else if (fundSource === 'Business') {
         businessFields.style.display = 'contents';
         // Clear employment fields
         employmentFields.querySelectorAll('input').forEach(input => input.value = '');

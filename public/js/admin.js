@@ -328,6 +328,17 @@ function viewDetails(id) {
                 <div class="detail-label">Account Name</div>
                 <div class="detail-value">${app.account_name}</div>
             </div>
+
+            <div class="detail-group">
+                <div class="detail-label">Major Currency</div>
+                <div class="detail-value">${app.currency}</div>
+            </div>
+
+            ${app.other_currency ? `
+            <div class="detail-group">
+                <div class="detail-label">Other Currency</div>
+                <div class="detail-value">${app.other_currency}</div>
+            </div>` : ''}
             
             ${app.branch_code ? `
             <div class="detail-group">

@@ -190,7 +190,7 @@ async function fillCDSCForm(applicationData, outputPath) {
         setField('Branch Code Domestic Banks', applicationData.branch_code);
       } else {
         setField('Bank Swift Code International Banks', applicationData.swift_code);
-        setField('Currency', applicationData.currency);
+        setField('Indicate any other currency', applicationData.other_currency);
       }
     } else {
       setField('Phone Number', applicationData.mobile_money_phone);
@@ -268,6 +268,20 @@ async function fillCDSCForm(applicationData, outputPath) {
     };
     if (paymentCoords[applicationData.payment_method]) {
       const coords = paymentCoords[applicationData.payment_method];
+      drawCheckmark(page2, coords.x, coords.y, 8);
+    }
+
+    const currencyCoords = {
+      'EURO': { x: 218, y: 563 },
+      'USD': { x: 275, y: 563 },
+      'GBP': { x: 335, y: 563 },
+      'KES': { x: 394, y: 563 },
+      'USH': { x: 454, y: 563 },
+      'TZSH': { x: 514, y: 563 },
+      'RFRANC': { x: 578, y: 563 }
+    };
+    if (currencyCoords[applicationData.currency]) {
+      const coords = currencyCoords[applicationData.currency];
       drawCheckmark(page2, coords.x, coords.y, 8);
     }
     
