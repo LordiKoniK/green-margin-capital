@@ -127,7 +127,7 @@ function initializeDatabase() {
 // Initialize the database
 initializeDatabase();
 
-// Helper function to insert application
+// Helper function to insert applications
 function insertApplication(data) {
   const stmt = db.prepare(`
     INSERT INTO applications (

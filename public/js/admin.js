@@ -52,7 +52,7 @@ function updateStatistics() {
     document.getElementById('rejectedCount').textContent = rejected;
 }
 
-// Apply search and filters
+// Search and filters
 function applyFilters() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const statusFilter = document.getElementById('statusFilter').value;
@@ -78,7 +78,7 @@ function applyFilters() {
     renderTable();
 }
 
-// Render the applications table
+// Render applications table
 function renderTable() {
     const loadingState = document.getElementById('loadingState');
     const emptyState = document.getElementById('emptyState');
@@ -115,7 +115,7 @@ function renderTable() {
         </tr>
     `).join('');
 
-    // Add event delegation for action buttons
+    // Event delegation for action buttons
     tbody.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const id = parseInt(this.getAttribute('data-id'));
@@ -433,7 +433,7 @@ function viewDetails(id) {
     
     document.getElementById('detailsModal').classList.add('active');
 
-    // Add event listeners for action buttons in modal
+    // Event listeners for action buttons in modal
     const approveBtn = document.getElementById('approveBtn');
     const rejectBtn = document.getElementById('rejectBtn');
     const downloadPdfBtn = document.getElementById('downloadPdfBtn');
@@ -454,6 +454,8 @@ function viewDetails(id) {
     }
 }
 
+
+
 // Close details modal
 function closeDetailsModal() {
     document.getElementById('detailsModal').classList.remove('active');
@@ -465,6 +467,15 @@ document.addEventListener('keydown', function(e) {
         closeDetailsModal();
     }
 });
+
+// Close modal when clicking outside
+document.getElementById('detailsModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeDetailsModal();
+    }
+});
+
+
 
 // Update application status
 async function updateStatus(id, status) {
@@ -581,10 +592,4 @@ function showError(message) {
     `;
 }
 
-// Close modal when clicking outside
-document.getElementById('detailsModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeDetailsModal();
-    }
-});
 

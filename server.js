@@ -130,6 +130,9 @@ app.post('/api/contact', (req, res) => {
   res.json({ success: true, message: 'Thank you for contacting us!' });
 });
 
+
+
+
 // CDSC Application API Routes
 
 // Submit CDSC application
@@ -181,7 +184,6 @@ app.post('/api/cdsc/submit', upload.fields([
 // Get all applications (admin only - you should add authentication)
 app.get('/api/cdsc/applications', (req, res) => {
   try {
-    // TODO: Add authentication middleware
     const applications = db.getAllApplications();
     res.json({ success: true, applications });
   } catch (error) {
@@ -196,7 +198,6 @@ app.get('/api/cdsc/applications', (req, res) => {
 // Get single application
 app.get('/api/cdsc/applications/:id', (req, res) => {
   try {
-    // TODO: Add authentication middleware
     const application = db.getApplication(req.params.id);
     if (application) {
       res.json({ success: true, application });
@@ -215,7 +216,6 @@ app.get('/api/cdsc/applications/:id', (req, res) => {
 // Update application status
 app.patch('/api/cdsc/applications/:id/status', (req, res) => {
   try {
-    // TODO: Add authentication middleware
     const { status, notes } = req.body;
     db.updateApplicationStatus(req.params.id, status, notes);
     res.json({ success: true, message: 'Status updated successfully' });
@@ -231,9 +231,35 @@ app.patch('/api/cdsc/applications/:id/status', (req, res) => {
 // Delete application
 app.delete('/api/cdsc/applications/:id', (req, res) => {
   try {
-    // TODO: Add authentication middleware
+    const application = db.getApplication(req.params.id);
+    if (!application) {
+      return res.status(404).json({ success: false, message: 'Application not found' });
+    }
+
+    // Also delete images associated with the application
+    const fileFields = [
+      'primary_passport_photo_path',
+      'secondary_passport_photo_path',
+      'signature_path',
+      'secondary_signature_path',
+      'tax_cert_path'
+    ];
+
+    fileFields.forEach(field => {
+      const filePath = application[field];
+      if (filePath && typeof filePath === 'string') {
+        // Make sure the path is relative to the project root
+        const absPath = path.isAbsolute(filePath) ? filePath : path.join(__dirname, filePath);
+        fs.unlink(absPath, err => {
+          if (err && err.code !== 'ENOENT') {
+            console.error(`Error deleting file (${field}):`, absPath, err.message);
+          }
+        });
+      }
+    });
+
     db.deleteApplication(req.params.id);
-    res.json({ success: true, message: 'Application deleted successfully' });
+    res.json({ success: true, message: 'Application and associated files deleted successfully' });
   } catch (error) {
     console.error('Error deleting application:', error);
     res.status(500).json({ 
@@ -243,10 +269,10 @@ app.delete('/api/cdsc/applications/:id', (req, res) => {
   }
 });
 
+
 // Generate filled PDF for an application
 app.get('/api/cdsc/applications/:id/pdf', async (req, res) => {
   try {
-    // TODO: Add authentication middleware
     const application = db.getApplication(req.params.id);
     
     if (!application) {
@@ -267,7 +293,7 @@ app.get('/api/cdsc/applications/:id/pdf', async (req, res) => {
 
     const pdfPath = path.join(__dirname, 'generated-pdfs', `application-${req.params.id}.pdf`);
 
-    // Try to fill the original PDF first, fallback to custom generation
+    // Error handling
     try {
       await fillCDSCForm(application, pdfPath);
     } catch (fillError) {

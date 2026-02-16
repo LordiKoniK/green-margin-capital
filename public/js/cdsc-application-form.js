@@ -117,9 +117,7 @@ async function submitApplication() {
         }
     });
     if (emptyFields.length > 0) {
-        // Try to get a user-friendly label for each field
         const fieldNames = emptyFields.map(field => {
-            // Try label[for] or parent label
             let label = '';
             if (field.labels && field.labels.length > 0) {
                 label = field.labels[0].innerText.trim();
@@ -255,9 +253,8 @@ async function submitApplication() {
         };
 
 
-        // Ensure all secondary fields are present, even if not joint
+        // Secondary fields
         if (applicationData.account_type === 'joint') {
-            const jointInputs = document.querySelectorAll('.jointAccountSection input, .jointAccountSection select');
 
             // Map joint account fields to for secondary applicant
             applicationData.secondary_surname = document.getElementById('secondarySurname')?.value;
@@ -290,7 +287,7 @@ async function submitApplication() {
             applicationData.secondary_business_email = document.getElementById('businessEmail2')?.value;
             applicationData.secondary_business_office = document.getElementById('businessOffice2')?.value;
             applicationData.secondary_signer_names = document.getElementById('signName2')?.value || '';
-        } else {
+        } else { // If not joint application, set everything to empty
             applicationData.secondary_surname = '';
             applicationData.secondary_other_names = '';
             applicationData.secondary_dob = '';
@@ -325,7 +322,7 @@ async function submitApplication() {
             applicationData.secondary_signature_path = '';
         }
 
-        // Set empty strings for any missing optional fields 
+        // Empty strings for missing optional fields 
         if (applicationData.is_tax_exempt === 'No') {
             applicationData.tax_cert_path = '';
         }
@@ -341,7 +338,6 @@ async function submitApplication() {
             if (accountType === 'joint' && canvas2) {
                 canvas2.toBlob(function(blob2) {
                     formData.append('secondarySignatureImage', blob2, 'signature2.png');
-                    // Continue with file uploads and submission
                     appendAndSubmitFiles();
                 }, 'image/png');
             } else {
@@ -414,10 +410,7 @@ async function submitApplication() {
     }
 }
 
-
-
-
-
+// QOL IMPROVEMENTS 
 
 // Close modal on overlay click
 // document.getElementById('modalOverlay').addEventListener('click', function(e) {
@@ -451,12 +444,10 @@ function scrollToTop() {
 // Initialize
 updateProgress();
 
-// Attach file input listeners for previews
+// File input listeners for previews
 replacePassportPhotoIcon();
 replacePassportPhotoIcon2();
 replaceTaxCertIcon();
-
-
 
 
 // Button event listeners
@@ -607,7 +598,7 @@ function replacePassportPhotoIcon() {
                     img.style.marginTop = '8px';
                     photoPreview.appendChild(img);
                 }
-                // Add remove (X) button
+                // Remove (X) button
                 const removeBtn = document.createElement('button');
                 removeBtn.textContent = '×';
                 removeBtn.setAttribute('type', 'button');
@@ -652,7 +643,7 @@ function replacePassportPhotoIcon2() {
                     img.style.marginTop = '8px';
                     photoPreview2.appendChild(img);
                 }
-                // Add remove (X) button
+                // Remove (X) button
                 const removeBtn = document.createElement('button');
                 removeBtn.textContent = '×';
                 removeBtn.setAttribute('type', 'button');
@@ -716,18 +707,14 @@ function toggleFundSourceFields2() {
     const employmentFields = document.getElementById('employmentFields2');
     const businessFields = document.getElementById('businessFields2');
     
-    // Hide both sections first
     employmentFields.style.display = 'none';
     businessFields.style.display = 'none';
     
-    // Show relevant section based on selection
     if (fundSource === 'Employment') {
         employmentFields.style.display = 'contents';
-        // Clear business fields
         businessFields.querySelectorAll('input').forEach(input => input.value = '');
     } else if (fundSource === 'Business') {
         businessFields.style.display = 'contents';
-        // Clear employment fields
         employmentFields.querySelectorAll('input').forEach(input => input.value = '');
     }
 }
@@ -799,7 +786,8 @@ function replaceTaxCertIcon() {
                 filename.style.fontSize = '0.95em';
                 filename.style.marginTop = '4px';
                 certPreview.appendChild(filename);
-                // Add remove (X) button
+
+                // Remove (X) button
                 const removeBtn = document.createElement('button');
                 removeBtn.textContent = '×';
                 removeBtn.setAttribute('type', 'button');
@@ -828,7 +816,7 @@ function replaceTaxCertIcon() {
 // Load bank data
 let bankData = [];
 
-// Fetch the JSON file
+// Fetch JSON file with bank list
 fetch('../assets/KenyaBanks.json')
     .then(response => response.json())
     .then(data => {
@@ -850,7 +838,7 @@ function setupBankAutocomplete() {
             return;
         }
         
-        // Get unique bank names
+        // Get bank names
         const uniqueBanks = [...new Set(bankData.map(item => item['Bank Name']))];
         
         // Filter banks that match the search term
@@ -900,7 +888,7 @@ function validateBranchCode() {
     const isNumeric = /^\d+$/.test(branchValue);
     
     if (isNumeric) {
-        // --- NUMERIC MODE: look up branch name by code ---
+        // Number mode: Check branch name by code 
         const match = bankData.find(item =>
             item['Bank Name'] === bankName &&
             item['Branch Code'] == branchValue
@@ -927,7 +915,7 @@ function validateBranchCode() {
         }
         
     } else {
-        // --- TEXT MODE: search branch names, show dropdown ---
+        // Text mode: If the client doesnt know their branch code, they can search by name instead
         if (branchValue.length < 2) return;
         
         const matches = bankData.filter(item =>
@@ -1011,7 +999,7 @@ function handleBranchOutsideClick(e) {
 
 
 
-
+// For nationality/country of residence fields
 const countries = [
     "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", 
     "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", 
@@ -1080,13 +1068,13 @@ function populateCountryDropdowns() {
     });
 }
 
+
+
 //
 //      DECLARATION PAGE
 //      DECLARATION PAGE
 //
 //
-
-
 
 
 

@@ -421,22 +421,16 @@ class FormValidator {
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize navigation
   new Navigation();
   
-  // Initialize carousels
   const heroCarousel = document.querySelector('.hero-carousel');
   if (heroCarousel) {
     new Carousel(heroCarousel);
   }
   
-  // Initialize smooth scroll
   initSmoothScroll();
-  
-  // Initialize scroll animations
   new ScrollAnimations();
   
-  // Initialize forms
   document.querySelectorAll('form').forEach(form => {
     new FormValidator(form);
   });

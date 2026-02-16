@@ -102,7 +102,7 @@ function drawDateInBoxes(page, font, dateStr, startX, y, boxWidth = 12, boxSpaci
 
 async function fillCDSCForm(applicationData, outputPath) {
   try {
-    // Read the template PDF
+    // Read the template form document
     const templatePath = path.join(__dirname, 'public', 'assets', 'CDS_1_1_INDIVIDUAL-JOINT_ACCOUNT_OPENING_FORM_1.pdf');
     const existingPdfBytes = await fs.readFile(templatePath);
     
@@ -112,7 +112,7 @@ async function fillCDSCForm(applicationData, outputPath) {
 
     const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica); // Embed Helvetica font for drawing dates
 
-    // Helper function to safely set field value
+    // Helper function to set field values
     const setField = (fieldName, value) => {
       try {
         const field = form.getTextField(fieldName);
@@ -124,46 +124,14 @@ async function fillCDSCForm(applicationData, outputPath) {
       }
     };
 
-    const setCheckbox = (fieldName, isChecked) => {
-      try {
-        const field = form.getCheckBox(fieldName);
-        if (field) {
-          if (isChecked) {
-            field.check();
-          } else {
-            field.uncheck();
-          }
-        }
-      } catch (error) {
-        console.log(`Checkbox ${fieldName} not found`);
-      }
-    };
-
-    const setRadio = (fieldName, value) => {
-      try {
-        const field = form.getRadioGroup(fieldName);
-        if (field && value) {
-          field.select(String(value));
-        }
-      } catch (error) {
-        console.log(`Radio ${fieldName} not found`);
-      }
-    };
-
     // Fill Account Type
-    setRadio('AccountType', applicationData.account_type);
-    setField('CDA Code', applicationData.cda_code);
+    setField('CDA CODE', applicationData.cda_code);
     setField('CDS ACCOUNT NUMBER NEWEXISTING', applicationData.cds_account_number);
 
     // Fill Primary Client Details
     setField('Surname', applicationData.primary_surname);
     setField('Other Names', applicationData.primary_other_names);
-    // setField('Date223_af_date', applicationData.primary_dob);
-    setRadio('PrimaryGender', applicationData.primary_gender);
-    setRadio('PrimaryInvestorCategory', applicationData.primary_investor_category);
-    setRadio('PrimaryIDType', applicationData.primary_id_type);
     setField('IDPassport Number', applicationData.primary_id_number);
-    // setField('Date223_af_date', applicationData.primary_passport_expiry);
     setField('NationalityCitizenship', applicationData.primary_nationality);
     setField('Country of Residence', applicationData.primary_country_residence);
     setField('KRA PIN', applicationData.primary_kra_pin);
@@ -197,12 +165,7 @@ async function fillCDSCForm(applicationData, outputPath) {
     if (applicationData.account_type === 'joint') {
       setField('Surname_2', applicationData.secondary_surname);
       setField('Other Names_2', applicationData.secondary_other_names);
-      // setField('Date220_af_date', applicationData.secondary_dob);
-      setRadio('SecondaryGender', applicationData.secondary_gender);
-      setRadio('SecondaryInvestorCategory', applicationData.secondary_investor_category);
-      setRadio('SecondaryIDType', applicationData.secondary_id_type);
       setField('IDPassport Number_2', applicationData.secondary_id_number);
-      // setField('Date221_af_date', applicationData.secondary_passport_expiry);
       setField('NationalityCitizenship_2', applicationData.secondary_nationality);
       setField('Country of Residence_2', applicationData.secondary_country_residence);
       setField('KRA PIN_2', applicationData.secondary_kra_pin);
@@ -235,13 +198,11 @@ async function fillCDSCForm(applicationData, outputPath) {
     }
 
     // Fill PEP Status
-    setRadio('IsPEP', applicationData.is_pep ? 'yes' : 'no');
     if (applicationData.is_pep) {
       setField('If yes specify the name of the person and the relationship', applicationData.pep_details);
     }
 
     // Fill Payment Details
-    setRadio('PaymentMethod', applicationData.payment_method);
     if (applicationData.payment_method !== 'mobile') {
       setField('Bank Name', applicationData.bank_name);
       setField('Account Number', applicationData.account_number);
@@ -257,37 +218,30 @@ async function fillCDSCForm(applicationData, outputPath) {
       setField('Phone Number', applicationData.mobile_money_phone);
     }
 
-    // Fill Tax Status
-    setRadio('TaxExempt', applicationData.is_tax_exempt ? 'yes' : 'no');
-
     // Fill Declaration
     setField('SigningMandate', applicationData.signing_mandate);
     setField('Name', applicationData.signer_names);
-    // setField('Date218_af_date', applicationData.signature_date);
-    // setField('Date219_af_date', applicationData.signature_date);
-
     setField('Name_3', applicationData.signer_names);
 
 
 
     // Get pages for drawing checkmarks (before flattening)
     const pages = pdfDoc.getPages();
-    form.flatten(); // Flatten the form so images on top of field spaces
     const page1 = pages[0];
     const page2 = pages.length > 1 ? pages[1] : page1;
     const page3 = pages.length > 2 ? pages[2] : page1;
 
-    form.flatten(); // Flatten the form so images on top of field spaces
+    form.flatten(); // Flatten the form to prevent images appearing behind fields
+
+
 
     // DRAW CHECKMARKS FOR UNNAMED CHECKBOX FIELDS
- 
-    console.log('Drawing checkmarks for checkboxes...');
-    
-    // Account Type checkboxes 
+     
+    // Account Type 
     if (applicationData.account_type === 'individual') {
-      drawCheckmark(page1, 212, 697, 8); // Example: Individual checkbox
+      drawCheckmark(page1, 212, 697, 8); 
     } else if (applicationData.account_type === 'joint') {
-      drawCheckmark(page1, 338, 697, 8); // Example: Joint checkbox
+      drawCheckmark(page1, 338, 697, 8); 
     }
     
     // Primary Gender 
@@ -518,14 +472,14 @@ async function fillCDSCForm(applicationData, outputPath) {
         const pages = pdfDoc.getPages();
         const firstPage = pages[0];
         
-        // Add passport photo (adjust coordinates for the form)
+        // Add passport photo 
         // Define bounding box for the image
         const boxLeft = 500;
         const boxBottom = 517;
         const boxRight = 586;
         const boxTop = 633;
-        const maxWidth = boxRight - boxLeft; // 87
-        const maxHeight = boxTop - boxBottom; // 116
+        const maxWidth = boxRight - boxLeft;
+        const maxHeight = boxTop - boxBottom;
 
         // Calculate scale to fit image within bounding box
         const widthScale = maxWidth / photoImage.width;
@@ -550,12 +504,12 @@ async function fillCDSCForm(applicationData, outputPath) {
       }
     }
 
+    // Secondary passport photo (if joint account)
     if (applicationData.secondary_passport_photo_path) {
       try {
         const photoPath = path.join(__dirname, applicationData.secondary_passport_photo_path);
         const photoBytes = await fs.readFile(photoPath);
         
-        // Determine image type
         let photoImage;
         if (photoPath.toLowerCase().endsWith('.png')) {
           photoImage = await pdfDoc.embedPng(photoBytes);
@@ -566,24 +520,20 @@ async function fillCDSCForm(applicationData, outputPath) {
         const pages = pdfDoc.getPages();
         const firstPage = pages[0];
         
-        // Add passport photo (adjust coordinates for the form)
-        // Define bounding box for the image
         const boxLeft = 500;
         const boxBottom = 196;
         const boxRight = 586;
         const boxTop = 311;
-        const maxWidth = boxRight - boxLeft; // 87
-        const maxHeight = boxTop - boxBottom; // 116
+        const maxWidth = boxRight - boxLeft;
+        const maxHeight = boxTop - boxBottom;
 
-        // Calculate scale to fit image within bounding box
         const widthScale = maxWidth / photoImage.width;
         const heightScale = maxHeight / photoImage.height;
-        const scale = Math.min(widthScale, heightScale, 1); // Never upscale
+        const scale = Math.min(widthScale, heightScale, 1); 
 
         const photoWidth = photoImage.width * scale;
         const photoHeight = photoImage.height * scale;
 
-        // Center the image in the box
         const centerX = boxLeft + maxWidth / 2;
         const centerY = boxBottom + maxHeight / 2;
 
