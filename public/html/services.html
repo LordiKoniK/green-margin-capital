@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore Green Margin Capital's comprehensive investment services - equity trading, bond investments, brokerage, and research.">
+    <title>Our Services - Green Margin Capital</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/services.css">
+    <link rel="stylesheet" href="../css/header-footer.css">
+</head>
+<body>
+    
+<!-- ========================================
+         TOP BAR (Static - doesn't scroll with page)
+         ======================================== -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="top-bar-content">
+                <a href="/cdsc" class="top-bar-link">OPEN CDSC ACCOUNT</a>
+                <span class="top-bar-divider">|</span>
+                <a href="#" class="top-bar-link">DOWNLOAD OUR TRADING APP</a>
+                <!-- <span class="top-bar-divider">|</span>
+                <a href="#" class="top-bar-link">TRADE ONLINE</a> -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         NAVIGATION (Sticky - scrolls with page)
+         ======================================== -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="../images/GMC Logo.png" alt="Green Margin Capital Logo">
+            </a>
+            
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About Us</a></li>
+                <li><a href="/services" class="active">Services</a></li>
+                <li><a href="/downloads">Downloads</a></li>
+                <li><a href="/news">Latest News</a></li>
+                <li><a href="/contact">Contact Us</a></li>
+            </ul>
+            
+            <!-- <button class="nav-search" aria-label="Search">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+            </button> -->
+            
+            <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+    
+    
+    <!-- PAGE HERO -->
+    <section class="services-hero">
+        <div class="container">
+            <h1>Our Services</h1>
+            <p>Comprehensive investment solutions tailored to your financial goals</p>
+        </div>
+    </section>
+
+    <!-- MAIN SERVICES -->
+    <section class="main-services-section section">
+        <div class="container">
+            <!-- Equity -->
+            <div class="service-block" id="equity">
+                <div class="service-content">
+                    <div class="service-icon-large">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                    </div>
+                    <h2>Equity Trading</h2>
+                    <p class="service-intro">Build wealth through strategic equity investments across East African markets. Our equity trading services give you access to blue-chip stocks, growth companies, and IPO opportunities.</p>
+                    
+                    <div class="service-features">
+                        <h3>What We Offer</h3>
+                        <ul class="features-list">
+                            <li>Access to NSE, USE, DSE, and RSE listed securities</li>
+                            <li>Real-time market data and execution</li>
+                            <li>Portfolio diversification strategies</li>
+                            <li>IPO participation and guidance</li>
+                            <li>Rights issues and corporate action management</li>
+                            <li>Equity research and stock recommendations</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-benefits">
+                        <h3>Key Benefits</h3>
+                        <div class="benefits-grid">
+                            <div class="benefit-item">
+                                <span class="benefit-icon">📈</span>
+                                <h4>Growth Potential</h4>
+                                <p>Long-term capital appreciation through carefully selected equities</p>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-icon">💰</span>
+                                <h4>Dividend Income</h4>
+                                <p>Regular income from dividend-paying stocks</p>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-icon">🌍</span>
+                                <h4>Regional Access</h4>
+                                <p>Cross-border trading across multiple East African exchanges</p>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-icon">🎯</span>
+                                <h4>Expert Guidance</h4>
+                                <p>Dedicated support from experienced equity analysts</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="/cdsc" class="btn btn-primary">Start Trading Equities</a>
+                </div>
+                <div class="service-visual">
+                    <img src="../images/hero-equity.webp" alt="Equity Trading">
+                </div>
+            </div>
+
+            <!-- Debt/Bonds -->
+            <div class="service-block service-block-reverse" id="debt">
+                <div class="service-visual">
+                    <img src="../images/hero-debt.webp" alt="Bond Investments">
+                </div>
+                <div class="service-content">
+                    <div class="service-icon-large">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                            <line x1="1" y1="10" x2="23" y2="10"></line>
+                        </svg>
+                    </div>
+                    <h2>Debt & Fixed Income</h2>
+                    <p class="service-intro">Secure steady returns with our comprehensive bond and fixed-income offerings. From government securities to corporate bonds, we provide access to reliable income-generating instruments.</p>
+                    
+                    <div class="service-features">
+                        <h3>What We Offer</h3>
+                        <ul class="features-list">
+                            <li>Government Treasury Bills and Bonds</li>
+                            <li>Corporate bonds from blue-chip companies</li>
+                            <li>Infrastructure bonds with tax advantages</li>
+                            <li>Bond portfolio management</li>
+                            <li>Secondary market trading</li>
+                            <li>Fixed income research and analysis</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-benefits">
+                        <h3>Key Benefits</h3>
+                        <div class="benefits-grid">
+                            <div class="benefit-item">
+                                <span class="benefit-icon">🔒</span>
+                                <h4>Capital Preservation</h4>
+                                <p>Lower risk compared to equities with predictable returns</p>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-icon">💵</span>
+                                <h4>Regular Income</h4>
+                                <p>Consistent coupon payments throughout the bond tenure</p>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-icon">🏛️</span>
+                                <h4>Government Guarantee</h4>
+                                <p>Sovereign-backed securities with minimal default risk</p>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-icon">⚖️</span>
+                                <h4>Portfolio Balance</h4>
+                                <p>Diversification tool to balance equity exposure</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="/contact" class="btn btn-primary">Explore Bond Options</a>
+                </div>
+            </div>
+
+            <!-- Brokerage -->
+            <div class="service-block" id="brokerage">
+                <div class="service-content">
+                    <div class="service-icon-large">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        </svg>
+                    </div>
+                    <h2>Brokerage Services</h2>
+                    <p class="service-intro">Professional execution and settlement services for all your securities trading needs. We provide fast, reliable, and cost-effective brokerage with personalized support.</p>
+                    
+                    <div class="service-features">
+                        <h3>What We Offer</h3>
+                        <ul class="features-list">
+                            <li>Online and offline trading platforms</li>
+                            <li>Real-time market quotes and execution</li>
+                            <li>Competitive brokerage rates</li>
+                            <li>CDSC account opening and management</li>
+                            <li>Settlement and clearing services</li>
+                            <li>Corporate action processing</li>
+                            <li>Portfolio statements and reporting</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-benefits">
+                        <h3>Key Benefits</h3>
+                        <div class="benefits-grid">
+                            <div class="benefit-item">
+                                <span class="benefit-icon">⚡</span>
+                                <h4>Fast Execution</h4>
+                                <p>Quick order processing and immediate confirmations</p>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-icon">💻</span>
+                                <h4>Multi-Channel Access</h4>
+                                <p>Trade via web, mobile, phone, or in-person</p>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-icon">🤝</span>
+                                <h4>Personalized Service</h4>
+                                <p>Dedicated broker support for all your trades</p>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-icon">📊</span>
+                                <h4>Transparent Pricing</h4>
+                                <p>Clear fee structure with no hidden charges</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="/cdsc" class="btn btn-primary">Open Brokerage Account</a>
+                </div>
+                <div class="service-visual">
+                    <img src="../images/hero-brokerage.jpg" alt="Brokerage Services">
+                </div>
+            </div>
+
+            <!-- Research -->
+            <div class="service-block service-block-reverse" id="research">
+                <div class="service-visual">
+                    <img src="../images/hero-research.jpg" alt="Investment Research">
+                </div>
+                <div class="service-content">
+                    <div class="service-icon-large">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                    <h2>Investment Research</h2>
+                    <p class="service-intro">Make informed decisions with our comprehensive research and analysis. Our research team provides in-depth market insights, company analysis, and macroeconomic commentary.</p>
+                    
+                    <div class="service-features">
+                        <h3>What We Offer</h3>
+                        <ul class="features-list">
+                            <li>Daily market commentary and analysis</li>
+                            <li>Company-specific research reports</li>
+                            <li>Sector analysis and trends</li>
+                            <li>Macroeconomic outlook and forecasts</li>
+                            <li>IPO reviews and recommendations</li>
+                            <li>Quarterly earnings analysis</li>
+                            <li>Investment strategy updates</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-benefits">
+                        <h3>Key Benefits</h3>
+                        <div class="benefits-grid">
+                            <div class="benefit-item">
+                                <span class="benefit-icon">🔍</span>
+                                <h4>Deep Analysis</h4>
+                                <p>Thorough fundamental and technical research</p>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-icon">🎓</span>
+                                <h4>Expert Insights</h4>
+                                <p>Analysis from credentialed professionals</p>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-icon">📱</span>
+                                <h4>Timely Updates</h4>
+                                <p>Real-time alerts on market-moving events</p>
+                            </div>
+                            <div class="benefit-item">
+                                <span class="benefit-icon">🎯</span>
+                                <h4>Actionable Ideas</h4>
+                                <p>Clear buy/sell/hold recommendations</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="/contact" class="btn btn-primary">Access Research</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="spacer" style="background-color: lightgray; height: 0.3rem;"></div>
+
+
+    <!-- ADDITIONAL SERVICES -->
+    <section class="additional-services section">
+        <div class="container">
+            <h2 class="section-title-centered">Additional Services</h2>
+            <div class="additional-grid">
+                <div class="additional-card">
+                    <div class="additional-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </div>
+                    <h3>Portfolio Management</h3>
+                    <p>Professional management of your investment portfolio with regular rebalancing and performance tracking</p>
+                </div>
+                <div class="additional-card">
+                    <div class="additional-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2v20M2 12h20"></path>
+                        </svg>
+                    </div>
+                    <h3>Investment Advisory</h3>
+                    <p>Personalized investment advice tailored to your risk profile, goals, and financial situation</p>
+                </div>
+                <div class="additional-card">
+                    <div class="additional-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </div>
+                    <h3>Financial Planning</h3>
+                    <p>Comprehensive financial planning services covering retirement, education, and wealth transfer</p>
+                </div>
+                <div class="additional-card">
+                    <div class="additional-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <h3>Corporate Services</h3>
+                    <p>Institutional trading, treasury management, and corporate advisory for business clients</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Invest?</h2>
+                <p>Start your investment journey with Green Margin Capital today</p>
+                <div class="cta-buttons">
+                    <a href="/cdsc" class="btn btn-primary btn-large">Open Account</a>
+                    <a href="/contact" class="btn btn-light btn-large">Speak to an Advisor</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<!-- ========================================
+         FOOTER
+         ======================================== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <!-- Company Info -->
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="../images/GMC Logo.png" alt="Green Margin Capital">
+                    </div>
+                    <p class="footer-description">A financial markets startup driven by a vision for financial empowerment through strategic capital markets investment solutions.</p>
+                </div>
+
+                <!-- Useful Links -->
+                <div class="footer-section">
+                    <h3>Useful Links</h3>
+                    <ul>
+                        <li><a href="https://www.cma.or.ke/">Central Markets Authority (CMA)</a></li>
+                        <li><a href="https://www.nse.co.ke/">Nairobi Securities Exchange (NSE)</a></li>
+                        <li><a href="https://www.cdsckenya.com/">Central Depository and Settlement Corporation (CDSC)</a></li>
+                        <li><a href="https://www.centralbank.go.ke/">Central Bank of Kenya (CBK)</a></li>
+                        <li><a href="http://www.kenyalaw.org/">Constitution of Kenya</a></li>
+                        <li><a href="https://www.kasib.co.ke/">Kenya Association of Stockbrokers and Investment Banks (KASIB)</a></li>
+                    </ul>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="footer-section">
+                    <h3>Quick Navigation</h3>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/about">About Us</a></li>
+                        <li><a href="/services">Services</a></li>
+                        <li><a href="/downloads">Downloads</a></li>
+                        <li><a href="/news">Latest News</a></li>
+                        <li><a href="/contact">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="footer-section">
+                    <h3>Our Contacts</h3>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <a href="https://maps.app.goo.gl/uGXjt9aii4aoikHSA" target="_blank" rel="noopener noreferrer">The EXchange, 1st Floor, 55 Westlands Road, Nairobi, Kenya</a>
+                        </div>
+                        <div class="contact-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <a href="mailto:info@greenmargincapital.com">info@greenmargincapital.com</a>
+                        </div>
+                        <div class="social-links">
+                        <a href="#" aria-label="Twitter" class="social-link">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" transform="translate(10 10)">
+                                <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="Facebook" class="social-link">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" transform="translate(10 10)">
+                                <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="Instagram" class="social-link">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" transform="translate(10 10)">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path>
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="LinkedIn" class="social-link">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" transform="translate(10 10)">
+                                <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"></path>
+                                <circle cx="4" cy="4" r="2"></circle>
+                            </svg>
+                        </a>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Green Margin Capital. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

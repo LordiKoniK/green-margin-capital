@@ -1,0 +1,229 @@
+/* ==========================================
+   ADMIN MESSAGES PAGE SPECIFIC STYLES
+   ========================================== */
+
+/* Stat card color variants */
+.stat-card.stat-pending {
+    border-left-color: var(--warning-yellow);
+}
+
+.stat-card.stat-pending .stat-value {
+    color: var(--warning-yellow);
+}
+
+.stat-card.stat-addressed {
+    border-left-color: var(--success-green);
+}
+
+.stat-card.stat-addressed .stat-value {
+    color: var(--success-green);
+}
+
+.stat-card.stat-ignored {
+    border-left-color: var(--text-light);
+}
+
+.stat-card.stat-ignored .stat-value {
+    color: var(--text-light);
+}
+
+/* Message preview truncation */
+.message-preview {
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-light);
+    font-size: 0.875rem;
+}
+
+/* Status badges for messages */
+.status-addressed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-ignored {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+/* Modal footer for action buttons */
+.modal-footer {
+    padding: 1.5rem 2rem;
+    border-top: 2px solid var(--border-color);
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+/* Message detail display */
+.message-detail-box {
+    background: var(--bg-light);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-green);
+    margin: 1.5rem 0;
+}
+
+.message-detail-box p {
+    line-height: 1.7;
+    color: var(--text-dark);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Admin notes section */
+.admin-notes-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--border-color);
+}
+
+.admin-notes-content {
+    background: #fff7ed;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--accent-orange);
+    margin-top: 1rem;
+}
+
+.admin-notes-empty {
+    font-style: italic;
+    color: var(--text-light);
+}
+
+.admin-notes-meta {
+    font-size: 0.875rem;
+    color: var(--text-light);
+    margin-top: 0.5rem;
+}
+
+/* Metadata display */
+.metadata-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px dashed var(--border-color);
+}
+
+.metadata-item {
+    font-size: 0.875rem;
+}
+
+.metadata-label {
+    color: var(--text-light);
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.metadata-value {
+    color: var(--text-dark);
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+}
+
+/* Icon buttons in table */
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    background: transparent;
+    color: var(--text-dark);
+    border: 1px solid var(--border-color);
+}
+
+.icon-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.icon-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.icon-btn.btn-view {
+    color: var(--primary-green);
+    border-color: var(--primary-green);
+}
+
+.icon-btn.btn-view:hover {
+    background: var(--primary-green);
+    color: white;
+}
+
+.icon-btn.btn-reply {
+    color: var(--accent-orange);
+    border-color: var(--accent-orange);
+}
+
+.icon-btn.btn-reply:hover {
+    background: var(--accent-orange);
+    color: white;
+}
+
+.icon-btn.btn-delete {
+    color: var(--error-red);
+    border-color: var(--error-red);
+}
+
+.icon-btn.btn-delete:hover {
+    background: var(--error-red);
+    color: white;
+}
+
+/* Status change buttons */
+.btn-status-addressed {
+    background: var(--success-green);
+    color: white;
+}
+
+.btn-status-addressed:hover {
+    background: #059669;
+}
+
+.btn-status-ignored {
+    background: var(--text-light);
+    color: white;
+}
+
+.btn-status-ignored:hover {
+    background: #4b5563;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .message-preview {
+        max-width: 180px;
+    }
+}
+
+@media (max-width: 768px) {
+    .metadata-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+    }
+
+    .message-preview {
+        max-width: 120px;
+    }
+}

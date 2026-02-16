@@ -121,6 +121,35 @@ function initializeDatabase() {
     )
   `);
 
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS contact_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      submission_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+      
+      -- Contact Details
+      first_name TEXT NOT NULL,
+      last_name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT,
+      
+      -- Message Details
+      subject TEXT NOT NULL,
+      message TEXT NOT NULL,
+      
+      -- Status Tracking
+      status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'addressed', 'ignored')),
+      
+      -- Response/Notes
+      response_date DATETIME,
+      responded_by TEXT,
+      admin_notes TEXT,
+      
+      -- Metadata
+      ip_address TEXT,
+      user_agent TEXT
+    )
+  `);
+
   console.log('Database initialized successfully');
 }
 
@@ -215,11 +244,90 @@ function deleteApplication(id) {
   return stmt.run(id);
 }
 
+// ==========================================
+// CONTACT MESSAGES FUNCTIONS
+// ==========================================
+
+// Insert contact message
+function insertContactMessage(data) {
+  const stmt = db.prepare(`
+    INSERT INTO contact_messages (
+      first_name, last_name, email, phone, subject, message, ip_address, user_agent
+    ) VALUES (
+      @first_name, @last_name, @email, @phone, @subject, @message, @ip_address, @user_agent
+    )
+  `);
+  const info = stmt.run(data);
+  return info.lastInsertRowid;
+}
+
+// Get all contact messages with optional status filter
+function getAllContactMessages(status = null) {
+  let query = 'SELECT * FROM contact_messages';
+  if (status) {
+    query += ' WHERE status = ?';
+  }
+  query += ' ORDER BY submission_date DESC';
+  
+  const stmt = db.prepare(query);
+  return status ? stmt.all(status) : stmt.all();
+}
+
+// Get single contact message
+function getContactMessage(id) {
+  const stmt = db.prepare('SELECT * FROM contact_messages WHERE id = ?');
+  return stmt.get(id);
+}
+
+// Update contact message status
+function updateContactMessageStatus(id, status, respondedBy = null, adminNotes = null) {
+  const stmt = db.prepare(`
+    UPDATE contact_messages 
+    SET status = ?, 
+        response_date = CURRENT_TIMESTAMP, 
+        responded_by = ?, 
+        admin_notes = ? 
+    WHERE id = ?
+  `);
+  return stmt.run(status, respondedBy, adminNotes, id);
+}
+
+// Delete contact message
+function deleteContactMessage(id) {
+  const stmt = db.prepare('DELETE FROM contact_messages WHERE id = ?');
+  return stmt.run(id);
+}
+
+// Get message counts by status
+function getMessageCounts() {
+  const stmt = db.prepare(`
+    SELECT 
+      status,
+      COUNT(*) as count
+    FROM contact_messages
+    GROUP BY status
+  `);
+  const results = stmt.all();
+  
+  const counts = { pending: 0, addressed: 0, ignored: 0 };
+  results.forEach(row => {
+    counts[row.status] = row.count;
+  });
+  
+  return counts;
+}
+
 module.exports = {
   db,
   insertApplication,
   getAllApplications,
   getApplication,
   updateApplicationStatus,
-  deleteApplication
+  deleteApplication,
+  insertContactMessage,
+  getAllContactMessages,
+  getContactMessage,
+  updateContactMessageStatus,
+  deleteContactMessage,
+  getMessageCounts
 };

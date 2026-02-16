@@ -10,6 +10,9 @@ const db = require('./database');
 const { fillCDSCForm, generateCDSCFormPDF } = require('./pdfFiller');
 const basicAuth = require('express-basic-auth');
 
+// Database routes for Contact Us page client messages
+const { insertContactMessage, getAllContactMessages, getContactMessage, updateContactMessageStatus, deleteContactMessage, getMessageCounts } = require('./database');
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -59,6 +62,7 @@ app.use(helmet({
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       scriptSrc: ["'self'"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
+      frameSrc: ["'self'", "https://www.google.com/"],
     },
   },
 }));
@@ -85,8 +89,8 @@ app.get('/about', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'about.html'));
 });
 
-app.get('/products', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'html', 'products.html'));
+app.get('/services', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'html', 'services.html'));
 });
 
 app.get('/downloads', (req, res) => {
@@ -105,6 +109,15 @@ app.get('/cdsc', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'cdsc-application-form.html'));
 });
 
+// Admin routes
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'html', 'admin.html'));
+});
+
+app.get('/admin/messages', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'html', 'admin-messages.html'));
+});
+
 // Admin route security
 app.use('/admin', basicAuth({
     users: { 'admin': 'greenmnocap' },
@@ -117,17 +130,180 @@ app.use('/api/cdsc/applications', basicAuth({
     challenge: true
 }));
 
-// Admin route
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'html', 'admin.html'));
+app.use('/admin/messages', basicAuth({
+    users: { 'admin': 'greenmnocap' },
+    challenge: true
+}));
+
+app.use('/api/admin/contact-messages', basicAuth({
+    users: { 'admin': 'greenmnocap' },
+    challenge: true
+}));
+
+// CONTACT ROUTES
+// ==========================================
+// PUBLIC: Submit Contact Form
+// ==========================================
+app.post('/api/contact', express.json(), (req, res) => {
+  const { firstName, lastName, email, phone, subject, message } = req.body;
+
+  // Validation
+  if (!firstName || !lastName || !email || !subject || !message) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Please fill in all required fields' 
+    });
+  }
+
+  // Basic email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Please provide a valid email address' 
+    });
+  }
+
+  try {
+    // Get metadata
+    const ipAddress = req.ip || req.connection.remoteAddress || 'unknown';
+    const userAgent = req.get('user-agent') || 'unknown';
+
+    // Insert into database
+    const messageId = insertContactMessage({
+      first_name: firstName,
+      last_name: lastName,
+      email: email,
+      phone: phone || null,
+      subject: subject,
+      message: message,
+      ip_address: ipAddress,
+      user_agent: userAgent
+    });
+
+    res.json({ 
+      success: true, 
+      message: 'Thank you for contacting us! We\'ll get back to you within 24 hours.',
+      messageId: messageId
+    });
+
+  } catch (error) {
+    console.error('Contact form error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Unable to submit your message. Please try again or contact us directly.' 
+    });
+  }
 });
 
-// API Routes (for future use)
-app.post('/api/contact', (req, res) => {
-  // Handle contact form submission
-  const { name, email, message } = req.body;
-  // TODO: Implement email sending or database storage
-  res.json({ success: true, message: 'Thank you for contacting us!' });
+// ==========================================
+// ADMIN: Get All Contact Messages
+// ==========================================
+app.get('/api/admin/contact-messages', (req, res) => {
+
+  const status = req.query.status || null; // Optional filter: ?status=pending
+
+  try {
+    const messages = getAllContactMessages(status);
+    const counts = getMessageCounts();
+
+    res.json({ 
+      success: true, 
+      messages: messages,
+      counts: counts
+    });
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to retrieve messages' 
+    });
+  }
+});
+
+// ==========================================
+// ADMIN: Get Single Contact Message
+// ==========================================
+app.get('/api/admin/contact-messages/:id', (req, res) => {
+
+  const messageId = parseInt(req.params.id);
+
+  try {
+    const message = getContactMessage(messageId);
+
+    if (!message) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Message not found' 
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      message: message
+    });
+  } catch (error) {
+    console.error('Error fetching message:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to retrieve message' 
+    });
+  }
+});
+
+// ==========================================
+// ADMIN: Update Contact Message Status
+// ==========================================
+app.put('/api/admin/contact-messages/:id', express.json(), (req, res) => {
+
+  const messageId = parseInt(req.params.id);
+  const { status, respondedBy, adminNotes } = req.body;
+
+  // Validate status
+  if (!['pending', 'addressed', 'ignored'].includes(status)) {
+    return res.status(400).json({ 
+      success: false, 
+      error: 'Invalid status. Must be: pending, addressed, or ignored' 
+    });
+  }
+
+  try {
+    updateContactMessageStatus(messageId, status, respondedBy, adminNotes);
+
+    res.json({ 
+      success: true, 
+      message: 'Message status updated successfully' 
+    });
+  } catch (error) {
+    console.error('Error updating message:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to update message status' 
+    });
+  }
+});
+
+// ==========================================
+// ADMIN: Delete Contact Message
+// ==========================================
+app.delete('/api/admin/contact-messages/:id', (req, res) => {
+
+  const messageId = parseInt(req.params.id);
+
+  try {
+    deleteContactMessage(messageId);
+
+    res.json({ 
+      success: true, 
+      message: 'Message deleted successfully' 
+    });
+  } catch (error) {
+    console.error('Error deleting message:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to delete message' 
+    });
+  }
 });
 
 
