@@ -459,6 +459,13 @@ function closeDetailsModal() {
     document.getElementById('detailsModal').classList.remove('active');
 }
 
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeDetailsModal();
+    }
+});
+
 // Update application status
 async function updateStatus(id, status) {
     if (!confirm(`Are you sure you want to ${status} this application?`)) {

@@ -8,6 +8,8 @@ function openModal() {
     // Initialize signature canvas after modal is fully rendered
     setTimeout(initSignatureCanvas, 300);
     setTimeout(initSignatureCanvas2, 300);
+    populateCountryDropdowns();
+
 }
 
 function closeModal() {
@@ -202,17 +204,18 @@ async function submitApplication() {
             primary_id_type: document.querySelectorAll('.form-step[data-step="2"] select')[1].value,
             primary_id_number: document.querySelectorAll('.form-step[data-step="2"] input')[5].value,
             primary_passport_expiry: document.querySelectorAll('.form-step[data-step="2"] input[type="date"]')[1].value,
-            primary_nationality: document.querySelectorAll('.form-step[data-step="2"] input')[7].value,
-            primary_country_residence: document.querySelectorAll('.form-step[data-step="2"] input')[8].value,
-            primary_kra_pin: document.querySelectorAll('.form-step[data-step="2"] input')[9].value,
+            primary_nationality: document.getElementById('nationality').value,
+            primary_country_residence: document.getElementById('countryOfResidence').value,
+            primary_kra_pin: document.querySelectorAll('.form-step[data-step="2"] input')[7].value,
             
             // Primary Contact
             primary_country_code: document.querySelectorAll('.form-step[data-step="3"] input')[0].value,
             primary_phone: document.querySelectorAll('.form-step[data-step="3"] input[type="tel"]')[0].value,
             primary_email: document.querySelectorAll('.form-step[data-step="3"] input[type="email"]')[0].value,
-            primary_physical_location: document.querySelectorAll('.form-step[data-step="3"] input')[3].value,
-            primary_postal_code: document.querySelectorAll('.form-step[data-step="3"] input')[4].value,
-            primary_postal_address: document.querySelectorAll('.form-step[data-step="3"] input')[5].value,
+            primary_town_city: document.querySelectorAll('.form-step[data-step="3"] input')[3].value,
+            primary_physical_location: document.querySelectorAll('.form-step[data-step="3"] input')[4].value,
+            primary_postal_code: document.querySelectorAll('.form-step[data-step="3"] input')[5].value,
+            primary_postal_address: document.querySelectorAll('.form-step[data-step="3"] input')[6].value,
             
             // Primary Employment/Business
             primary_fund_source: document.getElementById('fundSource').value,
@@ -271,6 +274,7 @@ async function submitApplication() {
             applicationData.secondary_country_code = document.getElementById('secondaryCountryCode')?.value;
             applicationData.secondary_phone = document.getElementById('secondaryPhone')?.value;
             applicationData.secondary_email = document.getElementById('secondaryEmail')?.value;
+            applicationData.secondary_town_city = document.getElementById('secondaryTownCity')?.value;
             applicationData.secondary_physical_location = document.getElementById('secondaryPhysicalLocation')?.value;
             applicationData.secondary_postal_code = document.getElementById('secondaryPostalCode')?.value;
             applicationData.secondary_postal_address = document.getElementById('secondaryPostalAddress')?.value;
@@ -302,6 +306,7 @@ async function submitApplication() {
             applicationData.secondary_country_code = '';
             applicationData.secondary_phone = '';
             applicationData.secondary_email = '';
+            applicationData.secondary_town_city = '';
             applicationData.secondary_physical_location = '';
             applicationData.secondary_postal_code = '';
             applicationData.secondary_postal_address = '';
@@ -422,11 +427,11 @@ async function submitApplication() {
 // });
 
 // Close modal on Escape key
-// document.addEventListener('keydown', function(e) {
-//     if (e.key === 'Escape') {
-//         closeModal();
-//     }
-// });
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeModal();
+    }
+});
 
 // Scroll back to top with call to action button
 function scrollToTop() {
@@ -1007,6 +1012,73 @@ function handleBranchOutsideClick(e) {
 
 
 
+const countries = [
+    "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", 
+    "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", 
+    "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", 
+    "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", 
+    "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada", 
+    "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", 
+    "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", 
+    "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominica", 
+    "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", 
+    "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", 
+    "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", 
+    "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", 
+    "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", 
+    "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", 
+    "Kiribati", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", 
+    "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", 
+    "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", 
+    "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", 
+    "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", 
+    "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", 
+    "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine", "Panama", 
+    "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", 
+    "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", 
+    "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", 
+    "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", 
+    "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", 
+    "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", 
+    "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", 
+    "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", 
+    "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", 
+    "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", 
+    "Zimbabwe"
+];
+
+
+function populateCountryDropdowns() {
+    const nationalitySelect = document.getElementById('nationality');
+    const residenceSelect = document.getElementById('countryOfResidence');
+    const nationalitySelect2 = document.getElementById('secondaryNationality');
+    const residenceSelect2 = document.getElementById('secondaryCountryOfResidence');
+    
+    // Clear existing options except the placeholder
+    [nationalitySelect, residenceSelect, nationalitySelect2, residenceSelect2].forEach(select => {
+        if (select) {
+            select.innerHTML = '<option value="">Select country</option>';
+        }
+    });
+    
+    // Add country options
+    countries.forEach(country => {
+        [nationalitySelect, residenceSelect, nationalitySelect2, residenceSelect2].forEach(select => {
+            if (select) {
+                const option = document.createElement('option');
+                option.value = country;
+                option.textContent = country;
+                
+                // Pre-select Kenya for Kenyan users
+                if (country === 'Kenya') {
+                    option.selected = true;
+                }
+                
+                select.appendChild(option);
+            }
+        });
+    });
+}
 
 //
 //      DECLARATION PAGE

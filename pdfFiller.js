@@ -10,8 +10,6 @@ const path = require('path');
  * 
  */
 
-
-
 /**
  * Draw a checkmark at specific coordinates on a PDF page
  * @param {PDFPage} page - The PDF page to draw on
@@ -41,6 +39,66 @@ function drawCheckmark(page, x, y, size = 10) {
   });
 }
 
+/**
+ * Draw date in individual boxes (DD-MM-YYYY format)
+ * @param {PDFPage} page - The PDF page to draw on
+ * @param {PDFFont} font - The font to use
+ * @param {string} dateStr - Date string in YYYY-MM-DD format
+ * @param {number} startX - Starting X coordinate (left edge of first box)
+ * @param {number} y - Y coordinate (baseline of text)
+ * @param {number} boxWidth - Width of each individual box (default: 12)
+ * @param {number} boxSpacing - Spacing between boxes (default: 2)
+ * @param {number} fontSize - Font size (default: 10)
+ */
+
+function drawDateInBoxes(page, font, dateStr, startX, y, boxWidth = 12, boxSpacing = 2, fontSize = 10) {
+  if (!dateStr) return;
+  
+  // Convert YYYY-MM-DD to DD-MM-YYYY
+  let formattedDate;
+  if (dateStr.includes('-')) {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      // YYYY-MM-DD to DD-MM-YYYY
+      formattedDate = `${parts[2]}${parts[1]}${parts[0]}`;
+    } else {
+      formattedDate = dateStr.replace(/-/g, '');
+    }
+  } else {
+    formattedDate = dateStr;
+  }
+  
+  // Remove any non-numeric characters
+  formattedDate = formattedDate.replace(/\D/g, '');
+  
+  // Ensure we have 8 digits (DDMMYYYY)
+  if (formattedDate.length !== 8) {
+    console.log(`Warning: Invalid date format for ${dateStr}, expected 8 digits, got ${formattedDate.length}`);
+    return;
+  }
+  
+  // Draw each digit in its box
+  let currentX = startX;
+  for (let i = 0; i < formattedDate.length; i++) {
+    const digit = formattedDate[i];
+    
+    // Center the digit in the box
+    const digitWidth = font.widthOfTextAtSize(digit, fontSize);
+    const xOffset = (boxWidth - digitWidth) / 2;
+    
+    page.drawText(digit, {
+      x: currentX + xOffset,
+      y: y,
+      size: fontSize,
+      font: font,
+      color: rgb(0, 0, 0),
+    });
+    
+    currentX += boxWidth + boxSpacing;
+  }
+}
+
+
 
 async function fillCDSCForm(applicationData, outputPath) {
   try {
@@ -51,6 +109,8 @@ async function fillCDSCForm(applicationData, outputPath) {
     // Load the PDF
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
     const form = pdfDoc.getForm();
+
+    const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica); // Embed Helvetica font for drawing dates
 
     // Helper function to safely set field value
     const setField = (fieldName, value) => {
@@ -98,12 +158,12 @@ async function fillCDSCForm(applicationData, outputPath) {
     // Fill Primary Client Details
     setField('Surname', applicationData.primary_surname);
     setField('Other Names', applicationData.primary_other_names);
-    setField('PrimaryDOB', applicationData.primary_dob);
+    // setField('Date223_af_date', applicationData.primary_dob);
     setRadio('PrimaryGender', applicationData.primary_gender);
     setRadio('PrimaryInvestorCategory', applicationData.primary_investor_category);
     setRadio('PrimaryIDType', applicationData.primary_id_type);
     setField('IDPassport Number', applicationData.primary_id_number);
-    setField('PrimaryPassportExpiry', applicationData.primary_passport_expiry);
+    // setField('Date223_af_date', applicationData.primary_passport_expiry);
     setField('NationalityCitizenship', applicationData.primary_nationality);
     setField('Country of Residence', applicationData.primary_country_residence);
     setField('KRA PIN', applicationData.primary_kra_pin);
@@ -112,6 +172,7 @@ async function fillCDSCForm(applicationData, outputPath) {
     setField('Country Code', applicationData.primary_country_code);
     setField('Telephone Number', applicationData.primary_phone);
     setField('Email Address', applicationData.primary_email);
+    setField('CityTown', applicationData.primary_town_city);
     setField('Physical Location TownCity', applicationData.primary_physical_location);
     setField('Postal Code', applicationData.primary_postal_code);
     setField('Postal Address', applicationData.primary_postal_address);
@@ -136,12 +197,12 @@ async function fillCDSCForm(applicationData, outputPath) {
     if (applicationData.account_type === 'joint') {
       setField('Surname_2', applicationData.secondary_surname);
       setField('Other Names_2', applicationData.secondary_other_names);
-      setField('SecondaryDOB', applicationData.secondary_dob);
+      // setField('Date220_af_date', applicationData.secondary_dob);
       setRadio('SecondaryGender', applicationData.secondary_gender);
       setRadio('SecondaryInvestorCategory', applicationData.secondary_investor_category);
       setRadio('SecondaryIDType', applicationData.secondary_id_type);
       setField('IDPassport Number_2', applicationData.secondary_id_number);
-      setField('SecondaryPassportExpiry', applicationData.secondary_passport_expiry);
+      // setField('Date221_af_date', applicationData.secondary_passport_expiry);
       setField('NationalityCitizenship_2', applicationData.secondary_nationality);
       setField('Country of Residence_2', applicationData.secondary_country_residence);
       setField('KRA PIN_2', applicationData.secondary_kra_pin);
@@ -152,6 +213,7 @@ async function fillCDSCForm(applicationData, outputPath) {
       setField('Country Code_2', applicationData.secondary_country_code);
       setField('Telephone Number_3', applicationData.secondary_phone);
       setField('Email Address_3', applicationData.secondary_email);
+      setField('CityTown_2', applicationData.secondary_town_city);
       setField('Physical Location TownCity_2', applicationData.secondary_physical_location);
       setField('Postal Code_2', applicationData.secondary_postal_code);
       setField('Postal Address_3', applicationData.secondary_postal_address);
@@ -201,7 +263,9 @@ async function fillCDSCForm(applicationData, outputPath) {
     // Fill Declaration
     setField('SigningMandate', applicationData.signing_mandate);
     setField('Name', applicationData.signer_names);
-    setField('SignatureDate', applicationData.signature_date);
+    // setField('Date218_af_date', applicationData.signature_date);
+    // setField('Date219_af_date', applicationData.signature_date);
+
     setField('Name_3', applicationData.signer_names);
 
 
@@ -342,6 +406,38 @@ async function fillCDSCForm(applicationData, outputPath) {
       const coords = secondaryIdTypeCoords[applicationData.secondary_id_type];
       drawCheckmark(page1, coords.x, coords.y, 8);
     }
+
+    // Handle box-by-box date fields
+    // Format: drawDateInBoxes(page, font, dateStr, startX, y, boxWidth, boxSpacing, fontSize)
+
+    // Primary Date of Birth
+    if (applicationData.primary_dob) {
+      drawDateInBoxes(page1, helveticaFont, applicationData.primary_dob, 94, 544.5, 11.2, 0, 10);
+    }
+    
+    // Primary Passport Expiry 
+    if (applicationData.primary_passport_expiry) {
+      drawDateInBoxes(page1, helveticaFont, applicationData.primary_passport_expiry, 405, 593.5, 11.2, 0, 10);
+    }
+    
+    // Secondary Date of Birth (if joint account) 
+    if (applicationData.account_type === 'joint' && applicationData.secondary_dob) {
+      drawDateInBoxes(page1, helveticaFont, applicationData.secondary_dob, 94, 223, 11.2, 0, 10);
+    }
+    
+    // Secondary Passport Expiry (if joint account) 
+    if (applicationData.account_type === 'joint' && applicationData.secondary_passport_expiry) {
+      drawDateInBoxes(page1, helveticaFont, applicationData.secondary_passport_expiry, 405, 272.5, 11.2, 0, 10);
+    }
+    
+    // Signature Date 
+    if (applicationData.signature_date) {
+      drawDateInBoxes(page3, helveticaFont, applicationData.signature_date, 460, 691.5, 11.2, 0, 10);
+      if (applicationData.account_type === 'joint') {
+        drawDateInBoxes(page3, helveticaFont, applicationData.signature_date, 460, 639, 11.2, 0, 10);
+      }
+    }
+
 
     // Embed signature image if available
     if (applicationData.signature_path) {
@@ -506,6 +602,7 @@ async function fillCDSCForm(applicationData, outputPath) {
     const pdfBytes = await pdfDoc.save();
     await fs.writeFile(outputPath, pdfBytes);
     
+    console.log('Town/City field value:', applicationData.primary_physical_location);
     console.log(`PDF filled successfully: ${outputPath}`);
     return outputPath;
 

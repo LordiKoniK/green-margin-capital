@@ -484,12 +484,16 @@
 
                         <div class="form-group">
                             <label class="form-label required">Nationality/Citizenship</label>
-                            <input type="text" class="form-input" required>
+                            <select class="form-select" id="nationality" required>
+                                <option value="">Select country</option>
+                            </select>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Country of Residence</label>
-                            <input type="text" class="form-input" required>
+                            <select class="form-select" id="countryOfResidence" required>
+                                <option value="">Select country</option>
+                            </select>
                         </div>
 
                         <div class="form-group">
@@ -580,12 +584,16 @@
 
                         <div class="form-group">
                             <label class="form-label required">Nationality/Citizenship</label>
-                            <input type="text" class="form-input" id="secondaryNationality" required>
+                            <select class="form-select" id="secondaryNationality" required>
+                                <option value="">Select country</option>
+                            </select>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Country of Residence</label>
-                            <input type="text" class="form-input" id="secondaryCountryResidence" required>
+                            <select class="form-select" id="secondaryCountryOfResidence" required>
+                                <option value="">Select country</option>
+                            </select>
                         </div>
 
                         <div class="form-group">
@@ -638,8 +646,13 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label required">Physical Location (Town/City)</label>
+                            <label class="form-label required">Town/City</label>
                             <input type="text" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label required">Physical Location (in Town/City)</label>
+                            <input type="text" class="form-input" placeholder="e.g. Ongata Rongai" required>
                         </div>
 
                         <div class="form-group">
@@ -739,9 +752,14 @@
                             <input type="email" class="form-input" id="secondaryEmail" required>
                         </div>
 
+                         <div class="form-group">
+                            <label class="form-label required">Town/City</label>
+                            <input type="text" class="form-input" id="secondaryTownCity" required>
+                        </div>
+
                         <div class="form-group">
                             <label class="form-label required">Physical Location (Town/City)</label>
-                            <input type="text" class="form-input" id="secondaryPhysicalLocation" required>
+                            <input type="text" class="form-input" placeholder="e.g. Langata" id="secondaryPhysicalLocation" required>
                         </div>
 
                         <div class="form-group">
