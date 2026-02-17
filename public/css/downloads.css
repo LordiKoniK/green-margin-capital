@@ -1,0 +1,175 @@
+/* ==========================================
+   DOWNLOADS PAGE STYLES
+   ========================================== */
+
+/* Downloads Hero */
+.downloads-hero {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+    color: var(--white);
+    padding: 7rem 0 5rem;
+    text-align: center;
+}
+
+.downloads-hero h1 {
+    font-size: clamp(3rem, 5vw, 4.5rem);
+    margin-bottom: 1rem;
+    font-weight: 700;
+    color: orange;
+}
+
+.downloads-hero p {
+    font-size: clamp(1.125rem, 2vw, 1.5rem);
+    opacity: 0.95;
+}
+
+/* Downloads Section */
+.downloads-section {
+    padding: 6rem 0;
+}
+
+.downloads-intro {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 4rem;
+}
+
+.downloads-intro h2 {
+    font-family: 'Crimson Pro', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--primary-green);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.downloads-intro p {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+}
+
+/* Downloads List */
+.downloads-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+}
+
+.download-item {
+    background: var(--white);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    transition: all 0.3s ease;
+}
+
+.download-item:hover {
+    border-color: var(--primary-green);
+    box-shadow: 0 8px 30px rgba(45, 95, 63, 0.1);
+    transform: translateY(-2px);
+}
+
+.download-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-light) 100%);
+    color: var(--white);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.download-info {
+    flex: 1;
+}
+
+.download-info h3 {
+    font-size: 1.25rem;
+    color: var(--primary-green);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.download-info p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.download-item .btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+.download-item .btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Downloads Help Section */
+.downloads-help {
+    background: var(--bg-light);
+    border-radius: 16px;
+    padding: 3rem;
+    margin-top: 4rem;
+}
+
+.help-card {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.help-card svg {
+    color: var(--accent-orange);
+    margin-bottom: 1.5rem;
+}
+
+.help-card h3 {
+    font-size: 1.75rem;
+    color: var(--primary-green);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.help-card p {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .downloads-hero {
+        padding: 5rem 0 3rem;
+    }
+
+    .downloads-section {
+        padding: 4rem 0;
+    }
+
+    .download-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+
+    .download-item .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .downloads-help {
+        padding: 2rem 1.5rem;
+    }
+}

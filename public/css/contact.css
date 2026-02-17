@@ -6,16 +6,15 @@
 .contact-hero {
     background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
     color: var(--white);
-    padding: 7rem 0 5rem;
+    padding: 6rem 0 4rem;
     text-align: center;
 }
 
 .contact-hero h1 {
-    font-family: 'Crimson Pro', serif;
     font-size: clamp(3rem, 5vw, 4.5rem);
     margin-bottom: 1rem;
     font-weight: 700;
-    color: white;
+    color: orange;
 }
 
 .contact-hero p {

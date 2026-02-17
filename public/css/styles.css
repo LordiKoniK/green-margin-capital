@@ -93,6 +93,22 @@ button {
   transition: all var(--transition-fast);
 }
 
+.spacer {
+  height: 0.3rem;
+  background-color: lightgray;
+}
+
+.spacer-full-width {
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  width: 100vw;
+  background-color: lightgray;
+  height: 0.3rem;
+}
+
 /* ==========================================
    Typography
    ========================================== */

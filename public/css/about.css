@@ -15,7 +15,7 @@
 .page-hero {
     background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
     color: var(--white);
-    padding: 8rem 0 6rem;
+    padding: 6rem 0 4rem;
     position: relative;
     overflow: hidden;
 }

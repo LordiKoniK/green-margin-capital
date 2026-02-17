@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Latest news and updates from Green Margin Capital and the Kenyan capital markets">
+    <title>Latest News - Green Margin Capital</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/news.css">
+    <link rel="stylesheet" href="../css/header-footer.css">
+</head>
+<body>
+    
+    <!-- ========================================
+         TOP BAR (Static - doesn't scroll with page)
+         ======================================== -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="top-bar-content">
+                <a href="/cdsc" class="top-bar-link">OPEN CDSC ACCOUNT</a>
+                <span class="top-bar-divider">|</span>
+                <a href="#" class="top-bar-link">DOWNLOAD OUR TRADING APP</a>
+                <!-- <span class="top-bar-divider">|</span>
+                <a href="#" class="top-bar-link">TRADE ONLINE</a> -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         NAVIGATION (Sticky - scrolls with page)
+         ======================================== -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="../images/GMC Logo.png" alt="Green Margin Capital Logo">
+            </a>
+            
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About Us</a></li>
+                <li><a href="/services">Services</a></li>
+                <li><a href="/downloads">Downloads</a></li>
+                <li><a href="/news" class="active">Latest News</a></li>
+                <li><a href="/contact">Contact Us</a></li>
+            </ul>
+            
+            <!-- <button class="nav-search" aria-label="Search">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+            </button> -->
+            
+            <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    
+    <!-- PAGE HERO -->
+    <section class="news-hero">
+        <div class="container">
+            <h1>Latest News</h1>
+            <p>Stay updated with the latest developments in Kenyan capital markets</p>
+        </div>
+    </section>
+
+    <!-- NEWS SECTION -->
+    <section class="news-section section">
+        <div class="container">
+            
+            <!-- 
+            ====================================
+            MODULAR NEWS ITEMS
+            Copy this structure to add new items
+            ====================================
+            -->
+
+            <!-- News Item 1 -->
+            <article class="news-item">
+                    <div class="news-image">
+                        <img src="../images/news1.png" alt="Kenya Pipeline Company IPO">
+                    </div>
+                <div class="news-content">
+                    <div class="news-meta">
+                        <span class="news-date">January 20, 2026</span>
+                        <span class="news-category">IPO Opportunity</span>
+                    </div>
+                    <h2 class="news-title">
+                        <a href="https://www.kenyapipelineipo.co.ke/" target="_blank" rel="noopener noreferrer">
+                            Kenya Pipeline Company IPO Now Open for Investment
+                        </a>
+                    </h2>
+                    <p class="news-excerpt">
+                        The Kenya Pipeline Company (KPC) has launched its Initial Public Offering, presenting investors with an opportunity to own shares in Kenya's premier petroleum products transporter. The IPO runs until February 28, 2026.
+                    </p>
+                    <a href="https://www.kenyapipelineipo.co.ke/" target="_blank" rel="noopener noreferrer" class="news-read-more">
+                        Find out more
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
+                </div>
+            </article>
+
+            <!-- News Item 2 -->
+            <article class="news-item">
+                    <div class="news-image">
+                        <img src="../images/news2.jpeg" alt="Green Margin Capital Licensed by CMA">
+                    </div>
+                <div class="news-content">
+                    <div class="news-meta">
+                        <span class="news-date">February 12, 2026</span>
+                        <span class="news-category">Company News</span>
+                    </div>
+                    <h2 class="news-title">
+                        <a href="https://www.capitalfm.co.ke/business/2026/02/cma-issues-new-licences-to-financial-intermediaries-bank/" target="_blank" rel="noopener noreferrer">
+                            Green Margin Capital Receives Formal CMA License
+                        </a>
+                    </h2>
+                    <p class="news-excerpt">
+                        Green Margin Capital has been officially licensed by the Capital Markets Authority (CMA) to operate as a stockbroker and investment advisor. This milestone strengthens our commitment to providing professional investment services to Kenyan investors.
+                    </p>
+                    <a href="https://www.capitalfm.co.ke/business/2026/02/cma-issues-new-licences-to-financial-intermediaries-bank/" target="_blank" rel="noopener noreferrer" class="news-read-more">
+                        Find out more
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
+                </div>
+            </article>
+
+            <!-- 
+            ====================================
+            TO ADD A NEW NEWS ITEM:
+            1. Copy the entire <article class="news-item">...</article> block above
+            2. Update the href links (3 places: image link, title link, read more link)
+            3. Update the image src: ../images/your-image.jpg
+            4. Update the date: <span class="news-date">Your Date</span>
+            5. Update the category: <span class="news-category">Your Category</span>
+            6. Update the title: <h2 class="news-title">Your Title</h2>
+            7. Update the excerpt: <p class="news-excerpt">Your description</p>
+            8. Paste it below this comment block
+            ====================================
+            -->
+
+        </div>
+    </section>
+
+    <!-- ========================================
+         FOOTER
+         ======================================== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <!-- Company Info -->
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="../images/GMC Logo.png" alt="Green Margin Capital">
+                    </div>
+                    <p class="footer-description">A financial markets startup driven by a vision for financial empowerment through strategic capital markets investment solutions.</p>
+                </div>
+
+                <!-- Useful Links -->
+                <div class="footer-section">
+                    <h3>Useful Links</h3>
+                    <ul>
+                        <li><a href="https://www.cma.or.ke/">Central Markets Authority (CMA)</a></li>
+                        <li><a href="https://www.nse.co.ke/">Nairobi Securities Exchange (NSE)</a></li>
+                        <li><a href="https://www.cdsckenya.com/">Central Depository and Settlement Corporation (CDSC)</a></li>
+                        <li><a href="https://www.centralbank.go.ke/">Central Bank of Kenya (CBK)</a></li>
+                        <li><a href="http://www.kenyalaw.org/">Constitution of Kenya</a></li>
+                        <li><a href="https://www.kasib.co.ke/">Kenya Association of Stockbrokers and Investment Banks (KASIB)</a></li>
+                    </ul>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="footer-section">
+                    <h3>Quick Navigation</h3>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/about">About Us</a></li>
+                        <li><a href="/services">Services</a></li>
+                        <li><a href="/downloads">Downloads</a></li>
+                        <li><a href="/news">Latest News</a></li>
+                        <li><a href="/contact">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="footer-section">
+                    <h3>Our Contacts</h3>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <a href="https://maps.app.goo.gl/uGXjt9aii4aoikHSA" target="_blank" rel="noopener noreferrer">The EXchange, 1st Floor, 55 Westlands Road, Nairobi, Kenya</a>
+                        </div>
+                        <div class="contact-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <a href="mailto:info@greenmargincapital.com">info@greenmargincapital.com</a>
+                        </div>
+                        <div class="social-links">
+                        <a href="#" aria-label="Twitter" class="social-link">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" transform="translate(10 10)">
+                                <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="Facebook" class="social-link">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" transform="translate(10 10)">
+                                <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="Instagram" class="social-link">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" transform="translate(10 10)">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path>
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="LinkedIn" class="social-link">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" transform="translate(10 10)">
+                                <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"></path>
+                                <circle cx="4" cy="4" r="2"></circle>
+                            </svg>
+                        </a>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Green Margin Capital. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
