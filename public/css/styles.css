@@ -95,7 +95,7 @@ button {
 
 .spacer {
   height: 0.3rem;
-  background-color: lightgray;
+  background-color: orange;
 }
 
 .spacer-full-width {
@@ -105,7 +105,7 @@ button {
   margin-left: -50vw;
   margin-right: -50vw;
   width: 100vw;
-  background-color: lightgray;
+  background-color: orange;
   height: 0.3rem;
 }
 

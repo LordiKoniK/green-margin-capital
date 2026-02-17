@@ -11,6 +11,7 @@
 }
 
 .downloads-hero h1 {
+    font-family: 'Crimson Pro', serif;
     font-size: clamp(3rem, 5vw, 4.5rem);
     margin-bottom: 1rem;
     font-weight: 700;
@@ -116,7 +117,7 @@
 
 /* Downloads Help Section */
 .downloads-help {
-    background: var(--bg-light);
+    background-color: #f0f0f0;
     border-radius: 16px;
     padding: 3rem;
     margin-top: 4rem;

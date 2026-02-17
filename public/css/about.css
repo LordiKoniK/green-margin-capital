@@ -2,20 +2,11 @@
    ABOUT PAGE STYLES
    ========================================== */
 
-
-   
-.header h1 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-        color: white;
-
-}
-
 /* Page Hero */
 .page-hero {
     background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
     color: var(--white);
-    padding: 6rem 0 4rem;
+    padding: 8rem 0 6rem;
     position: relative;
     overflow: hidden;
 }
@@ -40,9 +31,10 @@
 }
 
 .hero-title {
-    font-size: clamp(2.5rem, 5vw, 3.5rem);
-    margin-bottom: 2rem;
-    font-weight: 600;
+    font-family: 'Crimson Pro', serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
     color: orange;
 }
 
@@ -77,7 +69,7 @@
 
 .story-badge {
     position: absolute;
-    bottom: -5rem;
+    bottom: -2rem;
     right: 2rem;
     background: var(--accent-orange);
     color: var(--white);
@@ -213,7 +205,7 @@
 }
 
 .value-card {
-    background: rgb(245, 245, 245);
+    background: var(--white);
     padding: 2.5rem 2rem;
     border-radius: 12px;
     border-left: 4px solid var(--accent-orange);
@@ -320,7 +312,7 @@
 /* Regulatory Section */
 .regulatory-section {
     padding: 6rem 0;
-    background: var(--primary-green);
+    background: var(--primary-green-dark);
     color: var(--white);
 }
 
@@ -359,7 +351,276 @@
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.2);
     text-align: center;
-    
+    min-width: 200px;
+}
+
+.badge-label {
+    display: block;
+    font-size: 0.85rem;
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.badge-value {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--accent-orange);
+}
+
+.badge-detail {
+    display: block;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+    opacity: 0.8;
+}
+
+/* Strategic Positioning Section */
+.positioning-section {
+    padding: 6rem 0;
+    background: var(--bg-light);
+}
+
+.positioning-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.positioning-intro {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+}
+
+.positioning-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.positioning-card {
+    background: var(--white);
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.positioning-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+.positioning-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-light) 100%);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.positioning-card h3 {
+    font-size: 1.5rem;
+    color: var(--primary-green);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.positioning-card p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+/* Governance Section */
+.governance-section {
+    padding: 6rem 0;
+}
+
+.governance-intro {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 4rem;
+}
+
+.governance-intro p {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin-top: 1rem;
+}
+
+.governance-structure {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.governance-tier {
+    margin-bottom: 3rem;
+}
+
+.governance-tier h3 {
+    font-size: 1.75rem;
+    color: var(--primary-green);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 3px solid var(--accent-orange);
+    font-weight: 600;
+}
+
+.governance-roles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.role-card {
+    background: var(--bg-light);
+    padding: 1.75rem 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-green);
+    transition: all 0.3s ease;
+}
+
+.role-card:hover {
+    background: var(--white);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateX(4px);
+}
+
+.role-card h4 {
+    font-size: 1.125rem;
+    color: var(--primary-green);
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.role-card p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Technology Section */
+.technology-section {
+    padding: 6rem 0;
+    background: var(--bg-light);
+}
+
+.tech-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.tech-intro {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+}
+
+.tech-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.tech-feature {
+    background: var(--white);
+    padding: 2rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.tech-feature:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+}
+
+.tech-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--success-green);
+    font-family: 'Crimson Pro', serif;
+    color: var(--primary-green-dark);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 0 auto 1rem;
+}
+
+.tech-feature h4 {
+    font-size: 1.125rem;
+    color: var(--primary-green);
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.tech-feature p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Regulatory Section */
+.regulatory-section {
+    padding: 6rem 0;
+    background: #295436;
+    color: var(--white);
+}
+
+.regulatory-content {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.regulatory-content h2 {
+    font-family: 'Crimson Pro', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--white);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+}
+
+.regulatory-content p {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    opacity: 0.95;
+    margin-bottom: 3rem;
+}
+
+.regulatory-badges {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.reg-badge {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 1.5rem 2rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
     min-width: 200px;
 }
 

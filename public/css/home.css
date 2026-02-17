@@ -454,6 +454,7 @@
   display: block;
   font-size: clamp(2rem, 4vw, 3rem);
   color: var(--primary-green);
+  font-family: 'Crimson Pro', serif;
   font-weight: 700;
   line-height: 1.2;
 }
