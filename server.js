@@ -148,7 +148,7 @@ app.use('/api/admin/contact-messages', basicAuth({
 // ==========================================
 // PUBLIC: Submit Contact Form
 // ==========================================
-app.post('/api/contact', express.json(), (req, res) => {
+app.post('/api/contact', express.json(), async (req, res) => {
   const { firstName, lastName, email, phone, subject, message } = req.body;
 
   // Validation
@@ -174,7 +174,7 @@ app.post('/api/contact', express.json(), (req, res) => {
     const userAgent = req.get('user-agent') || 'unknown';
 
     // Insert into database
-    const messageId = insertContactMessage({
+    const messageId = await insertContactMessage({
       first_name: firstName,
       last_name: lastName,
       email: email,
@@ -203,13 +203,13 @@ app.post('/api/contact', express.json(), (req, res) => {
 // ==========================================
 // ADMIN: Get All Contact Messages
 // ==========================================
-app.get('/api/admin/contact-messages', (req, res) => {
+app.get('/api/admin/contact-messages', async (req, res) => {
 
   const status = req.query.status || null; // Optional filter: ?status=pending
 
   try {
-    const messages = getAllContactMessages(status);
-    const counts = getMessageCounts();
+    const messages = await getAllContactMessages(status);
+    const counts = await getMessageCounts();
 
     res.json({ 
       success: true, 
@@ -228,12 +228,12 @@ app.get('/api/admin/contact-messages', (req, res) => {
 // ==========================================
 // ADMIN: Get Single Contact Message
 // ==========================================
-app.get('/api/admin/contact-messages/:id', (req, res) => {
+app.get('/api/admin/contact-messages/:id', async (req, res) => {
 
   const messageId = parseInt(req.params.id);
 
   try {
-    const message = getContactMessage(messageId);
+    const message = await getContactMessage(messageId);
 
     if (!message) {
       return res.status(404).json({ 
@@ -258,7 +258,7 @@ app.get('/api/admin/contact-messages/:id', (req, res) => {
 // ==========================================
 // ADMIN: Update Contact Message Status
 // ==========================================
-app.put('/api/admin/contact-messages/:id', express.json(), (req, res) => {
+app.put('/api/admin/contact-messages/:id', express.json(), async (req, res) => {
 
   const messageId = parseInt(req.params.id);
   const { status, respondedBy, adminNotes } = req.body;
@@ -272,7 +272,7 @@ app.put('/api/admin/contact-messages/:id', express.json(), (req, res) => {
   }
 
   try {
-    updateContactMessageStatus(messageId, status, respondedBy, adminNotes);
+    await updateContactMessageStatus(messageId, status, respondedBy, adminNotes);
 
     res.json({ 
       success: true, 
@@ -290,12 +290,12 @@ app.put('/api/admin/contact-messages/:id', express.json(), (req, res) => {
 // ==========================================
 // ADMIN: Delete Contact Message
 // ==========================================
-app.delete('/api/admin/contact-messages/:id', (req, res) => {
+app.delete('/api/admin/contact-messages/:id', async (req, res) => {
 
   const messageId = parseInt(req.params.id);
 
   try {
-    deleteContactMessage(messageId);
+    await deleteContactMessage(messageId);
 
     res.json({ 
       success: true, 
@@ -344,7 +344,7 @@ app.post('/api/cdsc/submit', upload.fields([
     }
 
     // Insert into database
-    const applicationId = db.insertApplication(data);
+    const applicationId = await db.insertApplication(data);
     
     res.json({ 
       success: true, 
@@ -362,9 +362,9 @@ app.post('/api/cdsc/submit', upload.fields([
 });
 
 // Get all applications (admin only - you should add authentication)
-app.get('/api/cdsc/applications', (req, res) => {
+app.get('/api/cdsc/applications', async (req, res) => {
   try {
-    const applications = db.getAllApplications();
+    const applications = await db.getAllApplications();
     res.json({ success: true, applications });
   } catch (error) {
     console.error('Error fetching applications:', error);
@@ -376,9 +376,9 @@ app.get('/api/cdsc/applications', (req, res) => {
 });
 
 // Get single application
-app.get('/api/cdsc/applications/:id', (req, res) => {
+app.get('/api/cdsc/applications/:id', async (req, res) => {
   try {
-    const application = db.getApplication(req.params.id);
+    const application = await db.getApplication(req.params.id);
     if (application) {
       res.json({ success: true, application });
     } else {
@@ -394,10 +394,10 @@ app.get('/api/cdsc/applications/:id', (req, res) => {
 });
 
 // Update application status
-app.patch('/api/cdsc/applications/:id/status', (req, res) => {
+app.patch('/api/cdsc/applications/:id/status', async (req, res) => {
   try {
     const { status, notes } = req.body;
-    db.updateApplicationStatus(req.params.id, status, notes);
+    await db.updateApplicationStatus(req.params.id, status, notes);
     res.json({ success: true, message: 'Status updated successfully' });
   } catch (error) {
     console.error('Error updating status:', error);
@@ -409,9 +409,9 @@ app.patch('/api/cdsc/applications/:id/status', (req, res) => {
 });
 
 // Delete application
-app.delete('/api/cdsc/applications/:id', (req, res) => {
+app.delete('/api/cdsc/applications/:id', async (req, res) => {
   try {
-    const application = db.getApplication(req.params.id);
+    const application = await db.getApplication(req.params.id);
     if (!application) {
       return res.status(404).json({ success: false, message: 'Application not found' });
     }
@@ -438,7 +438,7 @@ app.delete('/api/cdsc/applications/:id', (req, res) => {
       }
     });
 
-    db.deleteApplication(req.params.id);
+    await db.deleteApplication(req.params.id);
     res.json({ success: true, message: 'Application and associated files deleted successfully' });
   } catch (error) {
     console.error('Error deleting application:', error);
@@ -453,7 +453,7 @@ app.delete('/api/cdsc/applications/:id', (req, res) => {
 // Generate filled PDF for an application
 app.get('/api/cdsc/applications/:id/pdf', async (req, res) => {
   try {
-    const application = db.getApplication(req.params.id);
+    const application = await db.getApplication(req.params.id);
     
     if (!application) {
       return res.status(404).json({ success: false, message: 'Application not found' });
@@ -472,6 +472,7 @@ app.get('/api/cdsc/applications/:id/pdf', async (req, res) => {
     }
 
     const pdfPath = path.join(__dirname, 'generated-pdfs', `application-${req.params.id}.pdf`);
+
 
     // Error handling
     try {
@@ -499,9 +500,9 @@ app.get('/api/cdsc/applications/:id/pdf', async (req, res) => {
 });
 
 // Download tax exemption certificate file
-app.get('/api/cdsc/applications/:id/tax-certificate', (req, res) => {
+app.get('/api/cdsc/applications/:id/tax-certificate', async (req, res) => {
   try {
-    const application = db.getApplication(req.params.id);
+    const application = await db.getApplication(req.params.id);
     if (!application || !application.tax_cert_path) {
       return res.status(404).json({ success: false, message: 'Tax certificate not found' });
     }

@@ -508,6 +508,7 @@ async function updateStatus(id, status) {
 }
 
 // Download filled PDF
+
 async function downloadPDF(id) {
     try {
         // Fetch PDF info to check tax exemption status
@@ -516,14 +517,7 @@ async function downloadPDF(id) {
         if (contentType && contentType.includes('application/json')) {
             const data = await response.json();
             if (data.taxExempt && data.taxCertPath) {
-                if (confirm(data.message)) {
-                    // Download both tax certificate and PDF
-                    window.open(`/api/cdsc/applications/${id}/tax-certificate`, '_blank');
-                    window.open(`/api/cdsc/applications/${id}/pdf?forceDownload=1`, '_blank');
-                } else {
-                    // Only download PDF
-                    window.open(`/api/cdsc/applications/${id}/pdf?forceDownload=1`, '_blank');
-                }
+                showDownloadDialog(id, data.message);
             } else {
                 // Fallback: just download PDF
                 window.open(`/api/cdsc/applications/${id}/pdf?forceDownload=1`, '_blank');
@@ -536,6 +530,53 @@ async function downloadPDF(id) {
         console.error('Error downloading PDF:', error);
         alert('Error downloading PDF');
     }
+}
+
+// Show a custom dialog with two download buttons
+function showDownloadDialog(id, message) {
+    // Remove any existing dialog
+    let existing = document.getElementById('downloadDialog');
+    if (existing) existing.remove();
+
+    const dialog = document.createElement('div');
+    dialog.id = 'downloadDialog';
+    dialog.style.position = 'fixed';
+    dialog.style.top = '0';
+    dialog.style.left = '0';
+    dialog.style.width = '100vw';
+    dialog.style.height = '100vh';
+    dialog.style.background = 'rgba(0,0,0,0.4)';
+    dialog.style.display = 'flex';
+    dialog.style.alignItems = 'center';
+    dialog.style.justifyContent = 'center';
+    dialog.style.zIndex = '9999';
+
+    dialog.innerHTML = `
+        <div style="background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 16px rgba(0,0,0,0.2); min-width: 320px; max-width: 90vw;">
+            <h3 style="margin-top:0;">${message || 'Download Documents'}</h3>
+            <div style="display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0;">
+                <button id="downloadTaxCertBtn" class="btn btn-secondary">Download Tax Certificate</button>
+                <button id="downloadMainPdfBtn" class="btn btn-primary">Download CDSC Application Form</button>
+            </div>
+            <button id="closeDownloadDialogBtn" class="btn btn-light" style="margin-top: 0.5rem; margin-left: auto; margin-right: auto; display: block;">Close</button>
+        </div>
+    `;
+
+    document.body.appendChild(dialog);
+
+    document.getElementById('downloadTaxCertBtn').onclick = function() {
+        window.open(`/api/cdsc/applications/${id}/tax-certificate`, '_blank');
+    };
+    document.getElementById('downloadMainPdfBtn').onclick = function() {
+        window.open(`/api/cdsc/applications/${id}/pdf?forceDownload=1`, '_blank');
+    };
+    document.getElementById('closeDownloadDialogBtn').onclick = function() {
+        dialog.remove();
+    };
+    // Also close dialog on click outside
+    dialog.addEventListener('click', function(e) {
+        if (e.target === dialog) dialog.remove();
+    });
 }
 
 // Delete application

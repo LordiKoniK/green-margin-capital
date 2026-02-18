@@ -52,8 +52,22 @@ function drawCheckmark(page, x, y, size = 10) {
  */
 
 function drawDateInBoxes(page, font, dateStr, startX, y, boxWidth = 12, boxSpacing = 2, fontSize = 10) {
+  // Handle Date objects and full date strings from MySQL
+  if (dateStr instanceof Date) {
+    // Convert Date object to YYYY-MM-DD
+    dateStr = dateStr.toISOString().slice(0, 10);
+  } else if (typeof dateStr === 'string' && dateStr.match(/^[A-Za-z]{3} /)) {
+    // Parse full date string like 'Fri Feb 20 2026 ...'
+    const parsed = new Date(dateStr);
+    if (!isNaN(parsed)) {
+      dateStr = parsed.toISOString().slice(0, 10);
+    }
+  } else {
+    dateStr = String(dateStr || '');
+  }
+
   if (!dateStr) return;
-  
+
   // Convert YYYY-MM-DD to DD-MM-YYYY
   let formattedDate;
   if (dateStr.includes('-')) {
@@ -67,25 +81,25 @@ function drawDateInBoxes(page, font, dateStr, startX, y, boxWidth = 12, boxSpaci
   } else {
     formattedDate = dateStr;
   }
-  
+
   // Remove any non-numeric characters
   formattedDate = formattedDate.replace(/\D/g, '');
-  
+
   // Ensure we have 8 digits (DDMMYYYY)
   if (formattedDate.length !== 8) {
     console.log(`Warning: Invalid date format for ${dateStr}, expected 8 digits, got ${formattedDate.length}`);
     return;
   }
-  
+
   // Draw each digit in its box
   let currentX = startX;
   for (let i = 0; i < formattedDate.length; i++) {
     const digit = formattedDate[i];
-    
+
     // Center the digit in the box
     const digitWidth = font.widthOfTextAtSize(digit, fontSize);
     const xOffset = (boxWidth - digitWidth) / 2;
-    
+
     page.drawText(digit, {
       x: currentX + xOffset,
       y: y,
@@ -93,7 +107,7 @@ function drawDateInBoxes(page, font, dateStr, startX, y, boxWidth = 12, boxSpaci
       font: font,
       color: rgb(0, 0, 0),
     });
-    
+
     currentX += boxWidth + boxSpacing;
   }
 }
@@ -120,7 +134,7 @@ async function fillCDSCForm(applicationData, outputPath) {
           field.setText(String(value));
         }
       } catch (error) {
-        console.log(`Field ${fieldName} not found or cannot be set`);
+        console.log(`Error`, error);
       }
     };
 
@@ -180,8 +194,10 @@ async function fillCDSCForm(applicationData, outputPath) {
       setField('Physical Location TownCity_2', applicationData.secondary_physical_location);
       setField('Postal Code_2', applicationData.secondary_postal_code);
       setField('Postal Address_3', applicationData.secondary_postal_address);
+      
 
       // Secondary Employment/Business
+      setField('Source of Investment Funds_2', applicationData.secondary_fund_source);
       if (applicationData.secondary_fund_source === 'Employment') {
         setField('Name of Employer_2', applicationData.secondary_employer_name);
         setField('Employer Postal Address_2', applicationData.secondary_employer_postal);
@@ -219,7 +235,6 @@ async function fillCDSCForm(applicationData, outputPath) {
     }
 
     // Fill Declaration
-    setField('SigningMandate', applicationData.signing_mandate);
     setField('Name', applicationData.signer_names);
     setField('Name_3', applicationData.signer_names);
 
@@ -552,7 +567,6 @@ async function fillCDSCForm(applicationData, outputPath) {
     const pdfBytes = await pdfDoc.save();
     await fs.writeFile(outputPath, pdfBytes);
     
-    console.log('Town/City field value:', applicationData.primary_physical_location);
     console.log(`PDF filled successfully: ${outputPath}`);
     return outputPath;
 
