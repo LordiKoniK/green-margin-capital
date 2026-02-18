@@ -109,6 +109,10 @@ app.get('/cdsc', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'cdsc-application-form.html'));
 });
 
+app.get('/services/technology', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'html', 'technology.html'));
+});
+
 // Admin routes
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'admin.html'));

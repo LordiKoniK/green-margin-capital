@@ -2,20 +2,11 @@
    SERVICES PAGE STYLES
    ========================================== */
 
-
-   
-.header h1 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-        color: white;
-
-}
-
 /* Services Hero */
 .services-hero {
     background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
     color: var(--white);
-    padding: 6rem 0 4rem;
+    padding: 7rem 0 5rem;
     text-align: center;
 }
 
@@ -25,7 +16,6 @@
     margin-bottom: 1rem;
     font-weight: 700;
     color: orange;
-
 }
 
 .services-hero p {
@@ -36,8 +26,6 @@
 /* Main Services Section */
 .main-services-section {
     padding: 4rem 0;
-    padding-bottom: 0rem;
-    margin-bottom: -4rem;
 }
 
 .service-block {
@@ -79,6 +67,58 @@
     color: var(--primary-green);
     margin-bottom: 1.5rem;
     font-weight: 700;
+}
+
+/* Service Highlights - Compact Badges */
+.service-highlights {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.highlight-badge {
+    background: var(--bg-light);
+    padding: 0.75rem 0.1rem;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-dark);
+    border: 2px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.highlight-badge:hover {
+    border-color: var(--primary-green);
+    background: var(--white);
+    transform: translateY(-2px);
+}
+
+/* Technology Callout Box */
+.tech-callout {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-light) 100%);
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    margin: 2.5rem 0;
+}
+
+.tech-callout p {
+    color: var(--white);
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+}
+
+.tech-callout .btn {
+    background: var(--accent-orange);
+    color: var(--white);
+    border: none;
+}
+
+.tech-callout .btn:hover {
+    background: #e67e00;
+    transform: translateY(-2px);
 }
 
 .service-intro {
@@ -174,6 +214,113 @@
     height: auto;
     border-radius: 16px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+/* Additional Services */
+.additional-services {
+    padding: 6rem 0;
+    background: var(--bg-light);
+}
+
+/* Emerging Products Section */
+.emerging-products-section {
+    padding: 6rem 0;
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+    color: var(--white);
+}
+
+.emerging-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.emerging-content .section-label {
+    color: var(--accent-orange);
+}
+
+.emerging-content h2 {
+    font-family: 'Crimson Pro', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--white);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+}
+
+.emerging-intro {
+    font-size: 1.25rem;
+    line-height: 1.8;
+    opacity: 0.95;
+    margin-bottom: 4rem;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.emerging-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2.5rem;
+    margin-bottom: 3rem;
+}
+
+.emerging-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 3rem 2rem;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.emerging-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+.emerging-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--accent-orange);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.emerging-card h3 {
+    font-size: 1.5rem;
+    color: var(--white);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.emerging-card p {
+    font-size: 1rem;
+    line-height: 1.7;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.emerging-note {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 1.5rem 2rem;
+    border-radius: 12px;
+    border-left: 4px solid var(--accent-orange);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    opacity: 0.9;
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.emerging-note strong {
+    color: var(--accent-orange);
 }
 
 /* Additional Services */

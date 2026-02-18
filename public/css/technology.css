@@ -1,0 +1,408 @@
+/* ==========================================
+   TECHNOLOGY PAGE STYLES
+   ========================================== */
+
+/* Tech Hero */
+.tech-hero {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+    color: var(--white);
+    padding: 7rem 0 5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.tech-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(255, 140, 0, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.tech-hero h1 {
+    font-family: 'Crimson Pro', serif;
+    font-size: clamp(3rem, 5vw, 4.5rem);
+    margin-bottom: 1rem;
+    font-weight: 700;
+    position: relative;
+    z-index: 2;
+    color: orange;
+}
+
+.tech-hero p {
+    font-size: clamp(1.125rem, 2vw, 1.5rem);
+    opacity: 0.95;
+    position: relative;
+    z-index: 2;
+}
+
+/* ATrad Section */
+.atrad-section {
+    padding: 6rem 0;
+}
+
+.atrad-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+}
+
+.atrad-image {
+    position: relative;
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-light) 100%);
+    border-radius: 16px;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.atrad-badge {
+    text-align: center;
+    color: var(--white);
+    padding: 2rem;
+}
+
+.partner-logo {
+    width: 200px;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 2rem;
+    background: var(--white);
+    /* padding: 1rem; */
+    /* border-radius: 8px; */
+}
+
+.badge-text {
+    display: block;
+    font-size: 1rem;
+    font-weight: 500;
+    opacity: 0.9;
+    margin-bottom: 0.5rem;
+}
+
+.badge-name {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.atrad-content h2 {
+    font-family: 'Crimson Pro', serif;
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    color: var(--primary-green);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+}
+
+.atrad-content p {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.atrad-highlights {
+    margin-top: 2rem;
+}
+
+.highlight-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    color: var(--primary-green);
+    font-weight: 500;
+}
+
+.highlight-item svg {
+    color: var(--success-green);
+    flex-shrink: 0;
+}
+
+/* Capabilities Section */
+.capabilities-section {
+    padding: 6rem 0;
+    background: var(--bg-light);
+}
+
+.capabilities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.capability-card {
+    background: var(--white);
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.capability-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+.capability-primary {
+    border-top: 4px solid var(--accent-orange);
+}
+
+.capability-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-light) 100%);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.capability-card h3 {
+    font-size: 1.5rem;
+    color: var(--primary-green);
+    margin-bottom: 1.25rem;
+    font-weight: 600;
+}
+
+.capability-features {
+    list-style: none;
+    padding: 0;
+}
+
+.capability-features li {
+    padding: 0.625rem 0;
+    padding-left: 1.75rem;
+    position: relative;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.capability-features li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent-orange);
+    font-weight: 700;
+}
+
+/* Infrastructure Section */
+.infrastructure-section {
+    padding: 6rem 0;
+}
+
+.infrastructure-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.infrastructure-intro {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+}
+
+.infrastructure-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.infrastructure-card {
+    background: var(--bg-light);
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    border: 2px solid rgb(239, 239, 239);
+}
+
+.infrastructure-card:hover {
+    background: var(--white);
+    border-color: var(--primary-green);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    transform: translateY(-4px);
+}
+
+.infra-icon {
+    width: 70px;
+    height: 70px;
+    background: var(--primary-green);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.infrastructure-card h3 {
+    font-size: 1.25rem;
+    color: var(--primary-green);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.infrastructure-card p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* Competitive Advantage Section */
+.advantage-section {
+    padding: 6rem 0;
+    background: var(--primary-green-dark);
+    color: var(--white);
+}
+
+.advantage-section .container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.advantage-content h2 {
+    font-family: 'Crimson Pro', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    text-align: center;
+    color: var(--white);
+    margin-bottom: 4rem;
+    font-weight: 700;
+}
+
+.advantage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 3rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.advantage-item {
+    position: relative;
+    padding-left: 4rem;
+}
+
+.advantage-number {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--accent-orange);
+    line-height: 1;
+    margin-right: 5px;
+}
+
+.advantage-item h3 {
+    font-size: 1.5rem;
+    color: var(--white);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.advantage-item p {
+    font-size: 1rem;
+    line-height: 1.7;
+    opacity: 0.9;
+    margin: 0;
+}
+
+/* CTA Section */
+.cta-section {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+    color: var(--white);
+    padding: 5rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(255, 140, 0, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.cta-content {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+.cta-content h2 {
+    color: var(--white);
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.cta-content p {
+    font-size: 1.25rem;
+    margin-bottom: 2.5rem;
+    opacity: 0.95;
+}
+
+.btn-large {
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .capabilities-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .tech-hero {
+        padding: 5rem 0 3rem;
+    }
+
+    .atrad-grid {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+
+    .atrad-image {
+        min-height: 300px;
+    }
+
+    .capabilities-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .infrastructure-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .advantage-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .advantage-item {
+        padding-left: 3rem;
+    }
+
+    .advantage-number {
+        font-size: 2.5rem;
+    }
+}

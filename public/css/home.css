@@ -299,12 +299,19 @@
    MARKET TICKER
    ======================================== */
 
+/* ==========================================
+   MARKET TICKER (STICKY)
+   Sticks below navbar (navbar z-index: 1000)
+   ======================================== */
 .market-ticker-wrapper {
   background-color: var(--dark-gray);
   border-top: 3px solid var(--accent-orange);
   border-bottom: 3px solid var(--accent-orange);
   overflow: hidden;
-  position: relative;
+  position: sticky;
+  top: 82px;
+  z-index: 999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .market-ticker-container {
