@@ -30,11 +30,11 @@
     <div class="top-bar">
         <div class="container">
             <div class="top-bar-content">
-                <a href="/cdsc" class="top-bar-link">OPEN CDSC ACCOUNT</a>
-                <span class="top-bar-divider">|</span>
-                <a href="#" class="top-bar-link">DOWNLOAD OUR TRADING APP</a>
-                <!-- <span class="top-bar-divider">|</span>
-                <a href="#" class="top-bar-link">TRADE ONLINE</a> -->
+                <a href="/cdsc" class="top-bar-link" style="background-color: var(--accent-orange);">OPEN CDSC ACCOUNT</a>
+                <!-- <span class="top-bar-divider" style="display: none;">|</span>
+                <a href="#" class="top-bar-link" style="display: none;">DOWNLOAD OUR TRADING APP</a>
+                 <span class="top-bar-divider">|</span>
+                <a href="#" class="top-bar-link">TRADE ONLINE</a>  -->
             </div>
         </div>
     </div>
@@ -71,6 +71,18 @@
             </button>
         </div>
     </nav>
+
+    <!-- ========================================
+         MARKET TICKER (Stock Market Data)
+         ======================================== -->
+    <section class="market-ticker-wrapper">
+        <div class="market-ticker-container" id="market-ticker">
+            <!-- Data is inserted here by API -->
+            <div class="market-ticker-placeholder">
+                <span class="ticker-loading">Loading market data...</span>
+            </div>
+        </div>
+    </section>
 
     <!-- ========================================
          HERO CAROUSEL / HIGHLIGHTS SECTION
@@ -122,27 +134,53 @@
                         <p class="carousel-subtitle">Become part of Kenya's critical energy infrastructure</p>
 
                         <!-- Countdown Timer -->
-                        <div class="ipo-countdown">
-                            <p class="countdown-label">OFFER CLOSES IN</p>
-                            <div class="countdown-blocks">
-                                <div class="countdown-block">
-                                    <span class="countdown-num" id="ipo-days">00</span>
-                                    <span class="countdown-unit">DAYS</span>
+                        <div class="ipo-countdowns-row">
+                            <div class="ipo-countdown">
+                                <p class="countdown-label">OFFER CLOSES IN</p>
+                                <div class="countdown-blocks">
+                                    <div class="countdown-block">
+                                        <span class="countdown-num" id="ipo-days">00</span>
+                                        <span class="countdown-unit">DAYS</span>
+                                    </div>
+                                    <span class="countdown-sep">:</span>
+                                    <div class="countdown-block">
+                                        <span class="countdown-num" id="ipo-hours">00</span>
+                                        <span class="countdown-unit">HOURS</span>
+                                    </div>
+                                    <span class="countdown-sep">:</span>
+                                    <div class="countdown-block">
+                                        <span class="countdown-num" id="ipo-mins">00</span>
+                                        <span class="countdown-unit">MIN</span>
+                                    </div>
+                                    <span class="countdown-sep">:</span>
+                                    <div class="countdown-block">
+                                        <span class="countdown-num" id="ipo-secs">00</span>
+                                        <span class="countdown-unit">SEC</span>
+                                    </div>
                                 </div>
-                                <span class="countdown-sep">:</span>
-                                <div class="countdown-block">
-                                    <span class="countdown-num" id="ipo-hours">00</span>
-                                    <span class="countdown-unit">HOURS</span>
-                                </div>
-                                <span class="countdown-sep">:</span>
-                                <div class="countdown-block">
-                                    <span class="countdown-num" id="ipo-mins">00</span>
-                                    <span class="countdown-unit">MIN</span>
-                                </div>
-                                <span class="countdown-sep">:</span>
-                                <div class="countdown-block">
-                                    <span class="countdown-num" id="ipo-secs">00</span>
-                                    <span class="countdown-unit">SEC</span>
+                            </div>
+                            <div class="ipo-countdown">
+                                <p class="countdown-label">LISTING OPENS IN</p>
+                                <div class="countdown-blocks">
+                                    <div class="countdown-block">
+                                        <span class="countdown-num" id="ipo2-days">00</span>
+                                        <span class="countdown-unit">DAYS</span>
+                                    </div>
+                                    <span class="countdown-sep">:</span>
+                                    <div class="countdown-block">
+                                        <span class="countdown-num" id="ipo2-hours">00</span>
+                                        <span class="countdown-unit">HOURS</span>
+                                    </div>
+                                    <span class="countdown-sep">:</span>
+                                    <div class="countdown-block">
+                                        <span class="countdown-num" id="ipo2-mins">00</span>
+                                        <span class="countdown-unit">MIN</span>
+                                    </div>
+                                    <span class="countdown-sep">:</span>
+                                    <div class="countdown-block">
+                                        <span class="countdown-num" id="ipo2-secs">00</span>
+                                        <span class="countdown-unit">SEC</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -170,7 +208,7 @@
 
 
             <!-- Slide 3: Equity -->
-            <div class="carousel-slide">
+            <!-- <div class="carousel-slide">
                 <div class="carousel-image">
                     <img src="../images/hero-equity.webp" alt="Equity Investment Solutions" style="object-position: 50% 25%;">
                 </div>
@@ -182,7 +220,7 @@
                         <a href="/products#equity" class="btn btn-primary">Learn More</a>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Slide 4: Research -->
             <div class="carousel-slide">
@@ -191,10 +229,10 @@
                 </div>
                 <div class="carousel-content">
                     <div class="container">
-                        <span class="carousel-tag">Our Services</span>
-                        <h1 class="carousel-title">Research</h1>
-                        <p class="carousel-subtitle">In-depth market analysis and insights to inform your investment decisions</p>
-                        <a href="/products#research" class="btn btn-primary">Learn More</a>
+                        <span class="carousel-tag">More Options</span>
+                        <h1 class="carousel-title">Our services</h1>
+                        <p class="carousel-subtitle">Explore our other financial services</p>
+                        <a href="/services" class="btn btn-primary">Learn More</a>
                     </div>
                 </div>
             </div>
@@ -217,19 +255,7 @@
             <button class="carousel-dot active" aria-label="Go to slide 1"></button>
             <button class="carousel-dot" aria-label="Go to slide 2"></button>
             <button class="carousel-dot" aria-label="Go to slide 3"></button>
-            <button class="carousel-dot" aria-label="Go to slide 4"></button>
-        </div>
-    </section>
-
-    <!-- ========================================
-         MARKET TICKER (Stock Market Data)
-         ======================================== -->
-    <section class="market-ticker-wrapper">
-        <div class="market-ticker-container" id="market-ticker">
-            <!-- Data is inserted here by API -->
-            <div class="market-ticker-placeholder">
-                <span class="ticker-loading">Loading market data...</span>
-            </div>
+            <!-- <button class="carousel-dot" aria-label="Go to slide 4"></button> -->
         </div>
     </section>
 
@@ -251,8 +277,8 @@
                     </div>
                     <div class="experience-badge">
                         <div class="badge-content">
-                            <span class="badge-number">15+</span>
-                            <span class="badge-text">Years of experience</span>
+                            <span class="badge-number">#253</span>
+                            <span class="badge-text">CMA License</span>
                         </div>
                     </div>
                 </div>
@@ -262,10 +288,13 @@
                     <h2 class="section-title">
                         <span class="title-accent">WELCOME TO</span>
                         <span class="title-main">GREEN MARGIN CAPITAL</span>
+                        <span class="title-highlight">The Broker at the Exchange</span>
                     </h2>
                     
                     <div class="welcome-description">
-                        <p>A Kenyan organic investment house with a solid reputation and deep experience of the continent's capital markets. Founded on the principle of democratizing access to investment solutions, Green Margin Capital is poised to revolutionize the way individuals and institutions engage with financial markets.</p>
+                        <p>Green Margin Capital is an organic, Kenyan-grown stockbroking firm built on deep, first-hand experience gained across Africa’s capital markets. 
+                            We are driven by a commitment to use technology to democratize access to high-quality investment opportunities, and intend to redefine how individuals and institutions participate in Kenya’s financial markets. 
+                            GMC seeks to build a more inclusive, transparent, and accessible financial future by empowering everyday investors and institutions to engage confidently with our fast-evolving capital markets.</p>
                     </div>
 
                     <!-- Services List -->
@@ -337,7 +366,8 @@
                 <h2 class="section-title">
                     <span class="title-main">Why Choose Green Margin Capital</span>
                 </h2>
-                <p class="section-subtitle">A financial markets startup driven by a vision for financial empowerment through strategic capital markets investment solutions.</p>
+                <p class="section-subtitle">The leading African investment house that bridges local opportunity and global capital—supporting enterprise growth, financial inclusion, and market development across Africa
+                Green Margin Capital brings a fresh blend of established market expertise, regional insight, and enable you to trade globally.</p>
             </div>
 
             <div class="features-grid">
@@ -382,8 +412,8 @@
                             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                         </svg>
                     </div>
-                    <h3>Competitive Rates</h3>
-                    <p>Transparent pricing and competitive brokerage rates to maximize your investment returns</p>
+                    <h3>Transparent Pricing</h3>
+                    <p>Transparent pricing and brokerage rates aligned with regulatory rules, to maximize your investment returns</p>
                 </div>
 
                 <div class="feature-card" >
@@ -438,19 +468,19 @@
                     <div class="footer-logo">
                         <img src="../images/GMC Logo.png" alt="Green Margin Capital">
                     </div>
-                    <p class="footer-description">A dynamic, Kenya-based capital markets and stockbroker democratising access to investment solutions across Africa. Fully licensed by CMA (#253).</p>
+                    <p class="footer-description">A dynamic, digital, Kenya-based capital markets intermediary that is using technology to democratize access to investment solutions across Africa.</p>
                 </div>
 
                 <!-- Useful Links -->
                 <div class="footer-section">
                     <h3>Useful Links</h3>
                     <ul>
-                        <li><a href="https://www.cma.or.ke/">Central Markets Authority (CMA)</a></li>
-                        <li><a href="https://www.nse.co.ke/">Nairobi Securities Exchange (NSE)</a></li>
-                        <li><a href="https://www.cdsckenya.com/">Central Depository and Settlement Corporation (CDSC)</a></li>
-                        <li><a href="https://www.centralbank.go.ke/">Central Bank of Kenya (CBK)</a></li>
-                        <li><a href="http://www.kenyalaw.org/">Constitution of Kenya</a></li>
-                        <li><a href="https://www.kasib.co.ke/">Kenya Association of Stockbrokers and Investment Banks (KASIB)</a></li>
+                        <li><a href="https://www.cma.or.ke/" target="_blank" rel="noopener noreferrer">Central Markets Authority (CMA)</a></li>
+                        <li><a href="https://www.nse.co.ke/" target="_blank" rel="noopener noreferrer">Nairobi Securities Exchange (NSE)</a></li>
+                        <li><a href="https://www.cdsckenya.com/" target="_blank" rel="noopener noreferrer">Central Depository and Settlement Corporation (CDSC)</a></li>
+                        <li><a href="https://www.centralbank.go.ke/" target="_blank" rel="noopener noreferrer">Central Bank of Kenya (CBK)</a></li>
+                        <li><a href="http://www.kenyalaw.org/" target="_blank" rel="noopener noreferrer">Constitution of Kenya</a></li>
+                        <li><a href="https://www.kasib.co.ke/" target="_blank" rel="noopener noreferrer">Kenya Association of Stockbrokers and Investment Banks (KASIB)</a></li>
                     </ul>
                 </div>
 
@@ -486,24 +516,24 @@
                             <a href="mailto:support@greenmargincapital.com">support@greenmargincapital.com</a>
                         </div>
                         <div class="social-links">
-                        <a href="#" aria-label="Twitter" class="social-link">
+                        <a href="#" target="_blank" rel="noopener noreferrer" aria-label="Twitter" class="social-link">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" transform="translate(10 10)">
                                 <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"></path>
                             </svg>
                         </a>
-                        <a href="#" aria-label="Facebook" class="social-link">
+                        <a href="https://www.facebook.com/people/Green-Margin-Capital/61588055447089/" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="social-link">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" transform="translate(10 10)">
                                 <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path>
                             </svg>
                         </a>
-                        <a href="#" aria-label="Instagram" class="social-link">
+                        <a href="https://www.instagram.com/green_margincapital/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="social-link">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" transform="translate(10 10)">
                                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                                 <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path>
                                 <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                             </svg>
                         </a>
-                        <a href="#" aria-label="LinkedIn" class="social-link">
+                        <a href="#" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" class="social-link">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" transform="translate(10 10)">
                                 <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"></path>
                                 <circle cx="4" cy="4" r="2"></circle>

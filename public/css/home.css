@@ -228,6 +228,7 @@
 
 .ipo-countdown {
   margin: 1.5rem 0 2rem;
+  background: transparent;
 }
 .countdown-label {
   font-size: 0.8rem;
@@ -274,6 +275,47 @@
   color: rgba(255, 255, 255, 0.5);
   margin-bottom: 1.25rem;
 }
+
+/* IPO Countdown Row (for home page) */
+.ipo-countdowns-row {
+    display: flex;
+    gap: 2.5rem;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    background: transparent;
+}
+
+.ipo-countdowns-row .ipo-countdown {
+    min-width: 240px;
+    background: transparent;
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin: 0;
+}
+
+.ipo-countdowns-row .ipo-countdown .countdown-label {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--light-gray);
+    margin-bottom: 1rem;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+@media (max-width: 700px) {
+    .ipo-countdowns-row {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: stretch;
+    }
+    .ipo-countdowns-row .ipo-countdown {
+        padding: 1.25rem 1rem;
+        min-width: 0;
+    }
+}
+
 /* Expired state */
 .countdown-expired {
   font-size: 1rem;
@@ -464,6 +506,14 @@
   font-family: 'Crimson Pro', serif;
   font-weight: 700;
   line-height: 1.2;
+}
+
+.title-highlight {
+  display: block;
+  font-size: 1.75rem;
+  color: grey;
+  margin-top: 0.5rem;
+  font-weight: 500;
 }
 
 .welcome-description {

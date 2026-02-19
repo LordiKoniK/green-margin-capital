@@ -1,0 +1,137 @@
+-- RUN THIS MYSQL CODE TO CREATE SITE DATABASE FOR LOCAL USE/TESTING (+ schema backup)
+-- ADJUST .env CREDENTIALS AS NECESSARY FOR YOUR OWN MYSQL 
+
+
+CREATE DATABASE IF NOT EXISTS sitedb;
+USE sitedb;
+
+CREATE TABLE IF NOT EXISTS applications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  submission_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+  account_type VARCHAR(50) NOT NULL,
+  cda_code VARCHAR(100),
+  cds_account_number VARCHAR(100),
+
+  primary_surname VARCHAR(100) NOT NULL,
+  primary_other_names VARCHAR(150) NOT NULL,
+  primary_dob DATE NOT NULL,
+  primary_gender VARCHAR(20) NOT NULL,
+  primary_investor_category VARCHAR(100) NOT NULL,
+  primary_id_type VARCHAR(50) NOT NULL,
+  primary_id_number VARCHAR(100) NOT NULL,
+  primary_passport_expiry DATE,
+  primary_nationality VARCHAR(100) NOT NULL,
+  primary_country_residence VARCHAR(100) NOT NULL,
+  primary_kra_pin VARCHAR(50) NOT NULL,
+  primary_passport_photo_path TEXT,
+
+  primary_country_code VARCHAR(10) NOT NULL,
+  primary_phone VARCHAR(20) NOT NULL,
+  primary_email VARCHAR(150) NOT NULL,
+  primary_town_city VARCHAR(100) NOT NULL,
+  primary_physical_location TEXT NOT NULL,
+  primary_postal_code VARCHAR(20),
+  primary_postal_address VARCHAR(100),
+
+  primary_fund_source VARCHAR(150) NOT NULL,
+  primary_employer_name VARCHAR(150),
+  primary_employer_postal VARCHAR(100),
+  primary_employer_phone VARCHAR(50),
+  primary_employer_email VARCHAR(150),
+  primary_business_name VARCHAR(150),
+  primary_business_reg_number VARCHAR(100),
+  primary_business_postal VARCHAR(100),
+  primary_business_phone VARCHAR(50),
+  primary_business_email VARCHAR(150),
+  primary_business_office VARCHAR(150),
+
+  secondary_surname VARCHAR(100),
+  secondary_other_names VARCHAR(150),
+  secondary_dob DATE,
+  secondary_gender VARCHAR(20),
+  secondary_investor_category VARCHAR(100),
+  secondary_id_type VARCHAR(50),
+  secondary_id_number VARCHAR(100),
+  secondary_passport_expiry DATE,
+  secondary_nationality VARCHAR(100),
+  secondary_country_residence VARCHAR(100),
+  secondary_kra_pin VARCHAR(50),
+  secondary_passport_photo_path TEXT,
+
+  secondary_country_code VARCHAR(10),
+  secondary_phone VARCHAR(20),
+  secondary_email VARCHAR(150),
+  secondary_town_city VARCHAR(100),
+  secondary_physical_location TEXT,
+  secondary_postal_code VARCHAR(20),
+  secondary_postal_address VARCHAR(100),
+
+  secondary_fund_source VARCHAR(150),
+  secondary_employer_name VARCHAR(150),
+  secondary_employer_postal VARCHAR(100),
+  secondary_employer_phone VARCHAR(50),
+  secondary_employer_email VARCHAR(150),
+  secondary_business_name VARCHAR(150),
+  secondary_business_reg_number VARCHAR(100),
+  secondary_business_postal VARCHAR(100),
+  secondary_business_phone VARCHAR(50),
+  secondary_business_email VARCHAR(150),
+  secondary_business_office VARCHAR(150),
+
+  is_pep VARCHAR(10) NOT NULL,
+  pep_details TEXT,
+
+  payment_method VARCHAR(50) NOT NULL,
+  bank_name VARCHAR(150),
+  account_number VARCHAR(100),
+  account_name VARCHAR(150),
+  branch_code VARCHAR(50),
+  swift_code VARCHAR(50),
+  currency VARCHAR(50),
+  other_currency VARCHAR(50),
+  mobile_money_phone VARCHAR(20),
+
+  is_tax_exempt VARCHAR(10) NOT NULL,
+  tax_cert_path TEXT,
+
+  signing_mandate VARCHAR(100) NOT NULL,
+  signer_names VARCHAR(200) NOT NULL,
+  signature_path TEXT NOT NULL,
+  secondary_signer_names VARCHAR(200),
+  secondary_signature_path TEXT,
+  signature_date DATE NOT NULL,
+
+  status VARCHAR(50) DEFAULT 'pending',
+  notes TEXT
+);
+
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  submission_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+  -- Contact Details
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  email VARCHAR(150) NOT NULL,
+  phone VARCHAR(50),
+
+  -- Message Details
+  subject VARCHAR(200) NOT NULL,
+  message TEXT NOT NULL,
+
+  -- Status Tracking
+  status ENUM('pending', 'addressed', 'ignored') DEFAULT 'pending',
+
+  -- Response / Notes
+  response_date DATETIME,
+  responded_by VARCHAR(150),
+  admin_notes TEXT,
+
+  -- Metadata
+  ip_address VARCHAR(45),
+  user_agent TEXT,
+
+  INDEX idx_status (status),
+  INDEX idx_submission_date (submission_date)
+);

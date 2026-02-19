@@ -122,6 +122,7 @@
 
 /* Mission & Vision */
 .mission-vision-section {
+    margin-top: 2rem;
     padding: 6rem 0;
     background: var(--bg-light);
 }
@@ -309,74 +310,6 @@
     font-size: 0.95rem;
 }
 
-/* Regulatory Section */
-.regulatory-section {
-    padding: 6rem 0;
-    background: var(--primary-green-dark);
-    color: var(--white);
-}
-
-.regulatory-content {
-    text-align: center;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.regulatory-content h2 {
-    font-family: 'Crimson Pro', serif;
-    font-size: clamp(2rem, 4vw, 3rem);
-    color: var(--white);
-    margin-bottom: 1.5rem;
-    font-weight: 700;
-}
-
-.regulatory-content p {
-    font-size: 1.125rem;
-    line-height: 1.8;
-    opacity: 0.95;
-    margin-bottom: 3rem;
-}
-
-.regulatory-badges {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-}
-
-.reg-badge {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    padding: 1.5rem 2rem;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    text-align: center;
-    min-width: 200px;
-}
-
-.badge-label {
-    display: block;
-    font-size: 0.85rem;
-    opacity: 0.8;
-    margin-bottom: 0.5rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.badge-value {
-    display: block;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--accent-orange);
-}
-
-.badge-detail {
-    display: block;
-    font-size: 0.9rem;
-    margin-top: 0.25rem;
-    opacity: 0.8;
-}
-
 /* Strategic Positioning Section */
 .positioning-section {
     padding: 6rem 0;
@@ -513,6 +446,7 @@
 
 /* Technology Section */
 .technology-section {
+    margin-bottom: 7rem;
     padding: 6rem 0;
     background: var(--bg-light);
 }
@@ -582,8 +516,7 @@
 /* Regulatory Section */
 .regulatory-section {
     padding: 6rem 0;
-    background: #295436;
-    color: var(--white);
+    background: #eff0f2;
 }
 
 .regulatory-content {
@@ -595,7 +528,6 @@
 .regulatory-content h2 {
     font-family: 'Crimson Pro', serif;
     font-size: clamp(2rem, 4vw, 3rem);
-    color: var(--white);
     margin-bottom: 1.5rem;
     font-weight: 700;
 }
@@ -615,13 +547,19 @@
 }
 
 .reg-badge {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(231, 231, 231);
     backdrop-filter: blur(10px);
     padding: 1.5rem 2rem;
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 2px solid rgb(202, 202, 202);
     text-align: center;
     min-width: 200px;
+    transition: all 0.3s ease;
+}
+
+.reg-badge:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    transform: translateY(-8px);
 }
 
 .reg-badge img {

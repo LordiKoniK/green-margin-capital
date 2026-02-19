@@ -226,15 +226,14 @@ class CountdownTimer {
   showExpired() {
     const container = document.querySelector('.ipo-countdown');
     if (container) {
-      container.innerHTML = '<p class="countdown-expired">THIS OFFER HAS CLOSED</p>';
+      container.innerHTML = '<p class="countdown-expired">IPO OFFER HAS CLOSED</p>';
     }
   }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   // -------------------------------------------------------
-  // UPDATE THE IPO CLOSING DATE:
-  // Change the date string below to the new closing date.
+  // UPDATE IPO DATES:
   // Format: 'YYYY-MM-DDTHH:MM:SS'
   // -------------------------------------------------------
   new CountdownTimer('2026-02-19T17:00:00', {
@@ -242,6 +241,13 @@ document.addEventListener('DOMContentLoaded', () => {
     hours: 'ipo-hours',
     mins:  'ipo-mins',
     secs:  'ipo-secs'
+  });
+  // Second countdown for listing opens
+  new CountdownTimer('2026-03-09T09:31:00', {
+    days:  'ipo2-days',
+    hours: 'ipo2-hours',
+    mins:  'ipo2-mins',
+    secs:  'ipo2-secs'
   });
 });
 
