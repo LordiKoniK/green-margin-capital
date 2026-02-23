@@ -2,26 +2,25 @@ const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
 const fs = require('fs').promises;
 const path = require('path');
 
+// PARAMETERS
 /**
- * Fill the CDSC PDF form with application data
- * @param {Object} applicationData - The application data from database
+ * Main CDSC form params
+ * @param {Object} applicationData - Individual application data from database
  * @param {string} outputPath - Where to save the filled PDF
  * @returns {Promise<string>} - Path to the generated PDF
  * 
  */
 
 /**
- * Draw a checkmark at specific coordinates on a PDF page
+ * Check drawing params
  * @param {PDFPage} page - The PDF page to draw on
  * @param {number} x - X coordinate
  * @param {number} y - Y coordinate
  * @param {number} size - Size of the checkmark (default: 10)
  */
 
-// For checkboxes (not named in the code of the PDF document)
+// Checkbox fields are not selectable by name for insertion, so we draw the ticks manually instead
 function drawCheckmark(page, x, y, size = 10) {
-  // Draw a tick (checkmark)
-  // Start at bottom left, go to middle, then up to top right
   const start = { x: x - size / 2, y: y };
   const mid = { x: x - size / 8, y: y - size / 3 };
   const end = { x: x + size / 2, y: y + size / 2 };
@@ -40,7 +39,7 @@ function drawCheckmark(page, x, y, size = 10) {
 }
 
 /**
- * Draw date in individual boxes (DD-MM-YYYY format)
+ * Date drawing params
  * @param {PDFPage} page - The PDF page to draw on
  * @param {PDFFont} font - The font to use
  * @param {string} dateStr - Date string in YYYY-MM-DD format
@@ -51,13 +50,12 @@ function drawCheckmark(page, x, y, size = 10) {
  * @param {number} fontSize - Font size (default: 10)
  */
 
+// Date fields are digit-split boxes, hence also must be drawn manually
 function drawDateInBoxes(page, font, dateStr, startX, y, boxWidth = 12, boxSpacing = 2, fontSize = 10) {
-  // Handle Date objects and full date strings from MySQL
   if (dateStr instanceof Date) {
-    // Convert Date object to YYYY-MM-DD
+    // Convert SQL date object
     dateStr = dateStr.toISOString().slice(0, 10);
   } else if (typeof dateStr === 'string' && dateStr.match(/^[A-Za-z]{3} /)) {
-    // Parse full date string like 'Fri Feb 20 2026 ...'
     const parsed = new Date(dateStr);
     if (!isNaN(parsed)) {
       dateStr = parsed.toISOString().slice(0, 10);
@@ -73,7 +71,6 @@ function drawDateInBoxes(page, font, dateStr, startX, y, boxWidth = 12, boxSpaci
   if (dateStr.includes('-')) {
     const parts = dateStr.split('-');
     if (parts.length === 3) {
-      // YYYY-MM-DD to DD-MM-YYYY
       formattedDate = `${parts[2]}${parts[1]}${parts[0]}`;
     } else {
       formattedDate = dateStr.replace(/-/g, '');
@@ -116,17 +113,17 @@ function drawDateInBoxes(page, font, dateStr, startX, y, boxWidth = 12, boxSpaci
 
 async function fillCDSCForm(applicationData, outputPath) {
   try {
-    // Read the template form document
+    // Read form template file
     const templatePath = path.join(__dirname, 'public', 'assets', 'CDS_1_1_INDIVIDUAL-JOINT_ACCOUNT_OPENING_FORM_1.pdf');
     const existingPdfBytes = await fs.readFile(templatePath);
     
-    // Load the PDF
+    // Load the document
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
     const form = pdfDoc.getForm();
 
     const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica); // Embed Helvetica font for drawing dates
 
-    // Helper function to set field values
+    // Function to set field values
     const setField = (fieldName, value) => {
       try {
         const field = form.getTextField(fieldName);
@@ -138,11 +135,11 @@ async function fillCDSCForm(applicationData, outputPath) {
       }
     };
 
-    // Fill Account Type
+    // Account Type
     setField('CDA CODE', applicationData.cda_code);
     setField('CDS ACCOUNT NUMBER NEWEXISTING', applicationData.cds_account_number);
 
-    // Fill Primary Client Details
+    // Primary Client Details
     setField('Surname', applicationData.primary_surname);
     setField('Other Names', applicationData.primary_other_names);
     setField('IDPassport Number', applicationData.primary_id_number);
@@ -150,7 +147,7 @@ async function fillCDSCForm(applicationData, outputPath) {
     setField('Country of Residence', applicationData.primary_country_residence);
     setField('KRA PIN', applicationData.primary_kra_pin);
 
-    // Fill Primary Contact Information
+    // Primary Contact Information
     setField('Country Code', applicationData.primary_country_code);
     setField('Telephone Number', applicationData.primary_phone);
     setField('Email Address', applicationData.primary_email);
@@ -159,7 +156,7 @@ async function fillCDSCForm(applicationData, outputPath) {
     setField('Postal Code', applicationData.primary_postal_code);
     setField('Postal Address', applicationData.primary_postal_address);
 
-    // Fill Primary Employment/Business
+    // Primary Employment/Business
     setField('Source of Investment Funds', applicationData.primary_fund_source);
     if (applicationData.primary_fund_source === 'Employment') {
       setField('Name of Employer', applicationData.primary_employer_name);
@@ -175,7 +172,7 @@ async function fillCDSCForm(applicationData, outputPath) {
       setField('Registered Office', applicationData.primary_business_office);
     }
 
-    // Fill Secondary Client Details (if joint account)
+    // Secondary Client Details (if joint account)
     if (applicationData.account_type === 'joint') {
       setField('Surname_2', applicationData.secondary_surname);
       setField('Other Names_2', applicationData.secondary_other_names);
@@ -213,12 +210,12 @@ async function fillCDSCForm(applicationData, outputPath) {
       }
     }
 
-    // Fill PEP Status
+    // PEP Status
     if (applicationData.is_pep) {
       setField('If yes specify the name of the person and the relationship', applicationData.pep_details);
     }
 
-    // Fill Payment Details
+    // Payment Details
     if (applicationData.payment_method !== 'mobile') {
       setField('Bank Name', applicationData.bank_name);
       setField('Account Number', applicationData.account_number);
@@ -234,13 +231,13 @@ async function fillCDSCForm(applicationData, outputPath) {
       setField('Phone Number', applicationData.mobile_money_phone);
     }
 
-    // Fill Declaration
+    // Declaration
     setField('Name', applicationData.signer_names);
     setField('Name_3', applicationData.signer_names);
 
 
 
-    // Get pages for drawing checkmarks (before flattening)
+    // Get pages for manual item drawing (before flattening)
     const pages = pdfDoc.getPages();
     const page1 = pages[0];
     const page2 = pages.length > 1 ? pages[1] : page1;
@@ -248,9 +245,9 @@ async function fillCDSCForm(applicationData, outputPath) {
 
     form.flatten(); // Flatten the form to prevent images appearing behind fields
 
-
-
-    // DRAW CHECKMARKS FOR UNNAMED CHECKBOX FIELDS
+    // ====================================
+    // DRAW CHECKMARKS FOR CHECKBOX FIELDS
+    // ====================================
      
     // Account Type 
     if (applicationData.account_type === 'individual') {
@@ -305,6 +302,7 @@ async function fillCDSCForm(applicationData, outputPath) {
       drawCheckmark(page2, coords.x, coords.y, 8);
     }
 
+    // International bank currencies
     const currencyCoords = {
       'EUR': { x: 218, y: 563 },
       'USD': { x: 275, y: 563 },
@@ -316,7 +314,6 @@ async function fillCDSCForm(applicationData, outputPath) {
     };
 
     if (applicationData.currency) {
-      // Support multiple currencies separated by comma or comma+space
       const selectedCurrencies = applicationData.currency.split(',').map(c => c.trim().toUpperCase());
       selectedCurrencies.forEach(curr => {
         if (currencyCoords[curr]) {
@@ -326,7 +323,7 @@ async function fillCDSCForm(applicationData, outputPath) {
       });
     }
     
-    // Tax Exempt Status 
+    // Tax Exemption Status 
     if (applicationData.is_tax_exempt === 'Yes' || applicationData.is_tax_exempt === true) {
       drawCheckmark(page2, 123, 712, 8); // Yes
     } else {
@@ -376,7 +373,7 @@ async function fillCDSCForm(applicationData, outputPath) {
       drawCheckmark(page1, coords.x, coords.y, 8);
     }
 
-    // Handle box-by-box date fields
+    // Handle date fields
     // Format: drawDateInBoxes(page, font, dateStr, startX, y, boxWidth, boxSpacing, fontSize)
 
     // Primary Date of Birth
@@ -408,7 +405,10 @@ async function fillCDSCForm(applicationData, outputPath) {
     }
 
 
-    // Embed signature image if available
+    // =========================
+    // SIGNATURES
+    // =========================
+    // Primary applicant
     if (applicationData.signature_path) {
       try {
         const signaturePath = path.join(__dirname, applicationData.signature_path);
@@ -439,6 +439,7 @@ async function fillCDSCForm(applicationData, outputPath) {
       }
     }
 
+    // Secondary applicant (if joint account)
     if (applicationData.secondary_signature_path) {
       try {
         const secondarySignaturePath = path.join(__dirname, applicationData.secondary_signature_path);
@@ -470,7 +471,11 @@ async function fillCDSCForm(applicationData, outputPath) {
       }
     }
 
-    // Embed passport photos if available
+
+    // =================================
+    // PASSPORT PHOTOS
+    // ================================
+    // Primary applicant
     if (applicationData.primary_passport_photo_path) {
       try {
         const photoPath = path.join(__dirname, applicationData.primary_passport_photo_path);
@@ -487,7 +492,6 @@ async function fillCDSCForm(applicationData, outputPath) {
         const pages = pdfDoc.getPages();
         const firstPage = pages[0];
         
-        // Add passport photo 
         // Define bounding box for the image
         const boxLeft = 500;
         const boxBottom = 517;
@@ -504,7 +508,7 @@ async function fillCDSCForm(applicationData, outputPath) {
         const photoWidth = photoImage.width * scale;
         const photoHeight = photoImage.height * scale;
 
-        // Center the image in the box
+        // Center image in box
         const centerX = boxLeft + maxWidth / 2;
         const centerY = boxBottom + maxHeight / 2;
 
@@ -519,7 +523,7 @@ async function fillCDSCForm(applicationData, outputPath) {
       }
     }
 
-    // Secondary passport photo (if joint account)
+    // Secondary applicant (if joint account)
     if (applicationData.secondary_passport_photo_path) {
       try {
         const photoPath = path.join(__dirname, applicationData.secondary_passport_photo_path);

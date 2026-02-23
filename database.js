@@ -12,7 +12,7 @@ const pool = mysql.createPool({
 });
 
 // ==============================
-// APPLICATIONS
+// CDSC APPLICATIONS
 // ==============================
 
 async function insertApplication(data) {

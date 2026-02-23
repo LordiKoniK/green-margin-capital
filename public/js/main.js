@@ -236,13 +236,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // UPDATE IPO DATES:
   // Format: 'YYYY-MM-DDTHH:MM:SS'
   // -------------------------------------------------------
-  new CountdownTimer('2026-02-19T17:00:00', {
+  // IPO offer closing timer
+  new CountdownTimer('2026-02-24T17:00:00', {
     days:  'ipo-days',
     hours: 'ipo-hours',
     mins:  'ipo-mins',
     secs:  'ipo-secs'
   });
-  // Second countdown for listing opens
+
+  // IPO listing opens timer
   new CountdownTimer('2026-03-09T09:31:00', {
     days:  'ipo2-days',
     hours: 'ipo2-hours',
@@ -250,6 +252,33 @@ document.addEventListener('DOMContentLoaded', () => {
     secs:  'ipo2-secs'
   });
 });
+
+// ==========================================
+// Scroll Down Arrow
+// ==========================================
+function initScrollDownArrow() {
+  const arrow = document.getElementById('scroll-down-arrow');
+  if (!arrow) return;
+
+  // Hide arrow on scroll
+  function toggleArrow() {
+    if (window.scrollY > 50) {
+      arrow.classList.add('hide');
+    } else {
+      arrow.classList.remove('hide');
+    }
+  }
+  window.addEventListener('scroll', toggleArrow);
+  toggleArrow();
+
+  // Scroll to next section on click
+  arrow.addEventListener('click', () => {
+    const nextSection = document.querySelector('.welcome-section');
+    if (nextSection) {
+      nextSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+}
 
 // ==========================================
 // Smooth Scroll
@@ -422,9 +451,7 @@ class FormValidator {
   }
 }
 
-// ==========================================
 // Initialize Everything
-// ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
   new Navigation();
@@ -440,6 +467,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('form').forEach(form => {
     new FormValidator(form);
   });
+  
+  initScrollDownArrow();
 });
 
 // Export for use in other modules

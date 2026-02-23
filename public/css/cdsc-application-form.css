@@ -20,42 +20,6 @@
     box-sizing: border-box;
 }
 
-/* body {
-    font-family: 'Work Sans', sans-serif;
-    line-height: 1.6;
-    color: var(--text-dark);
-    background: linear-gradient(135deg, #f9fafb 0%, #e8eef5 100%);
-    min-height: 100vh;
-    padding: 40px 20px;
-} */
-
-/* Main Page Demo Styles */
-/* .demo-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    text-align: center;
-}
-
-.demo-header {
-    margin-bottom: 60px;
-}
-
-.demo-header h1 {
-    font-family: 'Crimson Pro', serif;
-    font-size: 3.5rem;
-    font-weight: 700;
-    color: var(--primary-green);
-    margin-bottom: 16px;
-    letter-spacing: -0.02em;
-}
-
-.demo-header p {
-    font-size: 1.25rem;
-    color: var(--text-light);
-    max-width: 600px;
-    margin: 0 auto;
-} */
-
 /* Open Modal Button */
 .open-modal-btn {
     background: linear-gradient(135deg, var(--primary-green) 0%, #2d5a8f 100%);
@@ -673,8 +637,9 @@
         width: 100%;
     }
 }
+
 /* ==========================================
-   CDSC LANDING PAGE STYLES
+   MAIN PAGE
    ========================================== */
 
 .cdsc-page-container {

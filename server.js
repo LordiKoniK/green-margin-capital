@@ -1,21 +1,24 @@
-require('dotenv').config();
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
+
 const express = require('express');
 const helmet = require('helmet');
 const compression = require('compression');
 const cors = require('cors');
-const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const db = require('./database');
 const { fillCDSCForm, generateCDSCFormPDF } = require('./pdfFiller');
 const basicAuth = require('express-basic-auth');
 
+
 // Database routes for Contact Us page client messages
 const { insertContactMessage, getAllContactMessages, getContactMessage, updateContactMessageStatus, deleteContactMessage, getMessageCounts } = require('./database');
 
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
+
 
 // Configure file upload
 const storage = multer.diskStorage({
@@ -144,10 +147,10 @@ app.use('/api/admin/contact-messages', basicAuth({
     challenge: true
 }));
 
+// ==========================================
 // CONTACT ROUTES
 // ==========================================
-// PUBLIC: Submit Contact Form
-// ==========================================
+// Public: Submit contact form
 app.post('/api/contact', express.json(), async (req, res) => {
   const { firstName, lastName, email, phone, subject, message } = req.body;
 
@@ -170,8 +173,14 @@ app.post('/api/contact', express.json(), async (req, res) => {
 
   try {
     // Get metadata
-    const ipAddress = req.ip || req.connection.remoteAddress || 'unknown';
+    let ipAddress = req.headers['x-forwarded-for'] || req.ip || 'unknown';
+    // If x-forwarded-for is a list, take the first IP
+    if (typeof ipAddress === 'string' && ipAddress.includes(',')) {
+      ipAddress = ipAddress.split(',')[0].trim();
+    }
     const userAgent = req.get('user-agent') || 'unknown';
+    
+    fs.writeFileSync('request_debug.log', `DB_USER at request time: ${process.env.DB_USER}\n`);
 
     // Insert into database
     const messageId = await insertContactMessage({
@@ -200,9 +209,7 @@ app.post('/api/contact', express.json(), async (req, res) => {
   }
 });
 
-// ==========================================
-// ADMIN: Get All Contact Messages
-// ==========================================
+// Admin: Get all messages
 app.get('/api/admin/contact-messages', async (req, res) => {
 
   const status = req.query.status || null; // Optional filter: ?status=pending
@@ -225,9 +232,7 @@ app.get('/api/admin/contact-messages', async (req, res) => {
   }
 });
 
-// ==========================================
-// ADMIN: Get Single Contact Message
-// ==========================================
+// Admin: Get single message
 app.get('/api/admin/contact-messages/:id', async (req, res) => {
 
   const messageId = parseInt(req.params.id);
@@ -255,9 +260,7 @@ app.get('/api/admin/contact-messages/:id', async (req, res) => {
   }
 });
 
-// ==========================================
-// ADMIN: Update Contact Message Status
-// ==========================================
+// Admin: Update message status
 app.put('/api/admin/contact-messages/:id', express.json(), async (req, res) => {
 
   const messageId = parseInt(req.params.id);
@@ -287,9 +290,8 @@ app.put('/api/admin/contact-messages/:id', express.json(), async (req, res) => {
   }
 });
 
-// ==========================================
-// ADMIN: Delete Contact Message
-// ==========================================
+
+// Admin: Delete message
 app.delete('/api/admin/contact-messages/:id', async (req, res) => {
 
   const messageId = parseInt(req.params.id);
@@ -311,11 +313,10 @@ app.delete('/api/admin/contact-messages/:id', async (req, res) => {
 });
 
 
-
-
-// CDSC Application API Routes
-
-// Submit CDSC application
+// ==========================================
+// CDSC APPLICATION ROUTES
+// ==========================================
+// Public: Submit CDSC application
 app.post('/api/cdsc/submit', upload.fields([
   { name: 'primaryPassportPhoto', maxCount: 1 },
   { name: 'secondaryPassportPhoto', maxCount: 1 },
@@ -361,7 +362,7 @@ app.post('/api/cdsc/submit', upload.fields([
   }
 });
 
-// Get all applications (admin only - you should add authentication)
+// Get all applications 
 app.get('/api/cdsc/applications', async (req, res) => {
   try {
     const applications = await db.getAllApplications();
@@ -416,7 +417,7 @@ app.delete('/api/cdsc/applications/:id', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Application not found' });
     }
 
-    // Also delete images associated with the application
+    // Also delete image files associated with the application
     const fileFields = [
       'primary_passport_photo_path',
       'secondary_passport_photo_path',
@@ -428,7 +429,6 @@ app.delete('/api/cdsc/applications/:id', async (req, res) => {
     fileFields.forEach(field => {
       const filePath = application[field];
       if (filePath && typeof filePath === 'string') {
-        // Make sure the path is relative to the project root
         const absPath = path.isAbsolute(filePath) ? filePath : path.join(__dirname, filePath);
         fs.unlink(absPath, err => {
           if (err && err.code !== 'ENOENT') {
@@ -522,7 +522,6 @@ app.get('/api/cdsc/applications/:id/tax-certificate', async (req, res) => {
 
 
 // NSE Stocks Proxy Route to keep API key secure
-
 
 let stocksCache = { data: null, fetchedAt: 0 };
 const CACHE_TTL = 60 * 1000; // 60 seconds

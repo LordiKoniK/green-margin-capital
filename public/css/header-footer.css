@@ -10,12 +10,57 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.top-bar .container {
+    align-items: center;
+    gap: var(--spacing-md);
+    max-width: 1400px;
+}
+
 .top-bar-content {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.top-bar-left,
+.top-bar-right {
+  display: flex;
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
+}
+
+.top-bar-left {
+  left: 0;
+}
+
+.top-bar-datetime {
+  color: var(--white);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-size: 0.875rem;
+}
+
+.market-status {
+  color: var(--white);
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.market-status-text {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.market-status-text.open {
+  color: #4ade80;
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+}
+
+.market-status-text.closed {
+  color: #ef4444;
 }
 
 .top-bar-link {
@@ -187,7 +232,7 @@
    FOOTER
    ========================================== */
 .footer {
-  background-color: var(--primary-green-dark);
+  background: linear-gradient(180deg, var(--primary-green-dark) 0%, #1a3323 100%);
   color: var(--white);
   padding: var(--spacing-xl) 0 var(--spacing-md);
 }
@@ -199,40 +244,8 @@
   margin-bottom: var(--spacing-lg);
 }
 
-.footer-section h3 {
-  color: var(--white);
-  margin-bottom: var(--spacing-md);
-}
-
-.footer-section ul {
-  list-style: none;
-}
-
-.footer-section ul li {
-  margin-bottom: var(--spacing-xs);
-}
-
-.footer-section a {
-  color: rgba(255, 255, 255, 0.8);
-  transition: color var(--transition-fast);
-}
-
-.footer-section a:hover {
-  color: var(--white);
-}
-
-.footer-bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: var(--spacing-md);
-  text-align: center;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-/* ==========================================
-   FOOTER ENHANCEMENTS
-   ======================================== */
-.footer {
-  background: linear-gradient(180deg, var(--primary-green-dark) 0%, #1a3323 100%);
+.footer-logo {
+  margin-bottom: 1.5rem;
 }
 
 .footer-logo {
@@ -324,12 +337,17 @@
   align-items: flex-start;
   color: rgba(255, 255, 255, 0.8);
   line-height: 1.6;
+  margin-top: 0.5rem;
 }
 
 .contact-item svg {
   flex-shrink: 0;
   margin-top: 0.25rem;
   color: var(--accent-orange);
+}
+
+.social-link:hover svg {
+  color: var(--white);
 }
 
 .footer-bottom {

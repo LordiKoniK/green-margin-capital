@@ -28,9 +28,9 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// ==========================================
-// ADVANCED CIRCLE ANIMATIONS
-// ==========================================
+
+// Image circle parallax effect
+
 function initCircleParallax() {
     const showcases = document.querySelectorAll('.service-showcase');
     
@@ -61,9 +61,8 @@ function initCircleParallax() {
     });
 }
 
-// ==========================================
-// SMOOTH BADGE REVEALS
-// ==========================================
+// Badge reveal effects
+
 function initBadgeAnimations() {
     const badges = document.querySelectorAll('.highlight-badge');
     
@@ -85,9 +84,9 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// ==========================================
-// ICON ROTATION ON SCROLL
-// ==========================================
+
+// Icon rotation on scroll
+
 function initIconRotation() {
     const icons = document.querySelectorAll('.service-icon-large');
     
@@ -105,9 +104,9 @@ function initIconRotation() {
     });
 }
 
-// ==========================================
-// CIRCLE ZOOM ON VIEW
-// ==========================================
+
+// Image circle zoom on view
+
 function initCircleZoom() {
     const circleObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -134,9 +133,9 @@ function initCircleZoom() {
     });
 }
 
-// ==========================================
-// TECH CALLOUT PULSE ANIMATION
-// ==========================================
+
+// Tech callout pulse effect
+
 function initTechCalloutPulse() {
     const callouts = document.querySelectorAll('.tech-callout');
     
@@ -173,9 +172,9 @@ function initTechCalloutPulse() {
     });
 }
 
-// ==========================================
-// BADGE HOVER EFFECTS
-// ==========================================
+
+// Badge hover glint effect
+
 function initBadgeHoverEffects() {
     const badges = document.querySelectorAll('.highlight-badge');
     
@@ -199,9 +198,9 @@ function initBadgeHoverEffects() {
     });
 }
 
-// ==========================================
-// DECORATIVE ELEMENT ROTATION
-// ==========================================
+
+// Additional rotations
+
 function initDecorationRotation() {
     const decorations = document.querySelectorAll('.visual-decoration');
     
@@ -216,9 +215,9 @@ function initDecorationRotation() {
     });
 }
 
-// ==========================================
-// RIPPLE EFFECT ON BUTTONS
-// ==========================================
+
+// Ripple effect on buttons
+
 function initRippleEffect() {
     const buttons = document.querySelectorAll('.btn-animated');
     
@@ -267,14 +266,12 @@ document.head.appendChild(rippleStyle);
 // INITIALIZE ALL ANIMATIONS
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Basic setup - DON'T hide sections, let CSS handle initial state
     initBadgeAnimations();
 
     // Observe elements for scroll animations
     const animatedElements = document.querySelectorAll('[data-aos]');
     animatedElements.forEach(el => observer.observe(el));
 
-    // Advanced interactions
     setTimeout(() => {
         initCircleParallax();
         initMagneticButtons();
@@ -289,9 +286,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 100);
 });
 
-// ==========================================
-// PERFORMANCE OPTIMIZATION
-// ==========================================
+
+// Performance optimizations
+
 let ticking = false;
 window.addEventListener('scroll', () => {
     if (!ticking) {
