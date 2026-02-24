@@ -20,6 +20,7 @@
 
     <!-- JavaScript -->
     <script src="../js/main.js" defer></script>
+    <script src="../js/navigation.js" defer></script>
     <script src="../js/market-ticker.js" defer></script>
     <script src="../js/top-bar.js" defer></script>
 </head>
@@ -142,7 +143,7 @@
             </div> -->
 
             <!-- Slide 1: Kenya Pipeline IPO -->
-            <div class="carousel-slide active" data-slide-type="ipo">
+            <div class="carousel-slide active" data-slide-type="ipo" id="ipo-slide">
                 <div class="carousel-image">
                     <img src="../images/hero-kpc-ipo.jpg" alt="Kenya Pipeline IPO">
                 </div>
@@ -154,7 +155,7 @@
 
                         <!-- Countdown Timer -->
                         <div class="ipo-countdowns-row">
-                            <div class="ipo-countdown">
+                            <div class="ipo-countdown" id="offer-countdown">
                                 <p class="countdown-label">OFFER CLOSES IN</p>
                                 <div class="countdown-blocks">
                                     <div class="countdown-block">
@@ -178,7 +179,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="ipo-countdown">
+                            <div class="ipo-countdown" id="listing-countdown">
                                 <p class="countdown-label">LISTING OPENS IN</p>
                                 <div class="countdown-blocks">
                                     <div class="countdown-block">
@@ -211,7 +212,7 @@
 
 
             <!-- Slide 2: Open CDSC Account -->
-            <div class="carousel-slide" data-slide-type="cdsc">
+            <div class="carousel-slide" data-slide-type="cdsc" id="cdsc-slide">
                 <div class="carousel-image">
                     <img src="../images/hero-nse.jpg" alt="Open a CDSC Account">
                 </div>

@@ -6,8 +6,8 @@ function openModal() {
     document.getElementById('modalOverlay').classList.add('active');
     document.body.style.overflow = 'hidden';
     // Initialize signature canvas after modal is fully rendered
-    setTimeout(initSignatureCanvas, 300);
-    setTimeout(initSignatureCanvas2, 300);
+    setTimeout(() => initSignatureCanvas("signatureCanvas"), 300);
+    setTimeout(() => initSignatureCanvas("signatureCanvas2"), 300);
     populateCountryDropdowns();
 
 }
@@ -53,8 +53,8 @@ function updateProgress() {
 
     // Initialize canvas when reaching step 5
     if (currentStep === 5) {
-        setTimeout(initSignatureCanvas, 100);
-        setTimeout(initSignatureCanvas2, 100);
+        setTimeout(() => initSignatureCanvas("signatureCanvas"), 300);
+        setTimeout(() => initSignatureCanvas("signatureCanvas2"), 300);
     }
 
     // Update buttons
@@ -378,8 +378,8 @@ async function submitApplication() {
                     // Reset form
                     currentStep = 1;
                     updateProgress();
-                    clearSignature();
-                    clearSignature2();
+                    clearSignature("signatureCanvas");
+                    clearSignature("signatureCanvas2");
                     document.querySelectorAll('input, select, textarea').forEach(field => {
                         if (field.type !== 'radio' && field.type !== 'checkbox') {
                             field.value = '';
@@ -536,7 +536,7 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     const clearSignatureBtn = document.getElementById('clearSignature');
     if (clearSignatureBtn) {
-        clearSignatureBtn.addEventListener('click', clearSignature);
+        clearSignatureBtn.addEventListener('click', () => clearSignature("signatureCanvas"));
     }
 });
     
@@ -544,7 +544,7 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     const clearSignatureBtn2 = document.getElementById('clearSignature2');
     if (clearSignatureBtn2) {
-        clearSignatureBtn2.addEventListener('click', clearSignature2);
+        clearSignatureBtn2.addEventListener('click', () => clearSignature("signatureCanvas2"));
     }
 });
 
@@ -1078,48 +1078,21 @@ function populateCountryDropdowns() {
 
 
 
-// Signature Canvas Setup
-let isDrawing = false;
-let lastX = 0;
-let lastY = 0;
+// --- Signature Canvas Logic ---
+const signatureStates = new Map(); // canvasId -> { isDrawing, lastX, lastY }
 
-// Primary Client Signature
-
-function initSignatureCanvas() {
-    const canvas = document.getElementById('signatureCanvas');
-    if (!canvas) return;
-    
-    // Set explicit dimensions
-    canvas.width = 800;
-    canvas.height = 200;
-    
+function resizeCanvas(canvas) {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
     const ctx = canvas.getContext('2d');
-    
-    // Set drawing style
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+    ctx.scale(dpr, dpr);
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    
-    // Remove old event listeners if any
-    const newCanvas = canvas.cloneNode(true);
-    canvas.parentNode.replaceChild(newCanvas, canvas);
-    
-    // Get the new canvas reference
-    const freshCanvas = document.getElementById('signatureCanvas');
-    freshCanvas.width = 800;
-    freshCanvas.height = 200;
-    
-    // Mouse events
-    freshCanvas.addEventListener('mousedown', startDrawing);
-    freshCanvas.addEventListener('mousemove', draw);
-    freshCanvas.addEventListener('mouseup', stopDrawing);
-    freshCanvas.addEventListener('mouseout', stopDrawing);
-    
-    // Touch events for mobile
-    freshCanvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-    freshCanvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-    freshCanvas.addEventListener('touchend', stopDrawing);
 }
 
 function getCanvasCoordinates(canvas, clientX, clientY) {
@@ -1131,174 +1104,81 @@ function getCanvasCoordinates(canvas, clientX, clientY) {
 }
 
 function startDrawing(e) {
-    isDrawing = true;
-    const canvas = document.getElementById('signatureCanvas');
-    const coords = getCanvasCoordinates(canvas, e.clientX, e.clientY);
-    lastX = coords.x;
-    lastY = coords.y;
+    if (e.type.startsWith('touch')) e.preventDefault();
+    const canvas = e.currentTarget;
+    const id = canvas.id;
+    let state = signatureStates.get(id) || { isDrawing: false, lastX: 0, lastY: 0 };
+    let coords;
+    if (e.type.startsWith('touch')) {
+        const touch = e.touches[0];
+        coords = getCanvasCoordinates(canvas, touch.clientX, touch.clientY);
+    } else {
+        coords = getCanvasCoordinates(canvas, e.clientX, e.clientY);
+    }
+    state.isDrawing = true;
+    state.lastX = coords.x;
+    state.lastY = coords.y;
+    signatureStates.set(id, state);
 }
 
 function draw(e) {
-    if (!isDrawing) return;
-    
-    const canvas = document.getElementById('signatureCanvas');
+    if (e.type.startsWith('touch')) e.preventDefault();
+    const canvas = e.currentTarget;
+    const id = canvas.id;
+    let state = signatureStates.get(id);
+    if (!state || !state.isDrawing) return;
+    let coords;
+    if (e.type.startsWith('touch')) {
+        const touch = e.touches[0];
+        coords = getCanvasCoordinates(canvas, touch.clientX, touch.clientY);
+    } else {
+        coords = getCanvasCoordinates(canvas, e.clientX, e.clientY);
+    }
     const ctx = canvas.getContext('2d');
-    const coords = getCanvasCoordinates(canvas, e.clientX, e.clientY);
-    
     ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
+    ctx.moveTo(state.lastX, state.lastY);
     ctx.lineTo(coords.x, coords.y);
     ctx.stroke();
-    
-    lastX = coords.x;
-    lastY = coords.y;
+    state.lastX = coords.x;
+    state.lastY = coords.y;
+    signatureStates.set(id, state);
 }
 
-function stopDrawing() {
-    isDrawing = false;
+function stopDrawing(e) {
+    const canvas = e.currentTarget;
+    const id = canvas.id;
+    let state = signatureStates.get(id);
+    if (state) {
+        state.isDrawing = false;
+        signatureStates.set(id, state);
+    }
 }
 
-function handleTouchStart(e) {
-    e.preventDefault();
-    const touch = e.touches[0];
-    const canvas = document.getElementById('signatureCanvas');
-    const coords = getCanvasCoordinates(canvas, touch.clientX, touch.clientY);
-    isDrawing = true;
-    lastX = coords.x;
-    lastY = coords.y;
-}
-
-function handleTouchMove(e) {
-    e.preventDefault();
-    if (!isDrawing) return;
-    
-    const touch = e.touches[0];
-    const canvas = document.getElementById('signatureCanvas');
-    const ctx = canvas.getContext('2d');
-    const coords = getCanvasCoordinates(canvas, touch.clientX, touch.clientY);
-    
-    ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-    ctx.lineTo(coords.x, coords.y);
-    ctx.stroke();
-    
-    lastX = coords.x;
-    lastY = coords.y;
-}
-
-function clearSignature() {
-    const canvas = document.getElementById('signatureCanvas');
+function clearSignature(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-
-
-// Secondary Client Signature
-
-function initSignatureCanvas2() {
-    const canvas = document.getElementById('signatureCanvas2');
+function initSignatureCanvas(canvasId) {
+    const canvas = document.getElementById(canvasId);
     if (!canvas) return;
-    
-    // Set explicit dimensions
-    canvas.width = 800;
-    canvas.height = 200;
-    
-    const ctx = canvas.getContext('2d');
-    
-    // Set drawing style
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    
-    // Remove old event listeners if any
+    resizeCanvas(canvas);
+    window.addEventListener('resize', () => resizeCanvas(canvas));
+    // Remove old event listeners by cloning
     const newCanvas = canvas.cloneNode(true);
     canvas.parentNode.replaceChild(newCanvas, canvas);
-    
-    // Get the new canvas reference
-    const freshCanvas = document.getElementById('signatureCanvas2');
-    freshCanvas.width = 800;
-    freshCanvas.height = 200;
-    
+    const freshCanvas = document.getElementById(canvasId);
+    resizeCanvas(freshCanvas);
+    window.addEventListener('resize', () => resizeCanvas(freshCanvas));
     // Mouse events
-    freshCanvas.addEventListener('mousedown', startDrawing2);
-    freshCanvas.addEventListener('mousemove', draw2);
-    freshCanvas.addEventListener('mouseup', stopDrawing2);
-    freshCanvas.addEventListener('mouseout', stopDrawing2);
-    
+    freshCanvas.addEventListener('mousedown', startDrawing);
+    freshCanvas.addEventListener('mousemove', draw);
+    freshCanvas.addEventListener('mouseup', stopDrawing);
+    freshCanvas.addEventListener('mouseout', stopDrawing);
     // Touch events for mobile
-    freshCanvas.addEventListener('touchstart', handleTouchStart2, { passive: false });
-    freshCanvas.addEventListener('touchmove', handleTouchMove2, { passive: false });
-    freshCanvas.addEventListener('touchend', stopDrawing2);
-}
-
-function getCanvasCoordinates2(canvas, clientX, clientY) {
-    const rect = canvas.getBoundingClientRect();
-    return {
-        x: clientX - rect.left,
-        y: clientY - rect.top
-    };
-}
-
-function startDrawing2(e) {
-    isDrawing = true;
-    const canvas = document.getElementById('signatureCanvas2');
-    const coords = getCanvasCoordinates2(canvas, e.clientX, e.clientY);
-    lastX = coords.x;
-    lastY = coords.y;
-}
-
-function draw2(e) {
-    if (!isDrawing) return;
-    
-    const canvas = document.getElementById('signatureCanvas2');
-    const ctx = canvas.getContext('2d');
-    const coords = getCanvasCoordinates(canvas, e.clientX, e.clientY);
-    
-    ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-    ctx.lineTo(coords.x, coords.y);
-    ctx.stroke();
-    
-    lastX = coords.x;
-    lastY = coords.y;
-}
-
-function stopDrawing2() {
-    isDrawing = false;
-}
-
-function handleTouchStart2(e) {
-    e.preventDefault();
-    const touch = e.touches[0];
-    const canvas = document.getElementById('signatureCanvas2');
-    const coords = getCanvasCoordinates(canvas, touch.clientX, touch.clientY);
-    isDrawing = true;
-    lastX = coords.x;
-    lastY = coords.y;
-}
-
-function handleTouchMove2(e) {
-    e.preventDefault();
-    if (!isDrawing) return;
-    
-    const touch = e.touches[0];
-    const canvas = document.getElementById('signatureCanvas2');
-    const ctx = canvas.getContext('2d');
-    const coords = getCanvasCoordinates(canvas, touch.clientX, touch.clientY);
-    
-    ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-    ctx.lineTo(coords.x, coords.y);
-    ctx.stroke();
-    
-    lastX = coords.x;
-    lastY = coords.y;
-}
-
-function clearSignature2() {
-    const canvas = document.getElementById('signatureCanvas2');
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    freshCanvas.addEventListener('touchstart', startDrawing, { passive: false });
+    freshCanvas.addEventListener('touchmove', draw, { passive: false });
+    freshCanvas.addEventListener('touchend', stopDrawing);
 }

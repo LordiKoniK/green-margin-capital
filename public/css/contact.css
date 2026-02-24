@@ -296,7 +296,7 @@
 /* Responsive */
 @media (max-width: 1024px) {
     .contact-grid {
-        gap: 3rem;
+        gap: 2.6rem;
     }
 }
 
@@ -317,9 +317,40 @@
 
     .contact-form {
         padding: 2rem 1.5rem;
+        margin-right: 2rem;
     }
 
     .social-icons {
         justify-content: flex-start;
+    }
+
+    .info-block {
+        padding-left: 0.5rem;
+    }
+}
+
+@media (max-width: 540px) {
+    .footer .contact-info .contact-item a{
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+}
+
+@media (max-width: 360px) {
+    .contact-section .container {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    * {
+        max-width: 360px;
+    }
+
+    .contact-form-container h2, .contact-info-container h2, .contact-form-container p, .contact-info-container .social-links-contact {
+        padding-left: 1rem;
+    }
+
+    .contact-form {
+        margin-right: 0;
     }
 }

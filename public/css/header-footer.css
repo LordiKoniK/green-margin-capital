@@ -177,9 +177,30 @@
 /* ==========================================
    Responsive Design
    ========================================== */
+@media (max-width: 1024px) {
+  .logo img{
+    margin-left: -10px !important;
+  }
+
+  .nav-menu {
+    justify-content: center !important;
+    text-align: center !important;
+    gap: 10px !important;
+  }
+
+  .nav-menu a {
+  text-align: center; /* ensures text inside link is centered */
+  display: block;     /* makes the link behave like a box */
+  }
+}
+
 @media (max-width: 768px) {
   .mobile-menu-toggle {
     display: flex;
+  }
+
+  .top-bar-left {
+    margin-bottom: 5px;
   }
   
   .nav-menu {
@@ -211,20 +232,9 @@
   }
 }
 
-@media (max-width: 1024px) {
-  .logo img{
-    margin-left: -10px !important;
-  }
-
-  .nav-menu {
-    justify-content: center !important;
-    text-align: center !important;
-    gap: 10px !important;
-  }
-
-  .nav-menu a {
-  text-align: center; /* ensures text inside link is centered */
-  display: block;     /* makes the link behave like a box */
+@media (max-width: 480px) {
+  .top-bar-divider {
+    display: none;
   }
 }
  

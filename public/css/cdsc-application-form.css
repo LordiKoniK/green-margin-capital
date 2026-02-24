@@ -480,12 +480,13 @@
     cursor: not-allowed;
 }
 
-#signatureCanvas {
+canvas {
     touch-action: none;
     background: white;
     max-width: 100%;
     height: 200px;
 }
+
 .btn-clear-signature {
     margin-top: 8px;
     padding: 8px 20px;
