@@ -955,13 +955,6 @@
   }
 }
 
-@media (max-width: 540px) {
-    .footer .contact-info .contact-item a{
-        overflow-wrap: break-word;
-        word-break: break-word;
-    }
-}
-
 @media (max-width: 480px) {
   .top-bar {
     padding: 0.5rem 0;

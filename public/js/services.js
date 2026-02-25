@@ -274,7 +274,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setTimeout(() => {
         initCircleParallax();
-        initMagneticButtons();
         initCircleZoom();
         initTechCalloutPulse();
         initBadgeHoverEffects();

@@ -446,7 +446,7 @@
 
 /* Technology Section */
 .technology-section {
-    margin-bottom: 7rem;
+    margin-bottom: 4rem;
     padding: 6rem 0;
     background: var(--bg-light);
 }
@@ -511,6 +511,15 @@
     font-size: 0.95rem;
     line-height: 1.6;
     margin: 0;
+}
+
+.btn.btn-secondary.tech-btn {
+    background: var(--accent-orange);
+    color: var(--white);
+    border: none;
+    margin-top: 3rem;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
 }
 
 /* Regulatory Section */
