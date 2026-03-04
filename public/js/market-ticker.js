@@ -69,12 +69,6 @@ class MarketTicker {
     this.container.appendChild(tickerTrack);
 
     setTimeout(() => {
-      const children = tickerTrack.querySelectorAll('.ticker-item');
-      console.log('Total ticker items in DOM:', children.length);
-      console.log('First 5 tickers:', Array.from(children).slice(0, 5).map(el => el.dataset.ticker));
-      console.log('Items 65-70:', Array.from(children).slice(65, 70).map(el => el.dataset.ticker));
-      console.log('Last 5 tickers:', Array.from(children).slice(-5).map(el => el.dataset.ticker));
-      
       const halfWidth = tickerTrack.scrollWidth / 2;
       const pixelsPerSecond = 50;
       const duration = halfWidth / pixelsPerSecond;

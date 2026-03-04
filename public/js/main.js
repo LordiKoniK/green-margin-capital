@@ -211,154 +211,6 @@ function initSmoothScroll() {
   });
 }
 
-// ==========================================
-// Animations on Scroll
-// ==========================================
-
-class ScrollAnimations {
-  constructor() {
-    this.observers = [];
-    this.init();
-  }
-  
-  init() {
-    const animatedElements = document.querySelectorAll('[data-animate]');
-    
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animated');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
-    });
-    
-    animatedElements.forEach(el => observer.observe(el));
-  }
-}
-
-// ==========================================
-// Form Validation
-// ==========================================
-
-class FormValidator {
-  constructor(form) {
-    this.form = form;
-    this.init();
-  }
-  
-  init() {
-    this.form.addEventListener('submit', (e) => this.handleSubmit(e));
-  }
-  
-  handleSubmit(e) {
-    e.preventDefault();
-    
-    if (this.validateForm()) {
-      this.submitForm();
-    }
-  }
-  
-  validateForm() {
-    let isValid = true;
-    const inputs = this.form.querySelectorAll('input[required], textarea[required]');
-    
-    inputs.forEach(input => {
-      if (!input.value.trim()) {
-        this.showError(input, 'This field is required');
-        isValid = false;
-      } else if (input.type === 'email' && !this.isValidEmail(input.value)) {
-        this.showError(input, 'Please enter a valid email');
-        isValid = false;
-      } else {
-        this.clearError(input);
-      }
-    });
-    
-    return isValid;
-  }
-  
-  isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
-  
-  showError(input, message) {
-    const formGroup = input.parentElement;
-    let error = formGroup.querySelector('.error-message');
-    
-    if (!error) {
-      error = document.createElement('span');
-      error.className = 'error-message';
-      formGroup.appendChild(error);
-    }
-    
-    error.textContent = message;
-    input.classList.add('error');
-  }
-  
-  clearError(input) {
-    const formGroup = input.parentElement;
-    const error = formGroup.querySelector('.error-message');
-    
-    if (error) {
-      error.remove();
-    }
-    
-    input.classList.remove('error');
-  }
-  
-  async submitForm() {
-    const formData = new FormData(this.form);
-    const data = Object.fromEntries(formData);
-    
-    try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        this.showSuccessMessage();
-        this.form.reset();
-      }
-    } catch (error) {
-      console.error('Form submission error:', error);
-      alert('There was an error submitting the form. Please try again.');
-    }
-  }
-  
-  showSuccessMessage() {
-    const message = document.createElement('div');
-    message.className = 'success-message';
-    message.textContent = 'Thank you! Your message has been sent.';
-    message.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #28a745;
-      color: white;
-      padding: 1rem 2rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      z-index: 10000;
-    `;
-    
-    document.body.appendChild(message);
-    
-    setTimeout(() => {
-      message.remove();
-    }, 5000);
-  }
-}
-
 // Initialize Everything
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -369,11 +221,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   initSmoothScroll();
-  new ScrollAnimations();
-  
-  document.querySelectorAll('form').forEach(form => {
-    new FormValidator(form);
-  });
   
   initScrollDownArrow();
 });
@@ -381,8 +228,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    Carousel,
-    ScrollAnimations,
-    FormValidator
+    Carousel
   };
 }
