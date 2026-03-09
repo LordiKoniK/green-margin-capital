@@ -132,13 +132,16 @@ class CountdownTimer {
     document.getElementById(this.ids.secs).textContent  = String(seconds).padStart(2, '0');
   }
   showExpired() {
-    const offerContainer = document.getElementById('offer-countdown');
-    const listingContainer = document.getElementById('listing-countdown');
-    if (offerContainer) {
-      offerContainer.innerHTML = '<p class="countdown-expired">IPO OFFER HAS CLOSED</p>';
-    }
-    if (listingContainer) {
-      listingContainer.innerHTML = '<p class="countdown-expired">IPO LISTING IS OPEN</p>';
+    if (this.ids.days === 'ipo-days') {
+      const offerContainer = document.getElementById('offer-countdown');
+      if (offerContainer) {
+        offerContainer.innerHTML = '<p class="countdown-expired">IPO OFFER HAS CLOSED</p>';
+      }
+    } else if (this.ids.days === 'ipo2-days') {
+      const listingContainer = document.getElementById('listing-countdown');
+      if (listingContainer) {
+        listingContainer.innerHTML = '<p class="countdown-expired">IPO LISTING IS OPEN</p>';
+      }
     }
   }
 }
