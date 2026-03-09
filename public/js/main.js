@@ -132,9 +132,13 @@ class CountdownTimer {
     document.getElementById(this.ids.secs).textContent  = String(seconds).padStart(2, '0');
   }
   showExpired() {
-    const container = document.querySelector('.ipo-countdown');
-    if (container) {
-      container.innerHTML = '<p class="countdown-expired">IPO OFFER HAS CLOSED</p>';
+    const offerContainer = document.getElementById('offer-countdown');
+    const listingContainer = document.getElementById('listing-countdown');
+    if (offerContainer) {
+      offerContainer.innerHTML = '<p class="countdown-expired">IPO OFFER HAS CLOSED</p>';
+    }
+    if (listingContainer) {
+      listingContainer.innerHTML = '<p class="countdown-expired">IPO LISTING IS OPEN</p>';
     }
   }
 }
@@ -153,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // IPO listing opens timer
-  new CountdownTimer('2026-03-09T09:31:00', {
+  new CountdownTimer('2026-03-10T09:31:00', {
     days:  'ipo2-days',
     hours: 'ipo2-hours',
     mins:  'ipo2-mins',

@@ -355,7 +355,9 @@
   font-weight: 600;
   color: var(--accent-orange);
   letter-spacing: 1px;
+  margin: 10px 0;
 }
+
 @media (max-width: 480px) {
   .countdown-block {
     min-width: 56px;
