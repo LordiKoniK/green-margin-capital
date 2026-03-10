@@ -376,10 +376,6 @@
    MARKET TICKER
    ======================================== */
 
-/* ==========================================
-   MARKET TICKER (STICKY)
-   Sticks below navbar (navbar z-index: 1000)
-   ======================================== */
 .market-ticker-wrapper {
   background-color: var(--dark-gray);
   border-top: 3px solid var(--accent-orange);
@@ -460,6 +456,166 @@
 .scroll-down-arrow.hide {
   opacity: 0 !important;
   pointer-events: none;
+}
+
+/* ==========================================
+   LIVESTREAM SECTION
+   ========================================== */
+
+.livestream-section {
+  background: linear-gradient(160deg, #0d1f14 0%, #1a3323 60%, #0d1f14 100%);
+  padding: 4rem 0 4.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.livestream-section::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  height: 60%;
+  background: radial-gradient(ellipse, rgba(45, 95, 63, 0.35) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.livestream-section::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent-orange) 30%, var(--accent-orange) 70%, transparent);
+}
+
+/* Header row */
+.livestream-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.livestream-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background-color: #e3000f;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 0.3rem 0.85rem;
+  border-radius: 2rem;
+  line-height: 1;
+}
+
+.livestream-live-badge .live-dot {
+  width: 7px;
+  height: 7px;
+  background: #fff;
+  border-radius: 50%;
+  animation: live-blink 1.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes live-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+
+.livestream-title {
+  color: var(--white);
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.livestream-subtitle {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.95rem;
+  margin: 0;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Embed wrapper — 16:9 responsive */
+.livestream-embed-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 2px rgba(255, 140, 0, 0.4),
+    0 20px 60px rgba(0, 0, 0, 0.6);
+  aspect-ratio: 16 / 9;
+  background: #000;
+  transition: box-shadow 0.3s ease;
+}
+
+.livestream-embed-wrapper:hover {
+  box-shadow:
+    0 0 0 2px rgba(255, 140, 0, 0.75),
+    0 24px 70px rgba(0, 0, 0, 0.7);
+}
+
+.livestream-embed-wrapper iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* Placeholder shown when no yt ID is set */
+.livestream-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: #0a140d;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1rem;
+  letter-spacing: 1px;
+  text-align: center;
+  padding: 2rem;
+}
+
+.livestream-placeholder svg {
+  opacity: 0.25;
+}
+
+.livestream-note {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.82rem;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+  .livestream-section {
+    padding: 2.5rem 0 3rem;
+  }
+
+  .livestream-embed-wrapper {
+    border-radius: 6px;
+  }
 }
 
 /* ==========================================

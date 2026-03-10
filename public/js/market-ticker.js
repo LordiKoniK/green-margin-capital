@@ -83,22 +83,33 @@ class MarketTicker {
       const ticker = stock.ticker || 'N/A';
       const price = parseFloat(stock.price || 0);
       const change = parseFloat(stock.change || 0);
-      
-      const isPositive = change >= 0;
-      const changeClass = isPositive ? 'positive' : 'negative';
-      const arrow = isPositive ? '▲' : '▼';
+
+      let changeClass, arrow, displayChange;
+      if (change > 0) {
+        changeClass = 'positive';
+        arrow = '▲';
+        displayChange = Math.abs(change).toFixed(2);
+      } else if (change < 0) {
+        changeClass = 'negative';
+        arrow = '▼';
+        displayChange = Math.abs(change).toFixed(2);
+      } else {
+        changeClass = 'no-change';
+        arrow = '~';
+        displayChange = '0.00';
+      }
 
       return `
         <div class="ticker-item" data-index="${index}" data-ticker="${ticker}">
           <span class="ticker-symbol">${ticker}</span>
           <span class="ticker-price">KES ${this.formatPrice(price)}</span>
           <span class="ticker-change ${changeClass}">
-            ${arrow} ${Math.abs(change).toFixed(2)}
+            ${arrow} ${displayChange}
           </span>
         </div>
       `;
     }).join('');
-    
+
     return items;
   }
 

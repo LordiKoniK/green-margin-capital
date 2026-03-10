@@ -218,6 +218,30 @@ function initSmoothScroll() {
   });
 }
 
+function initLivestream() {
+    // PASTE THE YOUTUBE VIDEO ID HERE (as in youtube.com/watch?v=[VIDEO_ID]) e.g. 'dQw4w9WgXcQ'
+    var YOUTUBE_VIDEO_ID = 'a80epiyXp4k';           
+
+    var section  = document.getElementById('livestream-section');
+    var wrapper  = document.getElementById('livestream-embed-wrapper');
+    var placeholder = document.getElementById('livestream-placeholder');
+
+    if (!YOUTUBE_VIDEO_ID || !section) return;
+
+    section.style.display = '';
+    if (placeholder) placeholder.remove();
+
+    var iframe = document.createElement('iframe');
+    iframe.src =
+        'https://www.youtube.com/embed/' + YOUTUBE_VIDEO_ID +
+        '?autoplay=0&rel=0&modestbranding=1&enablejsapi=1';
+    iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+    iframe.title       = 'KPC Listing Ceremony Livestream';
+    iframe.allow       = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    iframe.allowFullscreen = true;
+    wrapper.appendChild(iframe);
+};
+
 // Initialize Everything
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -228,8 +252,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   initSmoothScroll();
-  
   initScrollDownArrow();
+  initLivestream();
 });
 
 // Export for use in other modules

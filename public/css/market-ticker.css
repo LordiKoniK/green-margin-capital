@@ -49,6 +49,10 @@
   color: #ff4444;
 }
 
+.ticker-change.no-change {
+  color: rgba(255, 255, 255, 0.7);
+}
+
 .ticker-error {
   width: 100%;
   text-align: center;

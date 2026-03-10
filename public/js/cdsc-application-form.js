@@ -828,7 +828,8 @@ fetch('../assets/KenyaBanks.json')
 function setupBankAutocomplete() {
     const bankInput = document.getElementById('bankNameInput');
     const suggestionsList = document.getElementById('bankSuggestions');
-    
+    let selectingSuggestion = false;
+
     bankInput.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase();
         suggestionsList.innerHTML = '';
@@ -851,6 +852,9 @@ function setupBankAutocomplete() {
                 const li = document.createElement('li');
                 li.textContent = bank;
                 li.classList.add('bank-suggestion-item');
+                li.addEventListener('mousedown', function(e) {
+                    selectingSuggestion = true;
+                });
                 li.addEventListener('click', function() {
                     bankInput.value = bank;
                     suggestionsList.style.display = 'none';
@@ -863,7 +867,22 @@ function setupBankAutocomplete() {
             suggestionsList.style.display = 'none';
         }
     });
-    
+
+    // Prevent users from moving on without selecting a valid bank
+    bankInput.addEventListener('blur', function() {
+        setTimeout(function() {
+            if (selectingSuggestion) {
+                selectingSuggestion = false;
+                return;
+            }
+            const uniqueBanks = [...new Set(bankData.map(item => item['Bank Name']))];
+            if (!uniqueBanks.includes(bankInput.value)) {
+                bankInput.value = '';
+            }
+            suggestionsList.style.display = 'none';
+        }, 100);
+    });
+
     // Close suggestions when clicking outside
     document.addEventListener('click', function(e) {
         if (e.target !== bankInput && e.target !== suggestionsList) {
