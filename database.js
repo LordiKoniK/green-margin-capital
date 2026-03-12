@@ -132,6 +132,145 @@ async function getMessageCounts() {
   return counts;
 }
 
+// ==============================
+// NEWS ITEMS
+// ==============================
+
+async function insertNewsItem(newsData) {
+  const [result] = await pool.query(
+    `INSERT INTO news (
+      title, excerpt, category, date, external_url, 
+      image_filename, status, created_by, display_order
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      newsData.title,
+      newsData.excerpt,
+      newsData.category,
+      newsData.date,
+      newsData.external_url || null,
+      newsData.image_filename || null,
+      newsData.status || 'published',
+      newsData.created_by || 'admin',
+      newsData.display_order || 0
+    ]
+  );
+  
+  return result.insertId;
+}
+
+async function getAllNews(filters = {}) {
+  let query = 'SELECT * FROM news';
+  const conditions = [];
+  const params = [];
+  
+  // Filter by status
+  if (filters.status) {
+    conditions.push('status = ?');
+    params.push(filters.status);
+  }
+  
+  // Filter by category
+  if (filters.category) {
+    conditions.push('category = ?');
+    params.push(filters.category);
+  }
+  
+  // Where clause for additional conditions
+  if (conditions.length > 0) {
+    query += ' WHERE ' + conditions.join(' AND ');
+  }
+  
+  // Order by display_order (ascending) then date (descending)
+  query += ' ORDER BY display_order ASC, date DESC';
+  
+  const [rows] = await pool.query(query, params);
+  return rows;
+}
+
+async function getPublishedNews() {
+  const [rows] = await pool.query(
+    `SELECT * FROM news 
+     WHERE status = 'published'
+     ORDER BY display_order ASC, date DESC`
+  );
+  
+  return rows;
+}
+
+async function getNewsItem(id) {
+  const [rows] = await pool.query(
+    'SELECT * FROM news WHERE id = ?',
+    [id]
+  );
+  return rows[0];
+}
+
+async function updateNewsItem(id, newsData) {
+  const [result] = await pool.query(
+    `UPDATE news SET
+      title = ?,
+      excerpt = ?,
+      category = ?,
+      date = ?,
+      external_url = ?,
+      image_filename = ?,
+      status = ?,
+      display_order = ?,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?`,
+    [
+      newsData.title,
+      newsData.excerpt,
+      newsData.category,
+      newsData.date,
+      newsData.external_url || null,
+      newsData.image_filename || null,
+      newsData.status || 'published',
+      newsData.display_order || 0,
+      id
+    ]
+  );
+  
+  return result.affectedRows > 0;
+}
+
+async function deleteNewsItem(id) {
+  const [result] = await pool.query(
+    'DELETE FROM news WHERE id = ?',
+    [id]
+  );
+  return result.affectedRows > 0;
+}
+
+async function updateDisplayOrder(id, order) {
+  const [result] = await pool.query(
+    'UPDATE news SET display_order = ? WHERE id = ?',
+    [order, id]
+  );
+  return result.affectedRows > 0;
+}
+
+async function getNewsCounts() {
+  const [totalRows] = await pool.query('SELECT COUNT(*) as count FROM news');
+  const [publishedRows] = await pool.query('SELECT COUNT(*) as count FROM news WHERE status = "published"');
+  const [draftRows] = await pool.query('SELECT COUNT(*) as count FROM news WHERE status = "draft"');
+  
+  return {
+    total: totalRows[0].count,
+    published: publishedRows[0].count,
+    draft: draftRows[0].count
+  };
+}
+
+async function getCategories() {
+  const [rows] = await pool.query(
+    'SELECT DISTINCT category FROM news ORDER BY category ASC'
+  );
+  return rows.map(row => row.category);
+}
+
+
+
 module.exports = {
   pool,
   insertApplication,
@@ -144,5 +283,14 @@ module.exports = {
   getContactMessage,
   updateContactMessageStatus,
   deleteContactMessage,
-  getMessageCounts
+  getMessageCounts,
+  insertNewsItem,
+  getAllNews,
+  getPublishedNews,
+  getNewsItem,
+  updateNewsItem,
+  deleteNewsItem,
+  updateDisplayOrder,
+  getNewsCounts,
+  getCategories
 };

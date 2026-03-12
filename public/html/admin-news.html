@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - News Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/admin-news.css">
+    <link rel="stylesheet" href="../css/header-footer.css">
+    <script src="../js/admin-news.js" defer></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="../images/GMC Logo.png" alt="Green Margin Capital Logo">
+            </a>
+            
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/admin">CDSC Applications</a></li>
+                <li><a href="/admin/messages">Client Messages</a></li>
+                <li><a href="/admin/news" class="active">News Management</a></li>
+            </ul>
+            
+            <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="header">
+        <h1>News Management Dashboard</h1>
+        <p>Manage news articles and updates for the public website</p>
+        <!-- Add News Button -->
+        <div style="margin-right: 4rem; text-align: right;">
+            <button class="btn btn-primary" id="addNewsBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 0.5rem;">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add News Item
+            </button>
+        </div>
+
+    </div>
+
+    <div class="container">
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total News</h3>
+                <div class="stat-value" id="totalCount">0</div>
+            </div>
+            <div class="stat-card stat-published">
+                <h3>Published</h3>
+                <div class="stat-value" id="publishedCount">0</div>
+            </div>
+            <div class="stat-card stat-draft">
+                <h3>Drafts</h3>
+                <div class="stat-value" id="draftCount">0</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-group">
+                <label>Search</label>
+                <input type="text" id="searchInput" placeholder="Search by title or excerpt...">
+            </div>
+            <div class="filter-group">
+                <label>Status</label>
+                <select id="statusFilter">
+                    <option value="">All Statuses</option>
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Category</label>
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <!-- Categories will be loaded dynamically -->
+                </select>
+            </div>
+        </div>
+
+        <!-- News Table -->
+        <div class="table-container">
+            <div id="loadingState" class="loading">
+                <div class="spinner"></div>
+                <p>Loading news items...</p>
+            </div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <h3>No News Items Found</h3>
+                <p>Click "Add News Item" to create your first article.</p>
+            </div>
+
+            <table id="newsTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Order</th>
+                        <th style="max-width: 120px;">Image</th>
+                        <th>Title/Subtitle</th>
+                        <th style="width: 150px;">Category</th>
+                        <th style="width: 150px;">Date</th>
+                        <th style="width: 120px;">Status</th>
+                        <th style="width: 200px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="newsTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add/Edit News Modal -->
+    <div class="modal" id="newsModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add News Item</h2>
+                <button class="modal-close" id="modalCloseBtn">&times;</button>
+            </div>
+            <form id="newsForm" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" id="newsId" name="newsId">
+                    
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="title">Title *</label>
+                            <input type="text" id="title" name="title" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="excerpt">Excerpt *</label>
+                            <textarea id="excerpt" name="excerpt" rows="4" required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category">Category *</label>
+                            <input type="text" id="category" name="category" required 
+                                   list="categoryList" 
+                                   placeholder="e.g., IPO Opportunity, Company News">
+                            <datalist id="categoryList">
+                                <!-- Categories will be loaded here -->
+                            </datalist>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="date">Date *</label>
+                            <input type="date" id="date" name="date" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="external_url">External URL</label>
+                            <input type="url" id="external_url" name="external_url" 
+                                   placeholder="https://example.com">
+                            <small>Optional: Link to full article or external page</small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="status">Status *</label>
+                            <select id="status" name="status" required>
+                                <option value="published">Published</option>
+                                <option value="draft">Draft</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="display_order">Display Order</label>
+                            <input type="number" id="display_order" name="display_order" 
+                                   value="0" min="0" placeholder="0">
+                            <small>Lower numbers appear first</small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="image">Featured Image</label>
+                            <input type="file" id="image" name="image" 
+                                   accept="image/jpeg,image/png,image/webp">
+                            <small>Max 5MB. Formats: JPEG, PNG, WEBP</small>
+                            <div id="currentImagePreview" style="display: none; margin-top: 10px;">
+                                <p><strong>Current Image:</strong></p>
+                                <img id="currentImage" src="" alt="Current" style="max-width: 200px; border-radius: 4px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <span id="submitBtnText">Save News Item</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================
+         FOOTER
+         ======================================== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <!-- Company Info -->
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="../images/GMC Logo.png" alt="Green Margin Capital">
+                    </div>
+                    <p class="footer-description">A dynamic, digital, Kenya-based capital markets intermediary that is using technology to democratize access to investment solutions across Africa.</p>
+                </div>
+
+                <!-- Useful Links -->
+                <div class="footer-section">
+                    <h3>Useful Links</h3>
+                    <ul>
+                        <li><a href="https://www.cma.or.ke/" target="_blank" rel="noopener noreferrer">Central Markets Authority (CMA)</a></li>
+                        <li><a href="https://www.nse.co.ke/" target="_blank" rel="noopener noreferrer">Nairobi Securities Exchange (NSE)</a></li>
+                        <li><a href="https://www.cdsckenya.com/" target="_blank" rel="noopener noreferrer">Central Depository and Settlement Corporation (CDSC)</a></li>
+                        <li><a href="https://www.centralbank.go.ke/" target="_blank" rel="noopener noreferrer">Central Bank of Kenya (CBK)</a></li>
+                        <li><a href="http://www.kenyalaw.org/" target="_blank" rel="noopener noreferrer">Constitution of Kenya</a></li>
+                        <li><a href="https://www.kasib.co.ke/" target="_blank" rel="noopener noreferrer">Kenya Association of Stockbrokers and Investment Banks (KASIB)</a></li>
+                    </ul>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="footer-section">
+                    <h3>Quick Navigation</h3>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/about">About Us</a></li>
+                        <li><a href="/services">Services</a></li>
+                        <li><a href="/downloads">Downloads</a></li>
+                        <li><a href="/news">Latest News</a></li>
+                        <li><a href="/contact">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="footer-section">
+                    <h3>Our Contacts</h3>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <a href="https://maps.app.goo.gl/uGXjt9aii4aoikHSA" target="_blank" rel="noopener noreferrer">The EXchange, 1st Floor, 55 Westlands Road, Nairobi, Kenya</a>
+                        </div>
+                        <div class="contact-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            <a href="mailto:support@greenmargincapital.com">support@greenmargincapital.com</a>
+                        </div>
+                        <div class="contact-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            </svg>
+                            <ul>
+                                <li><a href="tel:0113223344">0113 223344</a></li>
+                                <li><a href="tel:0114223344">0114 223344</a></li>
+                            </ul>
+                        </div>
+                        <div class="contact-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <p>P.O. Box 773-00517 NAIROBI</p>
+                        </div>
+                        <div class="social-links">
+                            <a href="#" target="_blank" rel="noopener noreferrer" aria-label="Twitter" class="social-link">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" transform="translate(10 10)">
+                                    <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"></path>
+                                </svg>
+                            </a>
+                            <a href="https://www.facebook.com/people/Green-Margin-Capital/61588055447089/" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="social-link">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" transform="translate(10 10)">
+                                    <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path>
+                                </svg>
+                            </a>
+                            <a href="https://www.instagram.com/green_margincapital/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="social-link">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" transform="translate(10 10)">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                    <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path>
+                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                                </svg>
+                            </a>
+                            <a href="#" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" class="social-link">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" transform="translate(10 10)">
+                                    <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"></path>
+                                    <circle cx="4" cy="4" r="2"></circle>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Green Margin Capital. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

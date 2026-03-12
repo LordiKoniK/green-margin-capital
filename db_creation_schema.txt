@@ -135,3 +135,18 @@ CREATE TABLE IF NOT EXISTS contact_messages (
   INDEX idx_status (status),
   INDEX idx_submission_date (submission_date)
 );
+
+CREATE TABLE IF NOT EXISTS news (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  excerpt TEXT NOT NULL,
+  category VARCHAR(100) NOT NULL,
+  date DATE NOT NULL,
+  external_url VARCHAR(500),
+  image_filename VARCHAR(255),
+  status ENUM('published', 'draft') DEFAULT 'published',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  created_by VARCHAR(100),
+  display_order INT DEFAULT 0
+);

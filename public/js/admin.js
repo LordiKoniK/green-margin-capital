@@ -3,16 +3,15 @@
 let applications = [];
 let filteredApplications = [];
 
-// Load applications on page load
 document.addEventListener('DOMContentLoaded', () => {
     loadApplications();
     
-    // Set up event listeners for filters
+    // Filters event listeners
     document.getElementById('searchInput').addEventListener('input', applyFilters);
     document.getElementById('statusFilter').addEventListener('change', applyFilters);
     document.getElementById('accountTypeFilter').addEventListener('change', applyFilters);
 
-    // Set up event listener for modal close button
+    // Close modal button
     const modalCloseBtn = document.getElementById('modalCloseBtn');
     if (modalCloseBtn) {
         modalCloseBtn.addEventListener('click', closeDetailsModal);
@@ -59,7 +58,7 @@ function applyFilters() {
     const accountTypeFilter = document.getElementById('accountTypeFilter').value;
     
     filteredApplications = applications.filter(app => {
-        // Search filter
+        // Search
         const matchesSearch = !searchTerm || 
             app.primary_surname.toLowerCase().includes(searchTerm) ||
             app.primary_other_names.toLowerCase().includes(searchTerm) ||

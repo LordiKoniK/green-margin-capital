@@ -6,7 +6,7 @@
 .news-hero {
     background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
     color: var(--white);
-    padding: 6rem 0 4rem;
+    padding: 7rem 0 5rem;
     text-align: center;
 }
 
@@ -208,6 +208,43 @@
     padding: 1rem 2.5rem;
     font-size: 1.1rem;
 }
+
+
+/* Empty and Error States */
+.empty-news-state,
+.error-news-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6b7280;
+}
+
+.empty-news-state svg,
+.error-news-state svg {
+    margin: 0 auto 1.5rem;
+    opacity: 0.3;
+}
+
+.empty-news-state h3,
+.error-news-state h3 {
+    color: #374151;
+    font-size: 1.5rem;
+    margin: 0 0 0.75rem 0;
+}
+
+.empty-news-state p,
+.error-news-state p {
+    color: #6b7280;
+    font-size: 1rem;
+    margin: 0;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.error-news-state svg {
+    stroke: #ef4444;
+}
+
 
 /* Responsive */
 @media (max-width: 1024px) {

@@ -47,6 +47,45 @@ const upload = multer({
   }
 });
 
+// Storage configuration for news page images
+const newsStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = path.join(__dirname, 'public', 'images', 'news');
+    
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    // Generate unique filename: timestamp-originalname
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    const nameWithoutExt = path.basename(file.originalname, ext);
+    cb(null, nameWithoutExt + '-' + uniqueSuffix + ext);
+  }
+});
+
+const newsUpload = multer({
+  storage: newsStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: function (req, file, cb) {
+    const allowedTypes = /jpeg|jpg|png|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (extname && mimetype) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only image files (JPEG, PNG, WEBP) are allowed'));
+    }
+  }
+});
+
 // Ensure uploads directory exists
 if (!fs.existsSync('uploads')){
     fs.mkdirSync('uploads');
@@ -125,6 +164,10 @@ app.get('/admin/messages', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'html', 'admin-messages.html'));
 });
 
+app.get('/admin/news', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'html', 'admin-news.html'));
+});
+
 // Admin route security
 app.use('/admin', basicAuth({
     users: { 'admin': 'greenmnocap' },
@@ -150,6 +193,7 @@ app.use('/api/admin/contact-messages', basicAuth({
 // ==========================================
 // CONTACT ROUTES
 // ==========================================
+
 // Public: Submit contact form
 app.post('/api/contact', express.json(), async (req, res) => {
   const { firstName, lastName, email, phone, subject, message } = req.body;
@@ -316,6 +360,7 @@ app.delete('/api/admin/contact-messages/:id', async (req, res) => {
 // ==========================================
 // CDSC APPLICATION ROUTES
 // ==========================================
+
 // Public: Submit CDSC application
 app.post('/api/cdsc/submit', upload.fields([
   { name: 'primaryPassportPhoto', maxCount: 1 },
@@ -516,6 +561,229 @@ app.get('/api/cdsc/applications/:id/tax-certificate', async (req, res) => {
   } catch (error) {
     console.error('Error downloading tax certificate:', error);
     res.status(500).json({ success: false, message: 'Error downloading tax certificate', error: error.message });
+  }
+});
+
+// ==========================================
+// NEWS ROUTES
+// ==========================================
+
+// Public: Get all news (for frontend news page)
+app.get('/api/news', async (req, res) => {
+  try {
+    const news = await db.getPublishedNews();
+    res.json(news);
+  } catch (error) {
+    console.error('Error fetching published news:', error);
+    res.status(500).json({ error: 'Failed to fetch news' });
+  }
+});
+
+//Admin: Get all news (for admin management page)
+app.get('/api/admin/news', async (req, res) => {
+  try {
+    const { status, category } = req.query;
+    const filters = {};
+    
+    if (status) filters.status = status;
+    if (category) filters.category = category;
+    
+    const news = await db.getAllNews(filters);
+    const counts = await db.getNewsCounts();
+    
+    res.json({
+      news,
+      counts
+    });
+  } catch (error) {
+    console.error('Error fetching news:', error);
+    res.status(500).json({ error: 'Failed to fetch news' });
+  }
+});
+
+// Admin: Get all unique categories (for filters)
+app.get('/api/admin/news/categories', async (req, res) => {
+  try {
+    const categories = await db.getCategories();
+    res.json(categories);
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ error: 'Failed to fetch categories' });
+  }
+});
+
+// Admin: Get single news item
+app.get('/api/admin/news/:id', async (req, res) => {
+  try {
+    const newsItem = await db.getNewsItem(req.params.id);
+    
+    if (!newsItem) {
+      return res.status(404).json({ error: 'News item not found' });
+    }
+    
+    res.json(newsItem);
+  } catch (error) {
+    console.error('Error fetching news item:', error);
+    res.status(500).json({ error: 'Failed to fetch news item' });
+  }
+});
+
+// Admin: Create news item
+app.post('/api/admin/news', newsUpload.single('image'), async (req, res) => {
+  try {
+    const newsData = {
+      title: req.body.title,
+      excerpt: req.body.excerpt,
+      category: req.body.category,
+      date: req.body.date,
+      external_url: req.body.external_url,
+      status: req.body.status || 'published',
+      display_order: parseInt(req.body.display_order) || 0,
+      created_by: req.body.created_by || 'admin'
+    };
+    
+    // Add image filename if uploaded
+    if (req.file) {
+      newsData.image_filename = req.file.filename;
+    }
+    
+    // Validate required fields
+    if (!newsData.title || !newsData.excerpt || !newsData.category || !newsData.date) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: title, excerpt, category, date' 
+      });
+    }
+    
+    const newsId = await db.insertNewsItem(newsData);
+    
+    res.status(201).json({
+      success: true,
+      id: newsId,
+      message: 'News item created successfully'
+    });
+  } catch (error) {
+    console.error('Error creating news item:', error);
+    
+    // Delete uploaded file if database insert failed
+    if (req.file) {
+      fs.unlinkSync(req.file.path);
+    }
+    
+    res.status(500).json({ error: 'Failed to create news item' });
+  }
+});
+
+// Admin: Update news item
+app.put('/api/admin/news/:id', newsUpload.single('image'), async (req, res) => {
+  try {
+    const newsItem = await db.getNewsItem(req.params.id);
+    
+    if (!newsItem) {
+      return res.status(404).json({ error: 'News item not found' });
+    }
+    
+    const newsData = {
+      title: req.body.title,
+      excerpt: req.body.excerpt,
+      category: req.body.category,
+      date: req.body.date,
+      external_url: req.body.external_url,
+      status: req.body.status || 'published',
+      display_order: parseInt(req.body.display_order) || 0
+    };
+    
+    // Handle image upload
+    if (req.file) {
+      // Delete old image if it exists
+      if (newsItem.image_filename) {
+        const oldImagePath = path.join(__dirname, 'public', 'images', 'news', newsItem.image_filename);
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath);
+        }
+      }
+      newsData.image_filename = req.file.filename;
+    } else {
+      // Keep existing image
+      newsData.image_filename = newsItem.image_filename;
+    }
+    
+    const success = await db.updateNewsItem(req.params.id, newsData);
+    
+    if (success) {
+      res.json({
+        success: true,
+        message: 'News item updated successfully'
+      });
+    } else {
+      res.status(500).json({ error: 'Failed to update news item' });
+    }
+  } catch (error) {
+    console.error('Error updating news item:', error);
+    
+    // Delete uploaded file if update failed
+    if (req.file) {
+      fs.unlinkSync(req.file.path);
+    }
+    
+    res.status(500).json({ error: 'Failed to update news item' });
+  }
+});
+
+// Admin: Delete news item
+app.delete('/api/admin/news/:id', async (req, res) => {
+  try {
+    const newsItem = await db.getNewsItem(req.params.id);
+    
+    if (!newsItem) {
+      return res.status(404).json({ error: 'News item not found' });
+    }
+    
+    // Delete associated image if it exists
+    if (newsItem.image_filename) {
+      const imagePath = path.join(__dirname, 'public', 'images', 'news', newsItem.image_filename);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
+    
+    const success = await db.deleteNewsItem(req.params.id);
+    
+    if (success) {
+      res.json({
+        success: true,
+        message: 'News item deleted successfully'
+      });
+    } else {
+      res.status(500).json({ error: 'Failed to delete news item' });
+    }
+  } catch (error) {
+    console.error('Error deleting news item:', error);
+    res.status(500).json({ error: 'Failed to delete news item' });
+  }
+});
+
+// Admin: Update news display order
+app.patch('/api/admin/news/:id/order', async (req, res) => {  
+  try {
+    const { display_order } = req.body;
+    
+    if (display_order === undefined) {
+      return res.status(400).json({ error: 'display_order is required' });
+    }
+    
+    const success = await db.updateDisplayOrder(req.params.id, parseInt(display_order));
+    
+    if (success) {
+      res.json({
+        success: true,
+        message: 'Display order updated successfully'
+      });
+    } else {
+      res.status(404).json({ error: 'News item not found' });
+    }
+  } catch (error) {
+    console.error('Error updating display order:', error);
+    res.status(500).json({ error: 'Failed to update display order' });
   }
 });
 

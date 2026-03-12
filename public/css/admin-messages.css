@@ -2,31 +2,6 @@
    ADMIN MESSAGES PAGE SPECIFIC STYLES
    ========================================== */
 
-/* Stat card color variants */
-.stat-card.stat-pending {
-    border-left-color: var(--warning-yellow);
-}
-
-.stat-card.stat-pending .stat-value {
-    color: var(--warning-yellow);
-}
-
-.stat-card.stat-addressed {
-    border-left-color: var(--success-green);
-}
-
-.stat-card.stat-addressed .stat-value {
-    color: var(--success-green);
-}
-
-.stat-card.stat-ignored {
-    border-left-color: var(--text-light);
-}
-
-.stat-card.stat-ignored .stat-value {
-    color: var(--text-light);
-}
-
 /* Message preview truncation */
 .message-preview {
     max-width: 250px;
