@@ -242,7 +242,20 @@ async function editNews(id) {
         document.getElementById('title').value = news.title;
         document.getElementById('excerpt').value = news.excerpt;
         document.getElementById('category').value = news.category;
-        document.getElementById('date').value = news.date;
+
+        // Format date as YYYY-MM-DD for input[type="date"] using local time
+        let dateValue = '';
+        if (news.date) {
+            const d = new Date(news.date);
+            if (!isNaN(d)) {
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                dateValue = `${year}-${month}-${day}`;
+            }
+        }
+        document.getElementById('date').value = dateValue;
+        
         document.getElementById('external_url').value = news.external_url || '';
         document.getElementById('status').value = news.status;
         document.getElementById('display_order').value = news.display_order;
