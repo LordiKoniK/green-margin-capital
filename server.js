@@ -388,6 +388,12 @@ app.post('/api/cdsc/submit', upload.fields([
     if (req.files['taxCertificate']) {
       data.tax_cert_path = req.files['taxCertificate'][0].path;
     }
+    if (req.files['kraPinCertificate']) {
+      data.primary_kra_cert_path = req.files['kraPinCertificate'][0].path;
+    }
+    if (req.files['kraPinCertificate2']) { 
+      data.secondary_kra_cert_path = req.files['kraPinCertificate2'][0].path;
+    }
 
     // Insert into database
     const applicationId = await db.insertApplication(data);
@@ -468,7 +474,9 @@ app.delete('/api/cdsc/applications/:id', async (req, res) => {
       'secondary_passport_photo_path',
       'signature_path',
       'secondary_signature_path',
-      'tax_cert_path'
+      'tax_cert_path',
+      'primary_kra_cert_path',
+      'secondary_kra_cert_path'
     ];
 
     fileFields.forEach(field => {

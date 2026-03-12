@@ -236,7 +236,7 @@
                     <div class="requirement-item">
                         <div class="requirement-icon">💳</div>
                         <h4>5. Proof of Taxation Compliance</h4>
-                        <p>Existing KRA PIN number, or tax exemption certificate</p>
+                        <p>Existing KRA PIN number and certificate, or tax exemption certificate</p>
                     </div> 
                 </div>
             </div>
@@ -488,7 +488,7 @@
 
                         <div class="form-group">
                             <label class="form-label required">Identification Type</label>
-                            <select class="form-select" required>
+                            <select class="form-select" id="idType" required>
                                 <option value="">Select ID type</option>
                                 <option value="national">National ID</option>
                                 <option value="ea">East African ID</option>
@@ -499,12 +499,12 @@
 
                         <div class="form-group">
                             <label class="form-label required">ID/Passport Number</label>
-                            <input type="text" class="form-input" required>
+                            <input type="text" class="form-input" id="primaryIdPassportNumber" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Passport Expiry Date (if identified by passport)</label>
-                            <input type="date" class="form-input">
+                            <input type="date" class="form-input" id="primaryPassportExpiry">
                         </div>
 
                         <div class="form-group">
@@ -523,7 +523,23 @@
 
                         <div class="form-group">
                             <label class="form-label required">KRA PIN</label>
-                            <input type="text" class="form-input" required>
+                            <input type="text" class="form-input" id="primaryKraPin" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label required">KRA PIN Certificate</label>
+                            <div class="photo-upload-container">
+                                <label class="photo-upload-label">
+                                        <div id="pre-kra-cert-upload">
+                                            <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-bottom: -18px; margin-right: 10px;">
+                                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                                            </svg>
+                                            <span>Click to upload KRA PIN certificate</span>
+                                        </div>
+                                        <input id="kraPinCertInput" type="file" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                                        <div id="kraPinCertPreview" style="margin-top:10px;display: flex;align-items: center;"></div>
+                                </label>
+                            </div>
                         </div>
 
                         <div class="form-group full-width">
@@ -627,6 +643,22 @@
                         </div>
 
                         <div class="form-group full-width">
+                            <label class="form-label required">KRA PIN Certificate</label>
+                            <div class="photo-upload-container">
+                                <label class="photo-upload-label">
+                                        <div id="pre-kra-cert-upload2">
+                                            <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-bottom: -18px; margin-right: 10px;">
+                                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                                            </svg>
+                                            <span>Click to upload KRA PIN certificate</span>
+                                        </div>
+                                        <input id="kraPinCertInput2" type="file" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                                        <div id="kraPinCertPreview2" style="margin-top:10px;display: flex;align-items: center;"></div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group full-width">
                             <label class="form-label required">Passport Photo</label>
                             <div class="photo-upload-container">
                                 <label class="photo-upload-label">
@@ -657,17 +689,17 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label required">Country Code</label>
-                            <input type="text" class="form-input" placeholder="e.g. +254" required>
+                            <input type="text" class="form-input" value="+254" placeholder="e.g. +254 (or type country name for list)" id="primaryCountryCode" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Telephone Number</label>
-                            <input type="tel" class="form-input" placeholder="e.g. 0712345678" required>
+                            <input type="tel" class="form-input" placeholder="e.g. 0712345678 (include leading 0)" required>
                         </div>
 
                         <div class="form-group full-width">
                             <label class="form-label required">Email Address</label>
-                            <input type="email" class="form-input" required>
+                            <input type="email" class="form-input" id="primaryEmail" required>
                         </div>
 
                         <div class="form-group">
@@ -676,18 +708,18 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label required">Physical Location (in Town/City)</label>
-                            <input type="text" class="form-input" placeholder="e.g. Ongata Rongai" required>
+                            <label class="form-label">Physical Location (in Town/City)</label>
+                            <input type="text" class="form-input" placeholder="e.g. Ongata Rongai">
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Postal Code</label>
-                            <input type="text" class="form-input">
+                            <input type="text" class="form-input" placeholder="e.g. 00100">
                         </div>
 
                         <div class="form-group full-width">
                             <label class="form-label">Postal Address</label>
-                            <input type="text" class="form-input" placeholder="P.O. Box or Building Address">
+                            <input type="text" class="form-input" placeholder="P.O. Box or Building Address" id="primaryPostalAddress">
                         </div>
 
                         <div class="form-group full-width">
@@ -696,6 +728,7 @@
                                 <option value="">Select source</option>
                                 <option value="Employment">Employment</option>
                                 <option value="Business">Business</option>
+                                <option value="Savings">Savings</option>
                             </select>
                         </div>
 
@@ -764,12 +797,12 @@
                         <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label required">Country Code</label>
-                            <input type="text" class="form-input" id="secondaryCountryCode" placeholder="e.g. +254" required>
+                            <input type="text" class="form-input" id="secondaryCountryCode" value="+254" placeholder="e.g. +254 (or type country name for list)" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Telephone Number</label>
-                            <input type="tel" class="form-input" id="secondaryPhone" placeholder="e.g. 0712345678" required>
+                            <input type="tel" class="form-input" id="secondaryPhone" placeholder="e.g. 0712345678 (include leading 0)" required>
                         </div>
 
                         <div class="form-group full-width">
@@ -783,8 +816,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label required">Physical Location (in Town/City)</label>
-                            <input type="text" class="form-input" placeholder="e.g. Langata" id="secondaryPhysicalLocation" required>
+                            <label class="form-label">Physical Location (in Town/City)</label>
+                            <input type="text" class="form-input" placeholder="e.g. Langata" id="secondaryPhysicalLocation">
                         </div>
 
                         <div class="form-group">
@@ -803,6 +836,7 @@
                                 <option value="">Select source</option>
                                 <option value="Employment">Employment</option>
                                 <option value="Business">Business</option>
+                                <option value="Savings">Savings</option>
                             </select>
                         </div>
 
@@ -881,8 +915,8 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label">If yes, specify name and relationship</label>
+                        <div class="form-group" id="pepTrue" style="display: none;">
+                            <label class="form-label">If yes, specify name and relationship:</label>
                             <textarea class="form-textarea" rows="3"></textarea>
                         </div>
                     </div>
@@ -1125,10 +1159,6 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label required">Date</label>
-                            <input type="date" class="form-input" id="signDate" required>
-                        </div>
                     </div>
 
                     <div class="form-grid single-column" style="margin-top: 100px;">
