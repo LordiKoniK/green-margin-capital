@@ -367,7 +367,9 @@ app.post('/api/cdsc/submit', upload.fields([
   { name: 'secondaryPassportPhoto', maxCount: 1 },
   { name: 'signatureImage', maxCount: 1 },
   { name: 'secondarySignatureImage', maxCount: 1 },
-  { name: 'taxCertificate', maxCount: 1 }
+  { name: 'taxCertificate', maxCount: 1 },
+  { name: 'kraPinCertificate', maxCount: 1 },
+  { name: 'kraPinCertificate2', maxCount: 1 }
 ]), async (req, res) => {
   try {
     const data = JSON.parse(req.body.data);

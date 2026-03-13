@@ -20,7 +20,11 @@ async function insertApplication(data) {
     'INSERT INTO applications SET ?',
     data
   );
-  return result.insertId;
+  const [rows] = await pool.query(
+    'SELECT gmc_id FROM applications WHERE id = ?',
+    [result.insertId]
+  );
+  return rows[0]?.gmc_id;
 }
 
 async function getAllApplications() {

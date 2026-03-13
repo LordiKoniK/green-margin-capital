@@ -429,6 +429,58 @@
     margin-top: 12px;
 }
 
+/* ── Review Page ── */
+
+.review-section { 
+    margin-bottom: 28px; 
+}
+
+.review-section-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--primary-blue);
+    border-bottom: 2px solid var(--primary-blue);
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+}
+
+.review-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 24px;
+}
+
+.review-row {
+    display: flex;
+    flex-direction: column;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.review-label {
+    font-size: 0.78rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 2px;
+}
+
+.review-value {
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+#copyAppIdBtn:hover { 
+    background: var(--primary-blue); color: white; 
+}
+
+@media (max-width: 600px) {
+    .review-grid { grid-template-columns: 1fr; }
+}
+
 /* Modal Footer */
 .modal-footer {
     padding: 24px 40px;
@@ -509,6 +561,10 @@ canvas {
 
 .jointAccountSection {
     display: none;
+}
+
+.jointAccountSection.show {
+    display: block !important;
 }
 
 .bank-autocomplete-container {

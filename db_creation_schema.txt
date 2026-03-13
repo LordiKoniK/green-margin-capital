@@ -7,12 +7,11 @@ USE sitedb;
 
 CREATE TABLE IF NOT EXISTS applications (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  submission_date DATETIME DEFAULT CURRENT_TIMESTAMP,
 
   account_type VARCHAR(50) NOT NULL,
   cda_code VARCHAR(100),
   cds_account_number VARCHAR(100),
-
+  
   primary_surname VARCHAR(100) NOT NULL,
   primary_other_names VARCHAR(150) NOT NULL,
   primary_dob DATE NOT NULL,

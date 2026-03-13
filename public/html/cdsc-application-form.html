@@ -411,8 +411,42 @@
 
             <!-- Modal Body -->
             <div class="modal-body">
+
+                <!-- Step 0: Checklist (shown before progress bar begins) -->
+                <div class="form-step" id="checklistPage">
+                    <h3 class="form-section-title">Before You Begin</h3>
+                    <p style="color: var(--text-light); margin-bottom: 24px;">Please confirm you have the following ready before starting. You will need all of these to complete the application.</p>
+
+                    <div class="form-grid single-column">
+                        <ul style="padding-left: 1.2em; margin: 0; list-style: disc; color: var(--text-dark); font-size: 1rem;">
+                            <li style="margin-bottom: 12px;">
+                                <strong>📄 National ID or Passport</strong><br>
+                                <small style="color: var(--text-light);">Valid government-issued identification document</small>
+                            </li>
+                            <li style="margin-bottom: 12px;">
+                                <strong>📸 Passport Photo</strong><br>
+                                <small style="color: var(--text-light);">Recent passport-size photograph (digital copy — PNG or JPG)</small>
+                            </li>
+                            <li style="margin-bottom: 12px;">
+                                <strong>💳 KRA PIN Certificate</strong><br>
+                                <small style="color: var(--text-light);">Your KRA PIN number and certificate, or a tax exemption certificate</small>
+                            </li>
+                            <li style="margin-bottom: 12px;">
+                                <strong>🏦 Bank Account Details</strong><br>
+                                <small style="color: var(--text-light);">Active Kenyan bank account name, number, and branch code for settlements</small>
+                            </li>
+                            <li>
+                                <strong>📧 Contact Information</strong><br>
+                                <small style="color: var(--text-light);">Valid email address and phone number</small>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <p style="margin-top: 24px; font-size: 0.88rem; color: var(--text-light);">For a joint account, you will need all of the above for both applicants.</p>
+                </div>
+
                 <!-- Step 1: Account Type -->
-                <div class="form-step active" data-step="1">
+                <div class="form-step" data-step="1">
                     <h3 class="form-section-title">Account Type Selection</h3>
                     
                     <div class="form-grid single-column">
@@ -449,17 +483,17 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label required">Surname</label>
-                            <input type="text" class="form-input" required>
+                            <input type="text" class="form-input" id="primarySurname" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Other Names</label>
-                            <input type="text" class="form-input" required>
+                            <input type="text" class="form-input" id="primaryOtherNames" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Date of Birth</label>
-                            <input type="date" class="form-input" required>
+                            <input type="date" class="form-input" id="primaryDateOfBirth" required>
                         </div>
 
                         <div class="form-group">
@@ -503,7 +537,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Passport Expiry Date (if identified by passport)</label>
+                            <label class="form-label">Identification Expiry Date (if not using National ID)</label>
                             <input type="date" class="form-input" id="primaryPassportExpiry">
                         </div>
 
@@ -534,7 +568,7 @@
                                             <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-bottom: -18px; margin-right: 10px;">
                                                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
                                             </svg>
-                                            <span>Click to upload KRA PIN certificate</span>
+                                            <span>Click/Drop to upload KRA PIN certificate</span>
                                         </div>
                                         <input id="kraPinCertInput" type="file" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
                                         <div id="kraPinCertPreview" style="margin-top:10px;display: flex;align-items: center;"></div>
@@ -550,7 +584,7 @@
                                             <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-bottom: -18px; margin-right: 10px;">
                                                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
                                             </svg>
-                                            <span>Click to upload passport photo</span>
+                                            <span>Click/Drop to upload passport photo</span>
                                         </div>
                                         <input id="passportPhotoInput" type="file" accept="image/*" style="display: none;">
                                         <div id="passportPhotoPreview" style="margin-top:10px;display: flex;align-items: center;"></div>
@@ -619,7 +653,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Passport Expiry Date (if identified by passport)</label>
+                            <label class="form-label">Identification Expiry Date (if not using National ID)</label>
                             <input type="date" class="form-input" id="secondaryPassportExpiry">
                         </div>
 
@@ -650,7 +684,7 @@
                                             <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-bottom: -18px; margin-right: 10px;">
                                                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
                                             </svg>
-                                            <span>Click to upload KRA PIN certificate</span>
+                                            <span>Click/Drop to upload KRA PIN certificate</span>
                                         </div>
                                         <input id="kraPinCertInput2" type="file" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
                                         <div id="kraPinCertPreview2" style="margin-top:10px;display: flex;align-items: center;"></div>
@@ -666,7 +700,7 @@
                                             <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-bottom: -18px; margin-right: 10px;">
                                                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
                                             </svg>
-                                            <span>Click to upload passport photo</span>
+                                            <span>Click/Drop to upload passport photo</span>
                                         </div>
                                         <input id="passportPhotoInput2" type="file" accept="image/*" style="display: none;">
                                         <div id="passportPhotoPreview2" style="margin-top:10px;display: flex;align-items: center;"></div>
@@ -1067,7 +1101,7 @@
                                         <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-bottom: -18px; margin-right: 10px;">
                                             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
                                         </svg>
-                                        <span>Click to upload tax exemption certificate</span>
+                                        <span>Click/Drop to upload tax exemption certificate</span>
                                     </div>
                                     <input id="taxExemptionCertInput" type="file" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
                                     <div id="taxCertificatePreview" style="margin-top:10px;display: flex;align-items: center;"></div>
@@ -1137,24 +1171,36 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label required">Signature(s)</label>
+                            <label class="form-label required">Signature</label>
                             <div class="signature-area" style="padding: 0; position: relative;">
                                 <canvas id="signatureCanvas" style="border: 2px solid var(--border-color); border-radius: 8px; cursor: crosshair; display: block; width: 100%; height: 200px;"></canvas>
                                 <button type="button" class="btn-clear-signature" id="clearSignature">Clear</button>
+                                <button type="button" class="btn-clear-signature" id="uploadSignatureBtn" style="margin-left: 8px;">Upload Image</button>
+                            </div>
+                            <!-- Upload zone, hidden by default -->
+                            <div id="sigUploadZone1" style="display: none; margin-top: 10px; padding: 16px; border: 2px dashed var(--border-color); border-radius: 8px; text-align: center; background: var(--bg-light);">
+                                <p style="margin: 0 0 8px; font-size: 0.9rem; color: var(--text-light);">Upload a signature image (PNG or JPG). It will be drawn onto the canvas above.</p>
+                                <input type="file" id="sigUploadInput1" accept="image/png, image/jpeg, image/jpg" style="font-size: 0.9rem;">
                             </div>
                         </div>
 
                         <div class="jointAccountSection" id="secondarySignatureSection">
                             <h3 class="form-section-title">Secondary Signatory</h3>
                             <div class="form-group">
-                                <label class="form-label required">Full Name(s) (Secondary)</label>
+                                <label class="form-label required">Full Name(s)</label>
                                 <input type="text" class="form-input" id="signName2" placeholder="e.g. 'Person2'" required>
                             </div>
                             <div class="form-group">
-                                <label class="form-label required">Signature (Secondary)</label>
+                                <label class="form-label required">Signature</label>
                                 <div class="signature-area" style="padding: 0; position: relative;">
                                     <canvas id="signatureCanvas2" style="border: 2px solid var(--border-color); border-radius: 8px; cursor: crosshair; display: block; width: 100%; height: 200px;"></canvas>
                                     <button type="button" class="btn-clear-signature" id="clearSignature2">Clear</button>
+                                    <button type="button" class="btn-clear-signature" id="uploadSignatureBtn2" style="margin-left: 8px;">Upload Image</button>
+                                </div>
+                                <!-- Upload zone, hidden by default -->
+                                <div id="sigUploadZone2" style="display: none; margin-top: 10px; padding: 16px; border: 2px dashed var(--border-color); border-radius: 8px; text-align: center; background: var(--bg-light);">
+                                    <p style="margin: 0 0 8px; font-size: 0.9rem; color: var(--text-light);">Upload a signature image (PNG or JPG). It will be drawn onto the canvas above.</p>
+                                    <input type="file" id="sigUploadInput2" accept="image/png, image/jpeg, image/jpg" style="font-size: 0.9rem;">
                                 </div>
                             </div>
                         </div>
@@ -1170,6 +1216,56 @@
                         </div>
                     </div>
                 </div>
+  
+                <!-- Step 6: Review & Submit -->
+                <div class="form-step" id="reviewPage">
+                    <h3 class="form-section-title">Review Your Application</h3>
+                    <p style="color: var(--text-light); margin-bottom: 24px;">Please review your details below before submitting. Use the Previous button to go back and make corrections if needed.</p>
+                    <div id="reviewContent">
+                        <!-- Built dynamically by buildReviewPage() -->
+                    </div>
+                </div>
+
+                <!-- Step 7: Confirmation -->
+                <div class="form-step" id="confirmationPage">
+
+                    <!-- SUCCESS STATE -->
+                    <div id="confirmSuccess" style="text-align: center; padding: 16px 0 32px;">
+                        <div style="font-size: 3.5rem; margin-bottom: 16px;">✅</div>
+                        <h3 style="font-size: 1.4rem; color: var(--success-green); margin-bottom: 8px;">Application Submitted!</h3>
+                        <p style="color: var(--text-light); margin-bottom: 32px;">Thank you. We have received your application and will be in touch via email regarding the next steps.</p>
+
+                        <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 10px;">Your Application Reference ID</p>
+                        <div style="display: inline-flex; align-items: center; gap: 12px; background: var(--bg-light); border: 2px solid var(--primary-blue); border-radius: 10px; padding: 14px 20px; margin-bottom: 10px;">
+                            <span id="confirmAppId" style="font-family: monospace; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.08em; color: var(--primary-blue);"></span>
+                            <button type="button" id="copyAppIdBtn" title="Copy to clipboard"
+                                style="background: none; border: 1.5px solid var(--primary-blue); border-radius: 6px; padding: 5px 10px; cursor: pointer; color: var(--primary-blue); font-size: 0.8rem; font-weight: 600; transition: background 0.15s;">
+                                Copy
+                            </button>
+                        </div>
+                        <p id="copyConfirmMsg" style="font-size: 0.82rem; color: var(--success-green); min-height: 1.2em; margin-top: 4px;"></p>
+                        <p style="font-size: 0.82rem; color: var(--text-light); margin-top: 4px;">Please keep this ID — you will need it for all future correspondence with us.</p>
+
+                        <button type="button" class="btn btn-primary" id="closeConfirmBtn" style="margin-top: 32px;">
+                            Close
+                        </button>
+                    </div>
+
+                    <!-- ERROR STATE -->
+                    <div id="confirmError" style="text-align: center; padding: 16px 0 32px; display: none;">
+                        <div style="font-size: 3.5rem; margin-bottom: 16px;">❌</div>
+                        <h3 style="font-size: 1.4rem; color: var(--error-red); margin-bottom: 8px;">Submission Failed</h3>
+                        <p id="confirmErrorMsg" style="color: var(--text-light); margin-bottom: 32px;"></p>
+                        <button type="button" class="btn btn-primary" id="retrySubmitBtn" style="margin-right: 12px;">
+                            Try Again
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="closeErrorBtn">
+                            Close
+                        </button>
+                    </div>
+
+                </div>
+
             </div>
 
             <!-- Modal Footer -->
@@ -1178,7 +1274,7 @@
                     Previous
                 </button>
                 <button class="btn btn-primary" id="nextBtn">
-                    Next
+                    Begin Application
                 </button>
             </div>
         </div>

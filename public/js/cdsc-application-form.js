@@ -1,21 +1,22 @@
 window.openModal = openModal;
-let currentStep = 1;
+let currentStep = 0;  // 0=checklist, 1-5=form, 6=review
 const totalSteps = 5;
 
 // =============================================
 // DEV MODE — set to true to bypass step validation
 // during testing. Set to false for production.
-const DEV_MODE = true;
+const DEV_MODE = false;
 // =============================================
 
 function openModal() {
     document.getElementById('modalOverlay').classList.add('active');
     document.body.style.overflow = 'hidden';
+    currentStep = 0;
+    updateProgress();
     // Initialize signature canvas after modal is fully rendered
     setTimeout(() => initSignatureCanvas("signatureCanvas"), 300);
     setTimeout(() => initSignatureCanvas("signatureCanvas2"), 300);
     populateCountryDropdowns();
-
 }
 
 function closeModal() {
@@ -24,10 +25,14 @@ function closeModal() {
 }
 
 function updateProgress() {
-    // Update progress bar
+    // Update progress bar (only meaningful for steps 1-5)
     const progressFill = document.getElementById('progressFill');
-    const progressPercent = ((currentStep - 1) / (totalSteps - 1)) * 100;
-    progressFill.style.width = progressPercent + '%';
+    if (progressFill) {
+        const pct = currentStep >= 1 && currentStep <= totalSteps
+            ? ((currentStep - 1) / (totalSteps - 1)) * 100
+            : currentStep === 6 ? 100 : 0;
+        progressFill.style.width = pct + '%';
+    }
 
     // Update step indicators
     document.querySelectorAll('.progress-step').forEach((step, index) => {
@@ -43,14 +48,7 @@ function updateProgress() {
         }
     });
 
-    // Update form steps
-    document.querySelectorAll('.form-step').forEach((step, index) => {
-        if (index + 1 === currentStep) {
-            step.classList.add('active');
-        } else {
-            step.classList.remove('active');
-        }
-    });
+    // (form-step visibility handled in button/progress block above)
 
     // Initialize bank autocomplete at step 4:
     if (currentStep === 4) {
@@ -61,24 +59,58 @@ function updateProgress() {
     if (currentStep === 5) {
         setTimeout(() => initSignatureCanvas("signatureCanvas"), 300);
         setTimeout(() => initSignatureCanvas("signatureCanvas2"), 300);
+        setTimeout(setupDeclarationPage, 50);
     }
+
+    // Hide progress bar on checklist (0) and review (6)
+    const progressContainer = document.querySelector('.progress-container');
+    if (progressContainer) {
+        progressContainer.style.display = (currentStep === 0 || currentStep === 6) ? 'none' : '';
+    }
+
+    // Show/hide form steps — checklist and review pages are handled separately
+    const specialIds = new Set(['checklistPage', 'reviewPage', 'confirmationPage']);
+    const formSteps = Array.from(document.querySelectorAll('.form-step'))
+        .filter(s => !specialIds.has(s.id));
+    formSteps.forEach((step, index) => {
+        step.classList.toggle('active', index + 1 === currentStep);
+    });
+
+    const checklistPage = document.getElementById('checklistPage');
+    if (checklistPage) checklistPage.classList.toggle('active', currentStep === 0);
+    const reviewPage = document.getElementById('reviewPage');
+    if (reviewPage) reviewPage.classList.toggle('active', currentStep === 6);
+    const confirmationPage = document.getElementById('confirmationPage');
+    if (confirmationPage) confirmationPage.classList.toggle('active', currentStep === 7);
 
     // Update buttons
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
 
-    if (currentStep === 1) {
-        prevBtn.style.display = 'none';
-    } else {
-        prevBtn.style.display = 'block';
-    }
+    prevBtn.style.display = (currentStep === 0 || currentStep === 7) ? 'none' : 'block';
 
-    if (currentStep === totalSteps) {
+    if (currentStep === 0) {
+        nextBtn.textContent = 'Begin Application';
+    } else if (currentStep === totalSteps) {
+        nextBtn.textContent = 'Review';
+    } else if (currentStep === 6) {
         nextBtn.textContent = 'Submit Application';
     } else {
         nextBtn.textContent = 'Next';
     }
+
+    const modalBody = document.querySelector('.modal-body');
+if (modalBody) {
+    if (currentStep === 7) {
+        modalBody.style.paddingTop = '0';
+        modalBody.style.paddingBottom = '0';
+    } else {
+        modalBody.style.paddingTop = '';
+        modalBody.style.paddingBottom = '';
+    }
 }
+}
+
 
 // =============================================
 //  PER-STEP VALIDATION
@@ -405,6 +437,15 @@ function validateCurrentStep() {
         }
     }
 
+    // Step 3: Pep declaration details (only if PEP = yes)
+    if (currentStep === 3) {
+        const pep = document.querySelector('input[name="pep"]:checked')?.value;
+        const textarea = document.querySelector('.form-textarea');
+        if (pep === 'yes' && textarea && textarea.value.trim() === '') { 
+            markFieldInvalid(textarea, 'Please provide details of your PEP status.');
+        }
+    }        
+
     // Step 4: tax exemption certificate (only if tax exempt = yes and the upload is visible)
     if (currentStep === 4) {
         const taxExempt = document.querySelector('input[name="taxExempt"]:checked')?.value;
@@ -437,7 +478,11 @@ function validateCurrentStep() {
             if (!firstInvalidField) firstInvalidField = canvas;
         }
 
-        if (isJoint) {
+        // Secondary canvas: only required when mandate shows both signers (jointly or any-two)
+        const mandate = document.getElementById('signingAuthority')?.value;
+        const secondarySection = document.getElementById('secondarySignatureSection');
+        const secondaryVisible = secondarySection && secondarySection.style.display !== 'none';
+        if (isJoint && secondaryVisible && mandate !== 'either') {
             const canvas2 = document.getElementById('signatureCanvas2');
             if (canvas2 && isCanvasEmpty(canvas2)) {
                 const signatureArea2 = canvas2.closest('.signature-area');
@@ -485,8 +530,23 @@ function isCanvasEmpty(canvas) {
 // =============================================
 
 async function nextStep() {
-    if (!validateCurrentStep()) return; // Block navigation if validation fails
+    const modalBody = document.querySelector('.modal-body');
 
+    // Checklist page — validate all checkboxes are ticked
+    if (currentStep === 0) {
+        currentStep = 1;
+        updateProgress();
+        if (modalBody) modalBody.scrollTop = 0;
+        return;
+    }
+
+    // Review page — submit
+    if (currentStep === 6) {
+        await submitApplication();
+        return;
+    }
+
+    if (!validateCurrentStep()) return;
     if (currentStep < totalSteps) {
         currentStep++;
         updateProgress();
@@ -494,16 +554,21 @@ async function nextStep() {
         const modalBody = document.querySelector('.modal-body');
         if (modalBody) modalBody.scrollTop = 0;
     } else {
-        await submitApplication();
+        // Step 5 (Declaration) — build review then advance to step 6
+        buildReviewPage();
+        currentStep = 6;
+        updateProgress();
+        if (modalBody) modalBody.scrollTop = 0;
     }
 }
 
 function previousStep() {
-    if (currentStep > 1) {
-        // Clear validation state when going back
-        const stepEl = document.querySelector(`.form-step[data-step="${currentStep}"]`);
-        if (stepEl) clearStepValidation(stepEl);
-
+    if (currentStep > 0) {
+        // Clear validation on current form step (not applicable for step 6 review)
+        if (currentStep >= 1 && currentStep <= totalSteps) {
+            const stepEl = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+            if (stepEl) clearStepValidation(stepEl);
+        }
         currentStep--;
         updateProgress();
         const modalBody = document.querySelector('.modal-body');
@@ -512,110 +577,214 @@ function previousStep() {
 }
 
 
-async function submitApplication() {
 
-    // Check for empty required fields and collect all empty ones, excluding joint fields if not joint account
-    const accountType = document.querySelector('input[name="accountType"]:checked')?.value;
-    const requiredFields = document.querySelectorAll('[required]');
-    let emptyFields = [];
-    requiredFields.forEach(field => {
-        // Exclude jointAccountSection fields if not joint
-        if (accountType !== 'joint' && field.closest('.jointAccountSection')) {
-            return;
-        }
-        if (field.type === 'checkbox' || field.type === 'radio') {
-            // For radio/checkbox, check if any in group is checked
-            if (field.type === 'radio') {
-                const group = document.getElementsByName(field.name);
-                const checked = Array.from(group).some(r => r.checked);
-                if (!checked && !emptyFields.some(f => f.name === field.name)) emptyFields.push(field);
-            } else if (field.type === 'checkbox') {
-                if (!field.checked) emptyFields.push(field);
-            }
-        } else if (!field.value) {
-            emptyFields.push(field);
-        }
-    });
-    if (emptyFields.length > 0) {
-        const fieldNames = emptyFields.map(field => {
-            let label = '';
-            if (field.labels && field.labels.length > 0) {
-                label = field.labels[0].innerText.trim();
-            } else if (field.getAttribute('aria-label')) {
-                label = field.getAttribute('aria-label');
-            } else if (field.placeholder) {
-                label = field.placeholder;
-            } else if (field.name) {
-                label = field.name;
-            } else if (field.id) {
-                label = field.id;
-            } else {
-                label = 'Unnamed field';
-            }
-            return label;
-        });
-        alert('Please fill all required fields before submitting.\n\nMissing: ' + fieldNames.join(', '));
-        return;
+// =============================================
+//  REVIEW PAGE BUILDER
+// =============================================
+
+function buildReviewPage() {
+    const isJoint = document.querySelector('input[name="accountType"]:checked')?.value === 'joint';
+    const container = document.getElementById('reviewContent');
+    if (!container) return;
+
+    // Helper: read a field value safely
+    function val(id) {
+        return document.getElementById(id)?.value?.trim() || '—';
     }
-    
+    function qval(selector) {
+        return document.querySelector(selector)?.value?.trim() || '—';
+    }
+    function radioVal(name) {
+        return document.querySelector(`input[name="${name}"]:checked`)?.value || '—';
+    }
 
-    // Check if signatures are empty
-    const canvas = document.getElementById('signatureCanvas');
+    // Helper: build a review section as HTML
+    function section(title, rows) {
+        const visibleRows = rows.filter(r => r[1] && r[1] !== '—');
+        if (visibleRows.length === 0) return '';
+        return `
+            <div class="review-section">
+                <h4 class="review-section-title">${title}</h4>
+                <div class="review-grid">
+                    ${visibleRows.map(([label, value]) => `
+                        <div class="review-row">
+                            <span class="review-label">${label}</span>
+                            <span class="review-value">${value}</span>
+                        </div>`).join('')}
+                </div>
+            </div>`;
+    }
+
+    const idTypeMap = { national_id: 'National ID', passport: 'Passport', alien: 'Alien Card', ea: 'EA Pass' };
+    const mandateMap = { single: 'Single', either: 'Either to sign', joint: 'All of us jointly', two: 'Any two to sign' };
+    const paymentMap = { bank: 'Bank Transfer', mobile: 'Mobile Money' };
+
+    let html = '';
+
+    // ── Account Type ──
+    html += section('Account', [
+        ['Account Type', radioVal('accountType') === 'joint' ? 'Joint Account' : 'Individual Account'],
+        ['CDS Account Number', qval('input[placeholder="Leave blank for new account"]') || '—'],
+    ]);
+
+    // ── Primary Applicant ──
+    const primaryIdType = qval('.form-step[data-step="2"] select');
+    html += section('Primary Applicant', [
+        ['Surname', val('primarySurname')],
+        ['Other Names', val('primaryOtherNames')],
+        ['Date of Birth', document.querySelectorAll('.form-step[data-step="2"] input[type="date"]')[0]?.value || '—'],
+        ['Gender', radioVal('gender')],
+        ['Investor Category', document.querySelectorAll('.form-step[data-step="2"] select')[0]?.value || '—'],
+        ['ID Type', idTypeMap[primaryIdType] || primaryIdType],
+        ['ID Number', document.querySelectorAll('.form-step[data-step="2"] input')[5]?.value || '—'],
+        ['Passport/ID Expiry', val('primaryPassportExpiry')],
+        ['Nationality', val('nationality')],
+        ['Country of Residence', val('countryOfResidence')],
+        ['KRA PIN', val('primaryKraPin')],
+    ]);
+
+    // ── Primary Contact ──
+    html += section('Primary Contact', [
+        ['Phone', (val('primaryCountryCode') !== '—' ? val('primaryCountryCode') + ' ' : '') + (document.querySelectorAll('.form-step[data-step="3"] input[type="tel"]')[0]?.value || '—')],
+        ['Email', val('primaryEmail')],
+        ['Town / City', document.querySelectorAll('.form-step[data-step="3"] input')[3]?.value || '—'],
+        ['Physical Location', document.querySelectorAll('.form-step[data-step="3"] input')[4]?.value || '—'],
+        ['Postal Code', document.querySelectorAll('.form-step[data-step="3"] input')[5]?.value || '—'],
+        ['Postal Address', val('primaryPostalAddress')],
+    ]);
+
+    // ── Primary Employment ──
+    html += section('Primary Employment / Business', [
+        ['Source of Funds', val('fundSource')],
+        ['Employer Name', val('employerName')],
+        ['Employer Phone', val('employerPhone')],
+        ['Employer Email', val('employerEmail')],
+        ['Business Name', val('businessName')],
+        ['Business Reg. No.', val('businessRegNumber')],
+        ['PEP Status', radioVal('pep') === 'yes' ? 'Yes — Politically Exposed Person' : 'No'],
+    ]);
+
+    // ── Secondary Applicant (joint only) ──
+    if (isJoint) {
+        const secIdType = val('secondaryIdType');
+        html += section('Secondary Applicant', [
+            ['Surname', val('secondarySurname')],
+            ['Other Names', val('secondaryOtherNames')],
+            ['Date of Birth', val('secondaryDob')],
+            ['Gender', radioVal('secondaryGender')],
+            ['ID Type', idTypeMap[secIdType] || secIdType],
+            ['ID Number', val('secondaryIdNumber')],
+            ['Passport/ID Expiry', val('secondaryPassportExpiry')],
+            ['Nationality', val('secondaryNationality')],
+            ['Country of Residence', val('secondaryCountryResidence')],
+            ['KRA PIN', val('secondaryKraPin')],
+        ]);
+
+        html += section('Secondary Contact', [
+            ['Phone', (val('secondaryCountryCode') !== '—' ? val('secondaryCountryCode') + ' ' : '') + val('secondaryPhone')],
+            ['Email', val('secondaryEmail')],
+            ['Town / City', val('secondaryTownCity')],
+            ['Physical Location', val('secondaryPhysicalLocation')],
+            ['Postal Address', val('secondaryPostalAddress')],
+        ]);
+    }
+
+    // ── Payment ──
+    const payMethod = radioVal('paymentMethod');
+    html += section('Payment Details', [
+        ['Payment Method', paymentMap[payMethod] || payMethod],
+        ['Bank Name', val('bankNameInput')],
+        ['Account Number', val('bankAccountNumber')],
+        ['Account Name', val('accountName')],
+        ['Branch Code', val('branchCode')],
+        ['Swift Code', val('swiftCode')],
+        ['Currency', Array.from(document.querySelectorAll('#currencyField input[type="checkbox"]:checked')).map(cb => cb.value).join(', ') || '—'],
+        ['Mobile Money Phone', val('mobileMoneyPhone')],
+    ]);
+
+    // ── Tax & Declaration ──
+    const mandate = document.getElementById('signingAuthority')?.value || '';
+    html += section('Tax & Declaration', [
+        ['Tax Exempt', document.querySelector('input[name="taxExempt"]:checked')?.value === 'yes' ? 'Yes' : 'No'],
+        ['Signing Mandate', mandateMap[mandate] || mandate],
+        ['Primary Signatory Name', val('signName1')],
+        ['Secondary Signatory Name', isJoint ? val('signName2') : null],
+    ]);
+
+    container.innerHTML = html;
+}
+
+// =============================================
+//  SUBMISSION RESULT PAGE
+// =============================================
+ 
+function showSubmissionResult(success, errorMessage, applicationId) {
+    // Advance to step 7 (confirmation page)
+    currentStep = 7;
+ 
+    // Hide progress bar and both nav buttons
+    const progressContainer = document.querySelector('.progress-container');
+    if (progressContainer) progressContainer.style.display = 'none';
+    document.getElementById('prevBtn').style.display = 'none';
+    document.getElementById('nextBtn').style.display = 'none';
+ 
+    const page = document.getElementById('confirmationPage');
+    if (!page) return;
+    updateProgress();
+ 
+    const successBlock = document.getElementById('confirmSuccess');
+    const errorBlock   = document.getElementById('confirmError');
+    const idDisplay    = document.getElementById('confirmAppId');
+    const errorMsg     = document.getElementById('confirmErrorMsg');
+ 
+    if (success) {
+        successBlock.style.display = '';
+        errorBlock.style.display   = 'none';
+        if (idDisplay) idDisplay.textContent = applicationId || '—';
+ 
+        // Reset form state so a fresh application can be started
+        clearSignature('signatureCanvas');
+        clearSignature('signatureCanvas2');
+        Object.keys(signatureSnapshots).forEach(k => delete signatureSnapshots[k]);
+        document.querySelectorAll('input, select, textarea').forEach(field => {
+            if (field.type !== 'radio' && field.type !== 'checkbox') {
+                field.value = '';
+            } else {
+                field.checked = false;
+            }
+        });
+    } else {
+        successBlock.style.display = 'none';
+        errorBlock.style.display   = '';
+        if (errorMsg) errorMsg.textContent = errorMessage || 'An unexpected error occurred.';
+    }
+ 
+    const modalBody = document.querySelector('.modal-body');
+    if (modalBody) modalBody.scrollTop = 0;
+}
+
+async function submitApplication() {
+    const accountType = document.querySelector('input[name="accountType"]:checked')?.value;
+    const canvas  = document.getElementById('signatureCanvas');
     const canvas2 = document.getElementById('signatureCanvas2');
 
-    const context = canvas.getContext('2d');
-    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
-    let isEmpty = true;
-    for (let i = 0; i < data.length; i += 4) {
-        if (data[i + 3] !== 0) {
-            isEmpty = false;
-            break;
-        }
-    }
-    if (isEmpty) {
-        alert('Please provide your signature before submitting.');
-        return;
-    }
-
-    // If joint account signature 
-    if (accountType === 'joint' && canvas2) {
-        const context2 = canvas2.getContext('2d');
-        const imageData2 = context2.getImageData(0, 0, canvas2.width, canvas2.height);
-        const data2 = imageData2.data;
-        let isEmpty2 = true;
-        for (let i = 0; i < data2.length; i += 4) {
-            if (data2[i + 3] !== 0) {
-                isEmpty2 = false;
-                break;
-            }
-        }
-        if (isEmpty2) {
-            alert('Please provide the secondary signature before submitting.');
-            return;
-        }
-    }
-
-    // Show loading indicator
     const submitBtn = document.getElementById('nextBtn');
     const originalText = submitBtn.textContent;
     submitBtn.disabled = true;
     submitBtn.textContent = 'Submitting...';
 
     try {
-        // Prepare form data
         const formData = new FormData();
-        
-        // Collect all form data
+
         const applicationData = {
             // Account Type
-            account_type: document.querySelector('input[name="accountType"]:checked').value,
+            account_type: accountType,
             cda_code: document.querySelector('input[placeholder="Enter CDA code if applicable"]').value,
             cds_account_number: document.querySelector('input[placeholder="Leave blank for new account"]').value,
-            
+
             // Primary Client Details
-            primary_surname: document.querySelectorAll('.form-step[data-step="2"] input')[0].value,
-            primary_other_names: document.querySelectorAll('.form-step[data-step="2"] input')[1].value,
+            primary_surname: document.getElementById('primarySurname')?.value || '',
+            primary_other_names: document.getElementById('primaryOtherNames')?.value || '',
             primary_dob: document.querySelectorAll('.form-step[data-step="2"] input[type="date"]')[0].value,
             primary_gender: document.querySelector('.form-step[data-step="2"] input[name="gender"]:checked')?.value,
             primary_investor_category: document.querySelectorAll('.form-step[data-step="2"] select')[0].value,
@@ -625,7 +794,7 @@ async function submitApplication() {
             primary_nationality: document.getElementById('nationality').value,
             primary_country_residence: document.getElementById('countryOfResidence').value,
             primary_kra_pin: document.getElementById('primaryKraPin')?.value || '',
-            
+
             // Primary Contact
             primary_country_code: document.getElementById('primaryCountryCode').value,
             primary_phone: document.querySelectorAll('.form-step[data-step="3"] input[type="tel"]')[0].value,
@@ -634,7 +803,7 @@ async function submitApplication() {
             primary_physical_location: document.querySelectorAll('.form-step[data-step="3"] input')[4].value,
             primary_postal_code: document.querySelectorAll('.form-step[data-step="3"] input')[5].value,
             primary_postal_address: formatPostalAddress(document.getElementById('primaryPostalAddress')?.value || ''),
-            
+
             // Primary Employment/Business
             primary_fund_source: document.getElementById('fundSource').value,
             primary_employer_name: document.getElementById('employerName')?.value || '',
@@ -647,11 +816,11 @@ async function submitApplication() {
             primary_business_phone: document.getElementById('businessPhone')?.value || '',
             primary_business_email: document.getElementById('businessEmail')?.value || '',
             primary_business_office: document.getElementById('businessOffice')?.value || '',
-            
+
             // PEP Status
-            is_pep: document.querySelector('input[name="pep"]:checked').value === 'yes' ? "Yes" : "No",
+            is_pep: document.querySelector('input[name="pep"]:checked').value === 'yes' ? 'Yes' : 'No',
             pep_details: document.querySelector('.form-step[data-step="3"] textarea').value,
-            
+
             // Payment Details
             payment_method: document.querySelector('input[name="paymentMethod"]:checked').value,
             bank_name: document.getElementById('bankNameInput')?.value || '',
@@ -662,83 +831,47 @@ async function submitApplication() {
             currency: Array.from(document.querySelectorAll('#currencyField input[type="checkbox"]:checked')).map(cb => cb.value).join(', '),
             other_currency: document.getElementById('otherCurrency')?.value || '',
             mobile_money_phone: document.getElementById('mobileMoneyPhone')?.value || '',
-            
+
             // Tax Status
-            is_tax_exempt: document.querySelector('input[name="taxExempt"]:checked').value === 'yes' ? "Yes" : "No",
-            
+            is_tax_exempt: document.querySelector('input[name="taxExempt"]:checked').value === 'yes' ? 'Yes' : 'No',
+
             // Declaration
-            signing_mandate: document.querySelectorAll('.form-step[data-step="5"] select')[0].value,
+            signing_mandate: document.getElementById('signingAuthority')?.value || '',
             signer_names: document.getElementById('signName1')?.value || '',
         };
 
-
-        // Secondary fields
-        if (applicationData.account_type === 'joint') {
-
-            // Map joint account fields to for secondary applicant
-            applicationData.secondary_surname = document.getElementById('secondarySurname')?.value;
-            applicationData.secondary_other_names = document.getElementById('secondaryOtherNames')?.value;
-            applicationData.secondary_dob = document.getElementById('secondaryDob')?.value;
-            applicationData.secondary_gender = document.querySelector('.form-step[data-step="2"] input[name="secondaryGender"]:checked')?.value;
-            applicationData.secondary_investor_category = document.getElementById('secondaryInvestorCategory')?.value;
-            applicationData.secondary_id_type = document.getElementById('secondaryIdType')?.value;
-            applicationData.secondary_id_number = document.getElementById('secondaryIdNumber')?.value;
-            applicationData.secondary_passport_expiry = document.getElementById('secondaryPassportExpiry')?.value;
-            applicationData.secondary_nationality = document.getElementById('secondaryNationality')?.value;
-            applicationData.secondary_country_residence = document.getElementById('secondaryCountryResidence')?.value;
-            applicationData.secondary_kra_pin = document.getElementById('secondaryKraPin')?.value;
-            applicationData.secondary_country_code = document.getElementById('secondaryCountryCode')?.value;
-            applicationData.secondary_phone = document.getElementById('secondaryPhone')?.value;
-            applicationData.secondary_email = document.getElementById('secondaryEmail')?.value;
-            applicationData.secondary_town_city = document.getElementById('secondaryTownCity')?.value;
-            applicationData.secondary_physical_location = document.getElementById('secondaryPhysicalLocation')?.value;
-            applicationData.secondary_postal_code = document.getElementById('secondaryPostalCode')?.value;
+        // Secondary applicant fields
+        if (accountType === 'joint') {
+            applicationData.secondary_surname = document.getElementById('secondarySurname')?.value || '';
+            applicationData.secondary_other_names = document.getElementById('secondaryOtherNames')?.value || '';
+            applicationData.secondary_dob = document.getElementById('secondaryDob')?.value || '';
+            applicationData.secondary_gender = document.querySelector('.form-step[data-step="2"] input[name="secondaryGender"]:checked')?.value || '';
+            applicationData.secondary_investor_category = document.getElementById('secondaryInvestorCategory')?.value || '';
+            applicationData.secondary_id_type = document.getElementById('secondaryIdType')?.value || '';
+            applicationData.secondary_id_number = document.getElementById('secondaryIdNumber')?.value || '';
+            applicationData.secondary_passport_expiry = document.getElementById('secondaryPassportExpiry')?.value || '';
+            applicationData.secondary_nationality = document.getElementById('secondaryNationality')?.value || '';
+            applicationData.secondary_country_residence = document.getElementById('secondaryCountryResidence')?.value || '';
+            applicationData.secondary_kra_pin = document.getElementById('secondaryKraPin')?.value || '';
+            applicationData.secondary_country_code = document.getElementById('secondaryCountryCode')?.value || '';
+            applicationData.secondary_phone = document.getElementById('secondaryPhone')?.value || '';
+            applicationData.secondary_email = document.getElementById('secondaryEmail')?.value || '';
+            applicationData.secondary_town_city = document.getElementById('secondaryTownCity')?.value || '';
+            applicationData.secondary_physical_location = document.getElementById('secondaryPhysicalLocation')?.value || '';
+            applicationData.secondary_postal_code = document.getElementById('secondaryPostalCode')?.value || '';
             applicationData.secondary_postal_address = formatPostalAddress(document.getElementById('secondaryPostalAddress')?.value || '');
-            applicationData.secondary_fund_source = document.getElementById('fundSource2')?.value;
-            applicationData.secondary_employer_name = document.getElementById('employerName2')?.value;
+            applicationData.secondary_fund_source = document.getElementById('fundSource2')?.value || '';
+            applicationData.secondary_employer_name = document.getElementById('employerName2')?.value || '';
             applicationData.secondary_employer_postal = formatPostalAddress(document.getElementById('employerPostal2')?.value || '');
-            applicationData.secondary_employer_phone = document.getElementById('employerPhone2')?.value;
-            applicationData.secondary_employer_email = document.getElementById('employerEmail2')?.value;
-            applicationData.secondary_business_name = document.getElementById('businessName2')?.value;
-            applicationData.secondary_business_reg_number = document.getElementById('businessRegNumber2')?.value;
+            applicationData.secondary_employer_phone = document.getElementById('employerPhone2')?.value || '';
+            applicationData.secondary_employer_email = document.getElementById('employerEmail2')?.value || '';
+            applicationData.secondary_business_name = document.getElementById('businessName2')?.value || '';
+            applicationData.secondary_business_reg_number = document.getElementById('businessRegNumber2')?.value || '';
             applicationData.secondary_business_postal = formatPostalAddress(document.getElementById('businessPostal2')?.value || '');
-            applicationData.secondary_business_phone = document.getElementById('businessPhone2')?.value;
-            applicationData.secondary_business_email = document.getElementById('businessEmail2')?.value;
-            applicationData.secondary_business_office = document.getElementById('businessOffice2')?.value;
+            applicationData.secondary_business_phone = document.getElementById('businessPhone2')?.value || '';
+            applicationData.secondary_business_email = document.getElementById('businessEmail2')?.value || '';
+            applicationData.secondary_business_office = document.getElementById('businessOffice2')?.value || '';
             applicationData.secondary_signer_names = document.getElementById('signName2')?.value || '';
-        } else { // If not joint application, set everything to empty
-            applicationData.secondary_surname = '';
-            applicationData.secondary_other_names = '';
-            applicationData.secondary_dob = '';
-            applicationData.secondary_gender = '';
-            applicationData.secondary_investor_category = '';
-            applicationData.secondary_id_type = '';
-            applicationData.secondary_id_number = '';
-            applicationData.secondary_passport_expiry = '';
-            applicationData.secondary_nationality = '';
-            applicationData.secondary_country_residence = '';
-            applicationData.secondary_kra_pin = '';
-            applicationData.secondary_passport_photo_path = '';
-            applicationData.secondary_country_code = '';
-            applicationData.secondary_phone = '';
-            applicationData.secondary_email = '';
-            applicationData.secondary_town_city = '';
-            applicationData.secondary_physical_location = '';
-            applicationData.secondary_postal_code = '';
-            applicationData.secondary_postal_address = '';
-            applicationData.secondary_fund_source = '';
-            applicationData.secondary_employer_name = '';
-            applicationData.secondary_employer_postal = '';
-            applicationData.secondary_employer_phone = '';
-            applicationData.secondary_employer_email = '';
-            applicationData.secondary_business_name = '';
-            applicationData.secondary_business_reg_number = '';
-            applicationData.secondary_business_postal = '';
-            applicationData.secondary_business_phone = '';
-            applicationData.secondary_business_email = '';
-            applicationData.secondary_business_office = '';
-            applicationData.secondary_signer_names = '';
-            applicationData.secondary_signature_path = '';
         }
 
         // Empty strings for missing optional fields 
@@ -746,54 +879,40 @@ async function submitApplication() {
             applicationData.tax_cert_path = '';
         }
 
-        // Add the main data as JSON
         formData.append('data', JSON.stringify(applicationData));
 
-        // Convert signature to blob and add to form data
+        // Attach signatures
         canvas.toBlob(function(blob) {
             formData.append('signatureImage', blob, 'signature.png');
 
-            // If joint account, add secondary signature
             if (accountType === 'joint' && canvas2) {
                 canvas2.toBlob(function(blob2) {
                     formData.append('secondarySignatureImage', blob2, 'signature2.png');
                     appendAndSubmitFiles();
                 }, 'image/png');
             } else {
-                // Only primary signature needed
                 appendAndSubmitFiles();
             }
-            }, 'image/png');
-            
-            function appendAndSubmitFiles() {
-            // Add passport photos if uploaded
+        }, 'image/png');
+
+        function appendAndSubmitFiles() {
+            //Passport photos
             const primaryPhoto = document.getElementById('passportPhotoInput').files[0];
-            if (primaryPhoto) {
-                formData.append('primaryPassportPhoto', primaryPhoto);
-            }
+            if (primaryPhoto) formData.append('primaryPassportPhoto', primaryPhoto);
 
             const secondaryPhoto = document.getElementById('passportPhotoInput2')?.files[0];
-            if (secondaryPhoto) {
-                formData.append('secondaryPassportPhoto', secondaryPhoto);
-            }
+            if (secondaryPhoto) formData.append('secondaryPassportPhoto', secondaryPhoto);
 
-            // Add tax certificate if uploaded
+            // Tax exemption and KRA certificates
             const taxCert = document.getElementById('taxExemptionCertInput')?.files[0];
-            if (taxCert) {
-                formData.append('taxCertificate', taxCert);
-            }
+            if (taxCert) formData.append('taxCertificate', taxCert);
 
             const kraPinCert = document.getElementById('kraPinCertInput')?.files[0];
-            if (kraPinCert) {
-                formData.append('kraPinCertificate', kraPinCert);
-            }
+            if (kraPinCert) formData.append('kraPinCertificate', kraPinCert);
 
             const kraPinCert2 = document.getElementById('kraPinCertInput2')?.files[0];
-            if (kraPinCert2) {
-                formData.append('kraPinCertificate2', kraPinCert2);
-            }
+            if (kraPinCert2) formData.append('kraPinCertificate2', kraPinCert2);
 
-            // Submit to server
             fetch('/api/cdsc/submit', {
                 method: 'POST',
                 body: formData
@@ -801,42 +920,61 @@ async function submitApplication() {
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    alert(`Application submitted successfully! Your application ID is #${result.applicationId}. You will be contacted via email regarding the status of your application.`);
-                    closeModal();
-                    
-                    // Reset form
-                    currentStep = 1;
-                    updateProgress();
-                    clearSignature("signatureCanvas");
-                    clearSignature("signatureCanvas2");
-                    document.querySelectorAll('input, select, textarea').forEach(field => {
-                        if (field.type !== 'radio' && field.type !== 'checkbox') {
-                            field.value = '';
-                        } else {
-                            field.checked = false;
-                        }
-                    });
+                    showSubmissionResult(true, null, result.applicationId);
                 } else {
-                    alert('Error submitting application: ' + (result.message || 'Unknown error'));
+                    showSubmissionResult(false, result.message || 'An unexpected error occurred. Please try again.');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error submitting application. Please try again.');
+                showSubmissionResult(false, 'A network error occurred. Please check your connection and try again.');
             })
             .finally(() => {
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
             });
-
         }
 
     } catch (error) {
         console.error('Error preparing application:', error);
-        alert('Error preparing application. Please try again.');
+        showSubmissionResult(false, 'Error preparing application. Please try again.');
         submitBtn.disabled = false;
         submitBtn.textContent = originalText;
     }
+}
+
+function copyApplicationId() {
+    const id = document.getElementById('confirmAppId')?.textContent?.trim();
+    if (!id) return;
+    navigator.clipboard.writeText(id).then(() => {
+        const msg = document.getElementById('copyConfirmMsg');
+        if (msg) {
+            msg.textContent = '✓ Copied to clipboard';
+            setTimeout(() => { msg.textContent = ''; }, 3000);
+        }
+    }).catch(() => {
+        // Fallback for older browsers
+        const tmp = document.createElement('textarea');
+        tmp.value = id;
+        document.body.appendChild(tmp);
+        tmp.select();
+        document.execCommand('copy');
+        document.body.removeChild(tmp);
+        const msg = document.getElementById('copyConfirmMsg');
+        if (msg) { msg.textContent = '✓ Copied'; setTimeout(() => { msg.textContent = ''; }, 3000); }
+    });
+}
+
+function retrySubmission() {
+    // Go back to the review page so the user can re-submit
+    currentStep = 6;
+    document.getElementById('confirmationPage')?.classList.remove('active');
+    document.getElementById('reviewPage')?.classList.add('active');
+    document.getElementById('prevBtn').style.display = 'block';
+    document.getElementById('nextBtn').style.display = 'block';
+    document.getElementById('nextBtn').textContent = 'Submit Application';
+    const progressContainer = document.querySelector('.progress-container');
+    if (progressContainer) progressContainer.style.display = 'none';
 }
 
 // Scroll back to top with call to action button
@@ -864,7 +1002,9 @@ replaceTaxCertIcon();
 replaceKraPinCertIcon();
 replaceKraPinCertIcon2();
 
-// Button event listeners
+
+// BUTTON EVENT LISTENERS
+
 document.addEventListener('DOMContentLoaded', scrollToTop);
 
 // Open application form
@@ -880,6 +1020,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeAccountBtn = document.querySelector('.close-modal');
     if (closeAccountBtn) {
         closeAccountBtn.addEventListener('click', closeModal);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const closeConfirmBtn = document.getElementById('closeConfirmBtn');  
+    if (closeConfirmBtn) {
+        closeConfirmBtn.addEventListener('click', closeModal);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const closeErrorBtn = document.getElementById('closeErrorBtn');
+    if (closeErrorBtn) {
+        closeErrorBtn.addEventListener('click', closeModal);
     }
 });
 
@@ -899,6 +1053,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Copy application ID button
+document.addEventListener('DOMContentLoaded', function() {
+    const copyIdBtn = document.getElementById('copyAppIdBtn');
+    if (copyIdBtn) {        
+        copyIdBtn.addEventListener('click', copyApplicationId);
+    }
+});
+
+// Retry submission button
+document.addEventListener('DOMContentLoaded', function() {
+    const retryBtn = document.getElementById('retrySubmitBtn');
+    if (retryBtn) {
+        retryBtn.addEventListener('click', retrySubmission);
+    }
+}); 
+
+
+// FORM FIELD EVENT LISTENERS
 // Account type radio buttons
 document.addEventListener('DOMContentLoaded', function() {
     const accountTypeRadios = document.querySelectorAll('input[name="accountType"]');
@@ -965,19 +1137,50 @@ document.addEventListener('DOMContentLoaded', function() {
     updatePepDetails(); // Set initial state
 });
 
-// Clear signature button
+// Clear signature button + upload toggle
 document.addEventListener('DOMContentLoaded', function() {
     const clearSignatureBtn = document.getElementById('clearSignature');
     if (clearSignatureBtn) {
-        clearSignatureBtn.addEventListener('click', () => clearSignature("signatureCanvas"));
+        clearSignatureBtn.addEventListener('click', () => {
+            clearSignature('signatureCanvas');
+            // Also reset the upload zone if it's visible
+            resetSignatureUpload('sigUploadZone1', 'sigUploadInput1');
+        });
+    }
+
+    const uploadSigBtn = document.getElementById('uploadSignatureBtn');
+    if (uploadSigBtn) {
+        uploadSigBtn.addEventListener('click', () => toggleSignatureUpload('sigUploadZone1'));
+    }
+
+    const sigUploadInput1 = document.getElementById('sigUploadInput1');
+    if (sigUploadInput1) {
+        sigUploadInput1.addEventListener('change', function() {
+            loadSignatureImage(this, 'signatureCanvas', 'sigUploadZone1');
+        });
     }
 });
-    
-// Clear secondary signature 
+
+// Clear secondary signature + upload toggle
 document.addEventListener('DOMContentLoaded', function() {
     const clearSignatureBtn2 = document.getElementById('clearSignature2');
     if (clearSignatureBtn2) {
-        clearSignatureBtn2.addEventListener('click', () => clearSignature("signatureCanvas2"));
+        clearSignatureBtn2.addEventListener('click', () => {
+            clearSignature('signatureCanvas2');
+            resetSignatureUpload('sigUploadZone2', 'sigUploadInput2');
+        });
+    }
+
+    const uploadSigBtn2 = document.getElementById('uploadSignatureBtn2');
+    if (uploadSigBtn2) {
+        uploadSigBtn2.addEventListener('click', () => toggleSignatureUpload('sigUploadZone2'));
+    }
+
+    const sigUploadInput2 = document.getElementById('sigUploadInput2');
+    if (sigUploadInput2) {
+        sigUploadInput2.addEventListener('change', function() {
+            loadSignatureImage(this, 'signatureCanvas2', 'sigUploadZone2');
+        });
     }
 });
 
@@ -1057,8 +1260,11 @@ function toggleJointAccountFields() {
     const accountType = document.querySelector('input[name="accountType"]:checked').value;
     const jointAccountSections = document.querySelectorAll('.jointAccountSection');
     jointAccountSections.forEach(section => {
-        section.style.display = (accountType === 'joint') ? 'block' : 'none';
-        if (accountType !== 'joint') {
+        if (accountType === 'joint') {
+            section.classList.add('show');
+        } else {
+            section.classList.remove('show');
+            // Clear fields if not joint
             section.querySelectorAll('input, select, textarea').forEach(field => {
                 if (field.type === 'radio' || field.type === 'checkbox') {
                     field.checked = false;
@@ -1627,7 +1833,8 @@ function showCountryCodeDropdown(matches, inputEl) {
         li.addEventListener('mouseenter', () => li.style.background = 'var(--bg-light)');
         li.addEventListener('mouseleave', () => li.style.background = 'white');
 
-        li.addEventListener('click', () => {
+        li.addEventListener('mousedown', (e) => {
+            e.preventDefault(); // Prevents input blur before selection
             inputEl.value = country.dial;
             removeCountryCodeDropdown();
             // Clear any validation error on the field
@@ -1944,6 +2151,138 @@ function populateCountryDropdowns() {
 
 
 
+
+// =============================================
+// DECLARATION PAGE — DYNAMIC BEHAVIOUR
+// =============================================
+
+function setupDeclarationPage() {
+    const isJoint = document.querySelector('input[name="accountType"]:checked')?.value === 'joint';
+    const select   = document.getElementById('signingAuthority');
+    const section2 = document.getElementById('secondarySignatureSection');
+
+    if (!select) return;
+
+    // ── Filter mandate options based on account type ──
+    // Remove all non-placeholder options first, then add back only valid ones
+    const optionDefs = [
+        { value: 'single', label: 'Single',           joint: false },
+        { value: 'either', label: 'Either to sign',   joint: true  },
+        { value: 'joint',  label: 'All of us jointly',joint: true  },
+        { value: 'two',    label: 'Any two to sign',  joint: true  },
+    ];
+
+    // Preserve current value if still valid
+    const prevValue = select.value;
+    select.innerHTML = '<option value="">Select signing mandate</option>';
+    optionDefs.forEach(def => {
+        if (isJoint ? def.joint : !def.joint) {
+            const opt = document.createElement('option');
+            opt.value = def.value;
+            opt.textContent = def.label;
+            select.appendChild(opt);
+        }
+    });
+
+    // Restore previous value if it's still available
+    if (prevValue && select.querySelector(`option[value="${prevValue}"]`)) {
+        select.value = prevValue;
+    }
+
+    // ── Apply initial state based on current selection ──
+    applyMandateBehaviour(select.value, isJoint);
+
+    // ── Listen for mandate changes ──
+    // Remove old listener before adding (prevent duplicates on re-entry)
+    select.removeEventListener('change', _mandateChangeHandler);
+    _mandateChangeHandler = function() {
+        applyMandateBehaviour(this.value, isJoint);
+    };
+    select.addEventListener('change', _mandateChangeHandler);
+}
+
+// Module-level reference so we can remove the old listener on re-entry
+let _mandateChangeHandler = null;
+
+function applyMandateBehaviour(mandate, isJoint) {
+    const section2  = document.getElementById('secondarySignatureSection');
+    const signName1 = document.getElementById('signName1');
+    const signName2 = document.getElementById('signName2');
+
+    // ── Read applicant names ──
+    const primarySurname    = document.getElementById('primarySurname')?.value?.trim()    || '';
+    const primaryOtherNames = document.getElementById('primaryOtherNames')?.value?.trim() || '';
+    const primaryFullName   = [primaryOtherNames, primarySurname].filter(Boolean).join(' ');
+
+    const secondarySurname    = document.getElementById('secondarySurname')?.value?.trim()    || '';
+    const secondaryOtherNames = document.getElementById('secondaryOtherNames')?.value?.trim() || '';
+    const secondaryFullName   = [secondaryOtherNames, secondarySurname].filter(Boolean).join(' ');
+
+    // ── Helper: make a name field autofilled (readonly + green tint) ──
+    function autofill(input, name) {
+        if (!input) return;
+        input.value    = name;
+        input.readOnly = true;
+        input.style.background   = 'rgba(16, 185, 129, 0.07)';
+        input.style.borderColor  = 'var(--success-green)';
+        input.style.color        = 'var(--text-dark)';
+        input.style.cursor       = 'default';
+    }
+
+    // ── Helper: make a name field editable (clear autofill styles) ──
+    function clearAutofill(input) {
+        if (!input) return;
+        input.readOnly = false;
+        input.style.background  = '';
+        input.style.borderColor = '';
+        input.style.color       = '';
+        input.style.cursor      = '';
+        // Only wipe the value if it was previously autofilled
+        if (input.dataset.wasAutofilled === 'true') {
+            input.value = '';
+            input.dataset.wasAutofilled = '';
+        }
+    }
+
+    // ── Non-joint: only "Single" is available — autofill name, hide secondary ──
+    if (!isJoint) {
+        autofill(signName1, primaryFullName);
+        signName1.dataset.wasAutofilled = 'true';
+        if (section2) section2.classList.remove('show');
+        return;
+    }
+
+    // ── Joint: behaviour depends on selected mandate ──
+    switch (mandate) {
+        case 'either':
+            autofill(signName1, primaryFullName);
+            signName1.dataset.wasAutofilled = 'false';
+            clearAutofill(signName1);
+            if (section2) section2.classList.remove('show');
+            break;
+        case 'joint':
+            autofill(signName1, primaryFullName);
+            signName1.dataset.wasAutofilled = 'true';
+            if (section2) {
+                section2.classList.add('show');
+                autofill(signName2, secondaryFullName);
+                if (signName2) signName2.dataset.wasAutofilled = 'true';
+            }
+            break;
+        case 'two':
+            clearAutofill(signName1);
+            if (section2) {
+                section2.classList.add('show');
+                clearAutofill(signName2);
+            }
+            break;
+        default:
+            clearAutofill(signName1);
+            if (section2) section2.classList.remove('show');
+            break;
+    }
+}
+
 // --- Signature Canvas Logic ---
 const signatureStates = new Map(); // canvasId -> { isDrawing, lastX, lastY }
 
@@ -2020,6 +2359,87 @@ function stopDrawing(e) {
     }
 }
 
+
+// =============================================
+//  SIGNATURE UPLOAD
+// =============================================
+
+/**
+ * Toggles the visibility of a signature upload zone.
+ */
+function toggleSignatureUpload(zoneId) {
+    const zone = document.getElementById(zoneId);
+    if (!zone) return;
+    const isHidden = zone.style.display === 'none' || zone.style.display === '';
+    zone.style.display = isHidden ? 'block' : 'none';
+}
+
+/**
+ * Draws an uploaded image file onto the specified canvas,
+ * scaled to fit while preserving aspect ratio.
+ * Hides the upload zone after a successful load.
+ */
+function loadSignatureImage(inputEl, canvasId, zoneId) {
+    const file = inputEl.files[0];
+    if (!file) return;
+
+    // Validate it's an image
+    if (!file.type.startsWith('image/')) {
+        showToast('Please upload an image file (PNG, JPG, etc.)', 'error');
+        inputEl.value = '';
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            // Clear any existing drawing
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Scale image to fill canvas while preserving aspect ratio (contain)
+            const canvasW = canvas.width;
+            const canvasH = canvas.height;
+            const scale   = Math.min(canvasW / img.width, canvasH / img.height);
+            const drawW   = img.width  * scale;
+            const drawH   = img.height * scale;
+            const offsetX = (canvasW - drawW) / 2;
+            const offsetY = (canvasH - drawH) / 2;
+
+            ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+
+            // Hide the upload zone — preview is the canvas itself
+            const zone = document.getElementById(zoneId);
+            if (zone) zone.style.display = 'none';
+
+            // Clear any validation error on the signature area
+            const signatureArea = canvas.closest('.signature-area');
+            if (signatureArea) {
+                signatureArea.style.borderColor = '';
+                signatureArea.style.boxShadow   = '';
+            }
+            const errMsg = canvas.parentNode.querySelector('.field-error-msg');
+            if (errMsg) errMsg.remove();
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+/**
+ * Resets a signature upload zone: hides it and clears the file input.
+ */
+function resetSignatureUpload(zoneId, inputId) {
+    const zone  = document.getElementById(zoneId);
+    const input = document.getElementById(inputId);
+    if (zone)  zone.style.display  = 'none';
+    if (input) input.value = '';
+}
+
 function clearSignature(canvasId) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
@@ -2027,17 +2447,37 @@ function clearSignature(canvasId) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
+// Stores snapshots across step navigation, keyed by canvas ID
+const signatureSnapshots = {};
+
 function initSignatureCanvas(canvasId) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
-    resizeCanvas(canvas);
-    window.addEventListener('resize', () => resizeCanvas(canvas));
-    // Remove old event listeners by cloning
+
+    // Snapshot before anything clears it
+    if (canvas.width > 0 && canvas.height > 0 && !isCanvasEmpty(canvas)) {
+        signatureSnapshots[canvasId] = canvas.toDataURL();
+    }
+
+    const hasSnapshot = !!signatureSnapshots[canvasId];
+
+    // Only resize if there's no content to preserve — resizing always clears the canvas
+    if (!hasSnapshot) {
+        resizeCanvas(canvas);
+    }
+
+    // Remove old event listeners by cloning the node
     const newCanvas = canvas.cloneNode(true);
     canvas.parentNode.replaceChild(newCanvas, canvas);
     const freshCanvas = document.getElementById(canvasId);
-    resizeCanvas(freshCanvas);
+
+    // Same: only resize the fresh canvas if no snapshot to restore
+    if (!hasSnapshot) {
+        resizeCanvas(freshCanvas);
+    }
+
     window.addEventListener('resize', () => resizeCanvas(freshCanvas));
+
     // Mouse events
     freshCanvas.addEventListener('mousedown', startDrawing);
     freshCanvas.addEventListener('mousemove', draw);
@@ -2047,6 +2487,17 @@ function initSignatureCanvas(canvasId) {
     freshCanvas.addEventListener('touchstart', startDrawing, { passive: false });
     freshCanvas.addEventListener('touchmove', draw, { passive: false });
     freshCanvas.addEventListener('touchend', stopDrawing);
+
+    // Restore snapshot — no resize happened so dimensions are identical
+    if (hasSnapshot) {
+        const savedSnapshot = signatureSnapshots[canvasId];
+        const img = new Image();
+        img.onload = function() {
+            const ctx = freshCanvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, freshCanvas.width, freshCanvas.height);
+        };
+        img.src = savedSnapshot;
+    }
 }
 
 
@@ -2061,9 +2512,9 @@ function initSignatureCanvas(canvasId) {
  */
 function formatPostalAddress(value) {
     if (!value || !value.trim()) return '';
-    // Regex to match any variation of 'po box' at the start, with/without dots/spaces/case
-    // Examples: po box, p.o box, p o box, p.o. box, POBOX, etc.
-    const poBoxPattern = /^(p\s*\.?\s*o\s*\.?\s*box\b)/i;
+    // Regex to match any variation of 'po box' at the start, with/without dots/spaces/case, including 'P.O.B.O.X.'
+    // Examples: po box, p.o box, p o box, p.o. box, POBOX, P.O.B.O.X., etc.
+    const poBoxPattern = /^(p[\s.]*o[\s.]*b[\s.]*o[\s.]*x\b)/i;
     let trimmed = value.trim();
     if (poBoxPattern.test(trimmed)) {
         // Replace the detected prefix with 'P.O. Box'
