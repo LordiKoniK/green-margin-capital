@@ -151,3 +151,28 @@ CREATE TABLE IF NOT EXISTS news (
   created_by VARCHAR(100),
   display_order INT DEFAULT 0
 );
+
+alter table applications
+add column primary_kra_cert_path TEXT NOT NULL AFTER primary_kra_pin,
+add column secondary_kra_cert_path TEXT AFTER secondary_kra_pin,
+modify column primary_passport_photo_path TEXT NOT NULL,
+modify column signature_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+    
+ALTER TABLE applications
+ADD COLUMN gmc_id VARCHAR(20) AFTER id;
+
+DELIMITER $$
+CREATE TRIGGER set_gmc_id
+BEFORE INSERT ON applications
+FOR EACH ROW
+BEGIN
+    DECLARE next_id INT;
+    SELECT AUTO_INCREMENT INTO next_id
+    FROM information_schema.TABLES
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'applications';
+    SET NEW.gmc_id = CONCAT('GMC', LPAD(next_id, 4, '0'));
+END$$
+DELIMITER ;
+
+UPDATE applications SET gmc_id = CONCAT('GMC', LPAD(id, 4, '0'));
