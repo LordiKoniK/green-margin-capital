@@ -190,6 +190,11 @@ app.use('/api/admin/contact-messages', basicAuth({
     challenge: true
 }));
 
+app.use('/api/admin/news', basicAuth({
+    users: { 'admin': 'greenmnocap' },
+    challenge: true
+}));
+
 // ==========================================
 // CONTACT ROUTES
 // ==========================================
