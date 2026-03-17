@@ -107,8 +107,6 @@ function markRadioGroupInvalid(groupEl, containerEl) {
         msg.textContent = 'Please select an option.';
         groupEl.parentNode.insertBefore(msg, groupEl.nextSibling);
     }
-    invalidCount++;
-    if (!firstInvalidField) firstInvalidField = containerEl;
 }
 
 // Helper: mark an upload zone as invalid
@@ -122,11 +120,7 @@ function markUploadInvalid(container, message) {
         msg.textContent = message || 'Please upload a file.';
         container.parentNode.insertBefore(msg, container.nextSibling);
     }
-    invalidCount++;
-    if (!firstInvalidField) firstInvalidField = container;
 }
-
-
 
 // =============================================
 //  Regex/Format patterns
@@ -188,94 +182,63 @@ function setupKraPinValidation(fieldId) {
  * Dynamically injects a "Confirm Email Address" field directly after the given email input, with:
  *  - Paste blocking on the confirm field
  *  - Live match checking on blur of either field
- *
- * @param {string}  emailFieldId  - id of the original email <input>
- * @param {boolean} isJointField  - true if this field is inside .jointAccountSection
  */
 
-function injectEmailConfirmField(emailFieldId, isJointField) {
+function confirmEmail(emailFieldId, confirmFieldId) {
     const emailField = document.getElementById(emailFieldId);
     if (!emailField) return;
 
-    const confirmId = isJointField ? 'secondary_email_confirm' : 'primary_email_confirm';
-
-    // Don't inject twice
-    if (document.getElementById(confirmId)) return;
-
-    // Build the confirm group, mirroring the style of the original
-    const confirmGroup = document.createElement('div');
-    confirmGroup.className = 'form-group full-width';
-    if (isJointField) confirmGroup.classList.add('email-confirm-joint');
-
-    const label = document.createElement('label');
-    label.className = 'form-label required';
-    label.setAttribute('for', confirmId);
-    label.textContent = 'Confirm Email Address';
-
-    const input = document.createElement('input');
-    input.type = 'email';
-    input.id = confirmId;
-    input.className = 'form-input';
-    input.placeholder = 'Re-enter email address';
-    input.autocomplete = 'off';
-
+    const confirmField = document.getElementById(confirmFieldId);
+   
     // Block paste
-    input.addEventListener('paste', function(e) {
+    confirmField.addEventListener('paste', function(e) {
         e.preventDefault();
         // Brief visual feedback
-        input.style.borderColor = 'var(--accent-orange)';
-        input.style.boxShadow = '0 0 0 3px rgba(255, 140, 0, 0.15)';
+        confirmField.style.borderColor = 'var(--accent-orange)';
+        confirmField.style.boxShadow = '0 0 0 3px rgba(255, 140, 0, 0.15)';
         const tip = document.createElement('span');
         tip.className = 'field-error-msg paste-blocked-msg';
         tip.style.cssText = 'color: var(--accent-orange); font-size: 0.82rem; margin-top: 4px; display: block;';
         tip.textContent = 'Please type your email — pasting is disabled for this field.';
-        const existing = input.nextElementSibling;
+        const existing = confirmField.nextElementSibling;
         if (!existing || !existing.classList.contains('paste-blocked-msg')) {
-            input.parentNode.insertBefore(tip, input.nextSibling);
-            setTimeout(() => { tip.remove(); input.style.borderColor = ''; input.style.boxShadow = ''; }, 2500);
+            confirmField.parentNode.insertBefore(tip, confirmField.nextSibling);
+            setTimeout(() => { tip.remove(); confirmField.style.borderColor = ''; confirmField.style.boxShadow = ''; }, 2500);
         }
     });
 
-    confirmGroup.appendChild(label);
-    confirmGroup.appendChild(input);
-
-    // Insert immediately after the original email field's .form-group
-    const originalGroup = emailField.closest('.form-group');
-    if (originalGroup && originalGroup.parentNode) {
-        originalGroup.parentNode.insertBefore(confirmGroup, originalGroup.nextSibling);
-    }
 
     // Live match validation on blur of either field
     function checkMatch() {
         // Remove old match error
-        const existingErr = input.parentNode.querySelector('.email-match-msg');
+        const existingErr = confirmField.parentNode.querySelector('.email-match-msg');
         if (existingErr) existingErr.remove();
-        input.style.borderColor = '';
-        input.style.boxShadow = '';
+        confirmField.style.borderColor = '';
+        confirmField.style.boxShadow = '';
         emailField.style.borderColor = '';
         emailField.style.boxShadow = '';
 
-        if (!input.value) return;
+        if (!confirmField.value) return;
 
-        if (input.value.trim() !== emailField.value.trim()) {
-            input.style.borderColor = 'var(--error-red)';
-            input.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.15)';
+        if (confirmField.value.trim() !== emailField.value.trim()) {
+            confirmField.style.borderColor = 'var(--error-red)';
+            confirmField.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.15)';
             const msg = document.createElement('span');
             msg.className = 'email-match-msg field-error-msg';
             msg.style.cssText = 'color: var(--error-red); font-size: 0.82rem; margin-top: 4px; display: block;';
             msg.textContent = 'Email addresses do not match.';
-            input.parentNode.insertBefore(msg, input.nextSibling);
+            confirmField.parentNode.insertBefore(msg, confirmField.nextSibling);
         } else {
             // Both match and confirm has a value — show green on confirm
-            input.style.borderColor = 'var(--success-green)';
-            input.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.15)';
+            confirmField.style.borderColor = 'var(--success-green)';
+            confirmField.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.15)';
         }
     }
 
-    input.addEventListener('blur', checkMatch);
+    confirmField.addEventListener('blur', checkMatch);
     // If the user goes back to fix the original email, re-check
     emailField.addEventListener('blur', function() {
-        if (input.value) checkMatch();
+        if (confirmField.value) checkMatch();
     });
 }
 

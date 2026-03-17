@@ -724,12 +724,12 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label required">Country Code</label>
-                            <input type="text" class="form-input" value="+254" placeholder="e.g. +254 (or type country name for list)" id="primaryCountryCode" required>
+                            <input type="text" class="form-input" value="+254" id="primaryCountryCode" placeholder="e.g. +254 (or type country name for list)" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label required">Telephone Number</label>
-                            <input type="tel" class="form-input" placeholder="e.g. 0712345678 (include leading 0)" required>
+                            <input type="tel" class="form-input" id="primaryTelephone" placeholder="e.g. 0712345678 (include leading 0)" required>
                         </div>
 
                         <div class="form-group full-width">
@@ -737,19 +737,24 @@
                             <input type="email" class="form-input" id="primaryEmail" required>
                         </div>
 
+                        <div class="form-group full-width">
+                            <label class="form-label required">Confirm Email Address</label>
+                            <input type="email" class="form-input" id="primaryEmailConfirm" placeholder="Re-enter email address" required>
+                        </div>
+
                         <div class="form-group">
                             <label class="form-label required">Town/City</label>
-                            <input type="text" class="form-input" required>
+                            <input type="text" class="form-input" id="primaryTownCity" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Physical Location (in Town/City)</label>
-                            <input type="text" class="form-input" placeholder="e.g. Ongata Rongai">
+                            <input type="text" class="form-input" id="primaryPhysicalLocation" placeholder="e.g. Ongata Rongai">
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Postal Code</label>
-                            <input type="text" class="form-input" placeholder="e.g. 00100">
+                            <input type="text" class="form-input" id="primaryPostalCode" placeholder="e.g. 00100">
                         </div>
 
                         <div class="form-group full-width">
@@ -843,6 +848,11 @@
                         <div class="form-group full-width">
                             <label class="form-label required">Email Address</label>
                             <input type="email" class="form-input" id="secondaryEmail" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label required">Confirm Email Address</label>
+                            <input type="email" class="form-input" id="secondaryEmailConfirm" placeholder="Re-enter email address" required>
                         </div>
 
                          <div class="form-group">

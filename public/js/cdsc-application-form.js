@@ -141,6 +141,16 @@ function validateCurrentStep() {
         return false;
     }
 
+    // Helper: mark special non-text fields as invalid (help call util functions while maintaining invalid count)
+    function flagInvalid(el, message, isUpload = false) {
+    const marked = isUpload 
+        ? markUploadInvalid(el, message) 
+        : markRadioGroupInvalid(el, el);
+    invalidCount++;
+    if (!firstInvalidField) firstInvalidField = marked;
+    }
+
+
     // --- Text / select / textarea fields ---
     stepEl.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
         if (shouldSkip(field)) return;
@@ -194,8 +204,8 @@ function validateCurrentStep() {
     // --- Email format + confirm-match validation (step 3) ---
     if (individualForm.currentStep === 3) {
         const emailPairs = [
-            { mainId: 'primaryEmail', confirmId: 'primary_email_confirm', joint: false },
-            { mainId: 'secondaryEmail', confirmId: 'secondary_email_confirm', joint: true  }
+            { mainId: 'primaryEmail', confirmId: 'primaryEmailConfirm', joint: false },
+            { mainId: 'secondaryEmail', confirmId: 'secondaryEmailConfirm', joint: true  }
         ];
         emailPairs.forEach(({ mainId, confirmId, joint }) => {
             const mainField = document.getElementById(mainId);
@@ -263,7 +273,7 @@ function validateCurrentStep() {
             const container = allRadios[0].closest('.form-group');
             const radioGroupEl = container?.querySelector('.form-radio-group');
             if (radioGroupEl) {
-                markRadioGroupInvalid(radioGroupEl, radioGroupEl);
+                flagInvalid(radioGroupEl, radioGroupEl, false);
             }
         }
     });
@@ -294,26 +304,26 @@ function validateCurrentStep() {
         const primaryPhoto = document.getElementById('passportPhotoInput');
         const primaryContainer = primaryPhoto?.closest('.photo-upload-container');
         if (primaryPhoto && primaryContainer && primaryPhoto.files.length === 0) {
-            markUploadInvalid(primaryContainer, 'Please upload a passport photo.');
+            flagInvalid(primaryContainer, 'Please upload a passport photo.', true);
         }
 
         const kraCertInput = document.getElementById('kraPinCertInput');
         const kraCertContainer = kraCertInput?.closest('.photo-upload-container');
         if (kraCertInput && kraCertContainer && kraCertInput.files.length === 0) {
-            markUploadInvalid(kraCertContainer, 'Please upload your KRA PIN certificate.');
+            flagInvalid(kraCertContainer, 'Please upload your KRA PIN certificate.', true);
         }
 
         if (isJoint) {
             const secondaryPhoto = document.getElementById('passportPhotoInput2');
             const secondaryContainer = secondaryPhoto?.closest('.photo-upload-container');
             if (secondaryPhoto && secondaryContainer && secondaryPhoto.files.length === 0) {
-                markUploadInvalid(secondaryContainer, 'Please upload a passport photo for the secondary applicant.');
+                flagInvalid(secondaryContainer, 'Please upload a passport photo.', true);
             }
 
             const kraCertInput2 = document.getElementById('kraPinCertInput2');
             const kraCertContainer2 = kraCertInput2?.closest('.photo-upload-container');
             if (kraCertInput2 && kraCertContainer2 && kraCertInput2.files.length === 0) {
-                markUploadInvalid(kraCertContainer2, 'Please upload your KRA PIN certificate.');
+                flagInvalid(kraCertContainer2, 'Please upload your KRA PIN certificate.', true);
             }
         }
     }
@@ -334,7 +344,7 @@ function validateCurrentStep() {
             const taxCertInput = document.getElementById('taxExemptionCertInput');
             const taxCertContainer = taxCertInput?.closest('.photo-upload-container');
             if (taxCertInput && taxCertContainer && taxCertInput.files.length === 0) {
-                markUploadInvalid(taxCertContainer, 'Please upload your tax exemption certificate.');
+                flagInvalid(taxCertContainer, 'Please upload your tax exemption certificate.', true);
             }
         }
     }
@@ -916,11 +926,11 @@ async function submitApplication() {
 
             // Primary Contact
             primary_country_code: document.getElementById('primaryCountryCode').value,
-            primary_phone: document.querySelectorAll('.form-step[data-step="3"] input[type="tel"]')[0].value,
+            primary_phone: document.getElementById('primaryTelephone')?.value || '',
             primary_email: document.getElementById('primaryEmail')?.value || '',
-            primary_town_city: document.querySelectorAll('.form-step[data-step="3"] input')[3].value,
-            primary_physical_location: document.querySelectorAll('.form-step[data-step="3"] input')[4].value,
-            primary_postal_code: document.querySelectorAll('.form-step[data-step="3"] input')[5].value,
+            primary_town_city: document.getElementById('primaryTownCity')?.value || '',
+            primary_physical_location: document.getElementById('primaryPhysicalLocation')?.value || '',
+            primary_postal_code: document.getElementById('primaryPostalCode')?.value || '',
             primary_postal_address: formatPostalAddress(document.getElementById('primaryPostalAddress')?.value || ''),
 
             // Primary Employment/Business
@@ -1278,8 +1288,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Email confirm fields — inject dynamically after each main email input and wire up
 document.addEventListener('DOMContentLoaded', function() {
-    injectEmailConfirmField('primaryEmail', false);
-    injectEmailConfirmField('secondaryEmail', true);
+    confirmEmail('primaryEmail', 'primaryEmailConfirm');
+    confirmEmail('secondaryEmail', 'secondaryEmailConfirm');
 });
 
 document.addEventListener('DOMContentLoaded', function() {
