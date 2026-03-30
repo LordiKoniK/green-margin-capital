@@ -14,6 +14,7 @@
     <script src="../js/top-bar.js" defer></script>
     <script src="../js/cdsc-form-utils.js" defer></script>
     <script src="../js/cdsc-application-form.js" defer></script>
+    <script src="../js/cdsc-corporate-form.js" defer></script>
 </head>
 <body>
 
@@ -365,16 +366,60 @@
 
 
     <!-- ========================================
-         MODAL FORM
-         ======================================== -->
+     ACCOUNT TYPE SELECTOR MODAL
+     ======================================== -->
 
+<div class="modal-overlay" id="accountTypeSelectorOverlay">
+    <div class="modal-container" style="max-width: 600px;">
+
+        <div class="modal-header">
+            <button class="close-modal" id="selectorCloseBtn"><span>x</span></button>
+            <div class="modal-header-content">
+                <h2>Open a CDSC Account</h2>
+                <p>Please select the type of account you would like to open</p>
+            </div>
+        </div>
+
+        <div class="modal-body" style="padding: 40px;">
+            <div class="form-grid single-column">
+                <label class="radio-option" style="align-items: flex-start; gap: 16px; padding: 20px; border: 2px solid var(--border-color); border-radius: 12px; cursor: pointer; transition: border-color 0.2s;">
+                    <input type="radio" name="accountTypeSelector" value="individual" checked style="margin-top: 4px;">
+                    <span>
+                        <strong style="font-size: 1.05rem; display: block; margin-bottom: 4px;">👤 Personal Account</strong>
+                        <small style="color: var(--text-light);">For individuals or joint applicants (up to 2 people).</small>
+                    </span>
+                </label>
+                <label class="radio-option" style="align-items: flex-start; gap: 16px; padding: 20px; border: 2px solid var(--border-color); border-radius: 12px; cursor: pointer; transition: border-color 0.2s;">
+                    <input type="radio" name="accountTypeSelector" value="corporate" style="margin-top: 4px;">
+                    <span>
+                        <strong style="font-size: 1.05rem; display: block; margin-bottom: 4px;">🏢 Corporate Account</strong>
+                        <small style="color: var(--text-light);">For companies, trusts, partnerships, and other corporate entities.</small>
+                    </span>
+                </label>
+            </div>
+
+            <p id="selectorError" style="display: none; color: var(--error-red); font-size: 0.88rem; margin-top: 12px;">Please select an account type before continuing.</p>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="selectorCancelBtn">Cancel</button>
+            <button class="btn btn-primary" id="selectorContinueBtn">Continue</button>
+        </div>
+
+    </div>
+</div>
+
+
+    <!-- ========================================
+         PERSONAL ACCOUNT APPLICATION MODAL (CDS 1 Individual/Joint Form)
+         ======================================== -->
 
 
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-container">
             <!-- Modal Header -->
             <div class="modal-header">
-                <button class="close-modal">×</button>
+                <button class="close-modal"><span>x</span></button>
                 <div class="modal-header-content">
                     <h2>Register New Securities Account</h2>
                     <p>Individual/Joint Account Opening Form (CDS 1)</p>
@@ -1010,7 +1055,7 @@
                                 <label class="form-label required">Bank Name</label>
                                 <div class="bank-autocomplete-container">
                                     <input type="text" class="form-input" id="bankNameInput" autocomplete="off" required>
-                                    <ul id="bankSuggestions"></ul>
+                                    <ul id="bankSuggestions" class="bankSuggestions"></ul>
                                 </div>
                             </div>
 
@@ -1288,7 +1333,479 @@
                     Begin Application
                 </button>
             </div>
+
         </div>
     </div>
+
+    <!-- ========================================
+         CORPORATE MODAL FORM
+         ======================================== -->
+
+    <div class="modal-overlay" id="corpModalOverlay">
+        <div class="modal-container">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <button class="close-modal" id="corpCloseModal"><span>x</span></button>
+                <div class="modal-header-content">
+                    <h2>Register New Securities Account</h2>
+                    <p>Corporate Account Opening Form (CDS 1)</p>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-container" id="corpProgressContainer">
+                <div class="progress-steps">
+                    <div class="progress-line">
+                        <div class="progress-line-fill" id="corpProgressFill"></div>
+                    </div>
+                    <div class="progress-step active" data-corp-step="1">
+                        <div class="progress-step-circle">1</div>
+                        <div class="progress-step-label">Company Details</div>
+                    </div>
+                    <div class="progress-step" data-corp-step="2">
+                        <div class="progress-step-circle">2</div>
+                        <div class="progress-step-label">Payment Details</div>
+                    </div>
+                    <div class="progress-step" data-corp-step="3">
+                        <div class="progress-step-circle">3</div>
+                        <div class="progress-step-label">Signatories</div>
+                    </div>
+                    <div class="progress-step" data-corp-step="4">
+                        <div class="progress-step-circle">4</div>
+                        <div class="progress-step-label">Declaration</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body" id="corpModalBody">
+
+                <!-- Step 0: Checklist -->
+                <div class="form-step" id="corp-checklistPage">
+                    <h3 class="form-section-title">Before You Begin</h3>
+                    <p style="color: var(--text-light); margin-bottom: 24px;">Please confirm you have the following ready before starting. You will need all of these to complete the application.</p>
+                    <div class="form-grid single-column">
+                        <ul style="padding-left: 1.2em; margin: 0; list-style: disc; color: var(--text-dark); font-size: 1rem;">
+                            <li style="margin-bottom: 12px;">
+                                <strong>🏢 Certificate of Incorporation/Registration</strong><br>
+                                <small style="color: var(--text-light);">Certified copy of the company's certificate of incorporation or registration</small>
+                            </li>
+                            <li style="margin-bottom: 12px;">
+                                <strong>📋 CR12 or Memorandum &amp; Articles of Association</strong><br>
+                                <small style="color: var(--text-light);">For companies — CR12 or Memorandum and Articles of Association</small>
+                            </li>
+                            <li style="margin-bottom: 12px;">
+                                <strong>📄 Directors Resolution</strong><br>
+                                <small style="color: var(--text-light);">Resolution to open and operate the CDS account, specifying signing mandates and naming signatories</small>
+                            </li>
+                            <li style="margin-bottom: 12px;">
+                                <strong>💳 KRA PIN Certificate</strong><br>
+                                <small style="color: var(--text-light);">Company KRA PIN number and certificate</small>
+                            </li>
+                            <li style="margin-bottom: 12px;">
+                                <strong>🏦 Bank Account Details</strong><br>
+                                <small style="color: var(--text-light);">Active bank account name, number, and branch code for settlements</small>
+                            </li>
+                            <li style="margin-bottom: 12px;">
+                                <strong>🪪 ID/Passport copies of all Signatories</strong><br>
+                                <small style="color: var(--text-light);">Certified copies of ID or passport for each director/signatory</small>
+                            </li>
+                            <li>
+                                <strong>📸 Passport Photo of each Signatory</strong><br>
+                                <small style="color: var(--text-light);">Recent passport-size photograph (digital copy — PNG or JPG) for each signatory</small>
+                            </li>
+                        </ul>
+                    </div>
+                    <p style="margin-top: 24px; font-size: 0.88rem; color: var(--text-light);">For trusts, partnerships, or other entities, additional documents may be required. Contact us if you are unsure.</p>
+                </div>
+
+                <!-- Step 1: Company Details -->
+                <div class="form-step" data-corp-step="1">
+                    <h3 class="form-section-title">Company Details</h3>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label class="form-label required">Registered Company Name</label>
+                            <input type="text" class="form-input" id="corp-registeredName" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Registration Number</label>
+                            <input type="text" class="form-input" id="corp-registrationNumber" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Date of Registration</label>
+                            <input type="date" class="form-input" id="corp-dateOfRegistration" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Investor Category</label>
+                            <select class="form-select" id="corp-investorCategory" required>
+                                <option value="">Select category</option>
+                                <option value="LC">Local Company (LC)</option>
+                                <option value="FC">Foreign Company (FC)</option>
+                                <option value="EC">East African Company (EC)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Country of Registration</label>
+                            <select class="form-select" id="corp-countryOfRegistration" required>
+                                <option value="">Select country</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">KRA PIN</label>
+                            <input type="text" class="form-input" id="corp-kraPin" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label required">Company KRA PIN Certificate</label>
+                            <div class="photo-upload-container">
+                                <label class="photo-upload-label">
+                                    <div id="corp-pre-kra-cert-upload">
+                                        <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-bottom: -18px; margin-right: 10px;">
+                                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                                        </svg>
+                                        <span>Click/Drop to upload KRA PIN certificate</span>
+                                    </div>
+                                    <input id="corp-kraPinCertInput" type="file" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                                    <div id="corp-kraPinCertPreview" style="margin-top:10px; display: flex; align-items: center;"></div>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Country Code</label>
+                            <input type="text" class="form-input" id="corp-countryCode" value="+254" placeholder="e.g. +254 (or type country name)" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Telephone Number</label>
+                            <input type="tel" class="form-input" id="corp-phone" placeholder="e.g. 0712345678" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label required">Email Address</label>
+                            <input type="email" class="form-input" id="corp-email" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label required">Confirm Email Address</label>
+                            <input type="email" class="form-input" id="corp-emailConfirm" placeholder="Re-enter email address" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Physical Location — Plot/Building Name</label>
+                            <input type="text" class="form-input" id="corp-physicalPlot" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Physical Location — Road/Street</label>
+                            <input type="text" class="form-input" id="corp-physicalRoad" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Town/City</label>
+                            <input type="text" class="form-input" id="corp-townCity" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Postal Code</label>
+                            <input type="text" class="form-input" id="corp-postalCode" placeholder="e.g. 00100">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Postal Address</label>
+                            <input type="text" class="form-input" id="corp-postalAddress" placeholder="P.O. Box">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label required">Source of Investment Funds</label>
+                            <input type="text" class="form-input" id="corp-fundSource" placeholder="e.g. Business operations, retained earnings" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CDA Code</label>
+                            <input type="text" class="form-input" id="corp-cdaCode" value="B58" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CDS Account Number</label>
+                            <input type="text" class="form-input" id="corp-cdsAccountNumber" placeholder="Leave blank for new account">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Payment Details -->
+                <div class="form-step" data-corp-step="2">
+                    <h3 class="form-section-title">Payment Details</h3>
+                    <p style="color: var(--text-light); margin-bottom: 24px;">(For dividend disposal and proceeds of sale)</p>
+                    <div class="form-grid single-column">
+                        <div class="form-group">
+                            <label class="form-label required">Payment Method</label>
+                            <div class="form-radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="corp-paymentMethod" value="domestic" checked>
+                                    <span>Domestic Bank</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="corp-paymentMethod" value="international">
+                                    <span>International Bank</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bank-details-group" id="corp-banks-group">
+                        <h4 style="font-weight: 600; margin-bottom: 16px; color: var(--primary-blue);">Bank Details</h4>
+                        <div class="form-group full-width" id="corp-swiftCodeField" style="display: none; margin-bottom: 30px;">
+                            <label class="form-label required">SWIFT Code</label>
+                            <input type="text" class="form-input" id="corp-swiftCode">
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label required">Bank Name</label>
+                                <div class="bank-autocomplete-container">
+                                    <input type="text" class="form-input" id="corp-bankNameInput" autocomplete="off" required>
+                                    <ul id="corp-bankSuggestions" class="bankSuggestions"></ul>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">Account Number</label>
+                                <input type="text" class="form-input" id="corp-bankAccountNumber" required>
+                            </div>
+                            <div id="corp-branchCodeField" style="grid-column: 1 / -1;">
+                                <div class="form-group">
+                                    <label class="form-label required">Branch Code/Name</label>
+                                    <input type="text" class="form-input" id="corp-branchCode" style="max-width: 300px;" required>
+                                </div>
+                                <div class="form-group" id="corp-branchCodeResult" style="margin-top: 25px; max-width: 50%;"></div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label required">Account Name</label>
+                                <input type="text" class="form-input" id="corp-accountName" required>
+                            </div>
+                            <div class="form-group full-width" id="corp-currencyField" style="display: none;">
+                                <label class="form-label">Currency</label>
+                                <div class="form-checkbox-group">
+                                    <label class="checkbox-option"><input type="checkbox" value="EUR"><span>EUR</span></label>
+                                    <label class="checkbox-option"><input type="checkbox" value="USD"><span>USD</span></label>
+                                    <label class="checkbox-option"><input type="checkbox" value="GBP"><span>GBP</span></label>
+                                    <label class="checkbox-option"><input type="checkbox" value="KES"><span>KES</span></label>
+                                    <label class="checkbox-option"><input type="checkbox" value="USH"><span>USH</span></label>
+                                    <label class="checkbox-option"><input type="checkbox" value="TZSH"><span>TZSH</span></label>
+                                    <label class="checkbox-option"><input type="checkbox" value="RFRANC"><span>RFRANC</span></label>
+                                </div>
+                                <input type="text" class="form-input" id="corp-otherCurrency" placeholder="Other currency" style="margin-top: 25px;">
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="form-section-title" style="margin-top: 32px;">Tax Status</h3>
+                    <div class="form-grid single-column">
+                        <div class="form-group">
+                            <label class="form-label required">Is the company tax exempt?</label>
+                            <div class="form-radio-group">
+                                <label class="radio-option"><input type="radio" name="corp-taxExempt" value="no" checked><span>No</span></label>
+                                <label class="radio-option"><input type="radio" name="corp-taxExempt" value="yes"><span>Yes</span></label>
+                            </div>
+                        </div>
+                        <div class="form-group" id="corp-taxCertificateUpload" style="display: none;">
+                            <label class="form-label required">Upload Tax Exemption Certificate</label>
+                            <div class="photo-upload-container">
+                                <label class="photo-upload-label">
+                                    <div id="corp-pre-cert-upload">
+                                        <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-bottom: -18px; margin-right: 10px;">
+                                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                                        </svg>
+                                        <span>Click/Drop to upload tax exemption certificate</span>
+                                    </div>
+                                    <input id="corp-taxExemptionCertInput" type="file" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                                    <div id="corp-taxCertificatePreview" style="margin-top:10px; display: flex; align-items: center;"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Signatory Details -->
+                <div class="form-step" data-corp-step="3">
+                    <h3 class="form-section-title">Primary Signatory</h3>
+                    <div class="form-grid">
+                        <div class="form-group"><label class="form-label required">Surname</label><input type="text" class="form-input" id="corp-sig1Surname" required></div>
+                        <div class="form-group"><label class="form-label required">Other Names</label><input type="text" class="form-input" id="corp-sig1OtherNames" required></div>
+                        <div class="form-group"><label class="form-label required">Designation/Title</label><input type="text" class="form-input" id="corp-sig1Designation" placeholder="e.g. Director, CEO" required></div>
+                        <div class="form-group"><label class="form-label required">Date of Birth</label><input type="date" class="form-input" id="corp-sig1Dob" required></div>
+                        <div class="form-group"><label class="form-label required">Nationality/Citizenship</label><select class="form-select" id="corp-sig1Nationality" required><option value="">Select country</option></select></div>
+                        <div class="form-group"><label class="form-label required">Country of Residence</label><select class="form-select" id="corp-sig1CountryOfResidence" required><option value="">Select country</option></select></div>
+                        <div class="form-group"><label class="form-label required">ID Type</label><select class="form-select" id="corp-sig1IdType" required><option value="">Select ID type</option><option value="national">National ID</option><option value="ea">East African ID</option><option value="passport">Passport</option><option value="alien">Alien ID</option></select></div>
+                        <div class="form-group"><label class="form-label required">ID/Passport Number</label><input type="text" class="form-input" id="corp-sig1IdNumber" required></div>
+                        <div class="form-group"><label class="form-label">ID/Passport Expiry (if not National ID)</label><input type="date" class="form-input" id="corp-sig1PassportExpiry"></div>
+                        <div class="form-group"><label class="form-label required">KRA PIN</label><input type="text" class="form-input" id="corp-sig1KraPin" required></div>
+                        <div class="form-group"><label class="form-label required">Country Code</label><input type="text" class="form-input" id="corp-sig1CountryCode" value="+254" placeholder="e.g. +254" required></div>
+                        <div class="form-group"><label class="form-label required">Telephone Number</label><input type="tel" class="form-input" id="corp-sig1Phone" placeholder="e.g. 0712345678" required></div>
+                        <div class="form-group full-width"><label class="form-label required">Email Address</label><input type="email" class="form-input" id="corp-sig1Email" required></div>
+                        <div class="form-group full-width"><label class="form-label required">Physical Residential Address</label><input type="text" class="form-input" id="corp-sig1Address" placeholder="County/State, Estate/Court, Road/Street, House/Flat Number" required></div>
+                        <div class="form-group"><label class="form-label">Postal Address</label><input type="text" class="form-input" id="corp-sig1PostalAddress" placeholder="P.O. Box"></div>
+                        <div class="form-group"><label class="form-label">Postal Code</label><input type="text" class="form-input" id="corp-sig1PostalCode"></div>
+                        <div class="form-group"><label class="form-label">Town/City</label><input type="text" class="form-input" id="corp-sig1TownCity"></div>
+                        <div class="form-group full-width">
+                            <label class="form-label required">KRA PIN Certificate</label>
+                            <div class="photo-upload-container"><label class="photo-upload-label"><div id="corp-pre-sig1-kra-upload"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-bottom: -18px; margin-right: 10px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg><span>Click/Drop to upload KRA PIN certificate</span></div><input id="corp-sig1KraCertInput" type="file" accept=".pdf,.jpg,.jpeg,.png" style="display: none;"><div id="corp-sig1KraCertPreview" style="margin-top:10px; display: flex; align-items: center;"></div></label></div>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label required">Passport Photo</label>
+                            <div class="photo-upload-container"><label class="photo-upload-label"><div id="corp-pre-sig1-photo-upload"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-bottom: -18px; margin-right: 10px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg><span>Click/Drop to upload passport photo</span></div><input id="corp-sig1PhotoInput" type="file" accept="image/*" style="display: none;"><div id="corp-sig1PhotoPreview" style="margin-top:10px; display: flex; align-items: center;"></div></label></div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 40px; margin-bottom: 24px;">
+                        <label class="checkbox-option"><input type="checkbox" id="corp-addSecondSignatory"><span>Add a second signatory</span></label>
+                    </div>
+                    <div id="corp-secondSignatorySection" style="display: none;">
+                        <h3 class="form-section-title">Secondary Signatory</h3>
+                        <div class="form-grid">
+                            <div class="form-group"><label class="form-label required">Surname</label><input type="text" class="form-input" id="corp-sig2Surname"></div>
+                            <div class="form-group"><label class="form-label required">Other Names</label><input type="text" class="form-input" id="corp-sig2OtherNames"></div>
+                            <div class="form-group"><label class="form-label required">Designation/Title</label><input type="text" class="form-input" id="corp-sig2Designation" placeholder="e.g. Director, CFO"></div>
+                            <div class="form-group"><label class="form-label required">Date of Birth</label><input type="date" class="form-input" id="corp-sig2Dob"></div>
+                            <div class="form-group"><label class="form-label required">Nationality/Citizenship</label><select class="form-select" id="corp-sig2Nationality"><option value="">Select country</option></select></div>
+                            <div class="form-group"><label class="form-label required">Country of Residence</label><select class="form-select" id="corp-sig2CountryOfResidence"><option value="">Select country</option></select></div>
+                            <div class="form-group"><label class="form-label required">ID Type</label><select class="form-select" id="corp-sig2IdType"><option value="">Select ID type</option><option value="national">National ID</option><option value="ea">East African ID</option><option value="passport">Passport</option><option value="alien">Alien ID</option></select></div>
+                            <div class="form-group"><label class="form-label required">ID/Passport Number</label><input type="text" class="form-input" id="corp-sig2IdNumber"></div>
+                            <div class="form-group"><label class="form-label">ID/Passport Expiry (if not National ID)</label><input type="date" class="form-input" id="corp-sig2PassportExpiry"></div>
+                            <div class="form-group"><label class="form-label required">KRA PIN</label><input type="text" class="form-input" id="corp-sig2KraPin"></div>
+                            <div class="form-group"><label class="form-label required">Country Code</label><input type="text" class="form-input" id="corp-sig2CountryCode" value="+254" placeholder="e.g. +254"></div>
+                            <div class="form-group"><label class="form-label required">Telephone Number</label><input type="tel" class="form-input" id="corp-sig2Phone" placeholder="e.g. 0712345678"></div>
+                            <div class="form-group full-width"><label class="form-label required">Email Address</label><input type="email" class="form-input" id="corp-sig2Email"></div>
+                            <div class="form-group full-width"><label class="form-label required">Physical Residential Address</label><input type="text" class="form-input" id="corp-sig2Address" placeholder="County/State, Estate/Court, Road/Street, House/Flat Number"></div>
+                            <div class="form-group"><label class="form-label">Postal Address</label><input type="text" class="form-input" id="corp-sig2PostalAddress" placeholder="P.O. Box"></div>
+                            <div class="form-group"><label class="form-label">Postal Code</label><input type="text" class="form-input" id="corp-sig2PostalCode"></div>
+                            <div class="form-group"><label class="form-label">Town/City</label><input type="text" class="form-input" id="corp-sig2TownCity"></div>
+                            <div class="form-group full-width">
+                                <label class="form-label required">KRA PIN Certificate</label>
+                                <div class="photo-upload-container"><label class="photo-upload-label"><div id="corp-pre-sig2-kra-upload"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-bottom: -18px; margin-right: 10px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg><span>Click/Drop to upload KRA PIN certificate</span></div><input id="corp-sig2KraCertInput" type="file" accept=".pdf,.jpg,.jpeg,.png" style="display: none;"><div id="corp-sig2KraCertPreview" style="margin-top:10px; display: flex; align-items: center;"></div></label></div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label required">Passport Photo</label>
+                                <div class="photo-upload-container"><label class="photo-upload-label"><div id="corp-pre-sig2-photo-upload"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-bottom: -18px; margin-right: 10px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg><span>Click/Drop to upload passport photo</span></div><input id="corp-sig2PhotoInput" type="file" accept="image/*" style="display: none;"><div id="corp-sig2PhotoPreview" style="margin-top:10px; display: flex; align-items: center;"></div></label></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Declaration -->
+                <div class="form-step" data-corp-step="4">
+                    <h3 class="form-section-title">Client Declaration</h3>
+                    <div class="declaration-box">
+                        <div class="declaration-item"><div class="declaration-number">1</div><div class="declaration-text">I/We certify that the information I/we have provided on this form and the documents I/we have attached are true, accurate and complete, and authorize CDSC to make any inquiries necessary in connection with the information provided.</div></div>
+                        <div class="declaration-item"><div class="declaration-number">2</div><div class="declaration-text">I/We certify that I/we have carefully read the Terms &amp; Conditions and Privacy Notice provided in the CDSC website.</div></div>
+                        <div class="declaration-item"><div class="declaration-number">3</div><div class="declaration-text">I/We declare that I am/we are the (Beneficial Owner / Legal Owner) of this CDS Account.</div></div>
+                        <div class="declaration-item"><div class="declaration-number">4</div><div class="declaration-text">I/We understand that any false or misleading information limits your ability to promote my/our right to privacy and when intentional, is a punishable criminal offence under the Laws of Kenya.</div></div>
+                        <div class="declaration-item"><div class="declaration-number">5</div><div class="declaration-text">I/We authorize CDSC to use the information collected in this form to open and maintain my/our securities account and for other related purposes.</div></div>
+                        <div class="declaration-item"><div class="declaration-number">6</div><div class="declaration-text">I/We will notify CDSC or my/our CDA of any change of my/our information presented in this form.</div></div>
+                        <div class="declaration-item"><div class="declaration-number">7</div><div class="declaration-text">I/We understand that CDSC may charge fees related to maintaining the securities account and I/we shall be liable for the fees charged for operating the account.</div></div>
+                        <div class="declaration-item"><div class="declaration-number">8</div><div class="declaration-text">I/We confirm that the funds used in the investment in securities are not arising out of proceeds of crime, money laundering and/or any illegal activities.</div></div>
+                        <div class="declaration-item"><div class="declaration-number">9</div><div class="declaration-text">I/We indemnify CDSC against any claims arising out of the provision of any false or misleading information or for any costs or loss arising out of my/our conduct of the account.</div></div>
+                    </div>
+                    <h3 class="form-section-title">PEP Status</h3>
+                    <div class="form-grid single-column">
+                        <div class="form-group">
+                            <label class="form-label required">Are you or any person connected with this application classified as a Politically Exposed Person (PEP)?</label>
+                            <div class="form-radio-group">
+                                <label class="radio-option"><input type="radio" name="corp-pep" value="no" checked><span>No</span></label>
+                                <label class="radio-option"><input type="radio" name="corp-pep" value="yes"><span>Yes</span></label>
+                            </div>
+                        </div>
+                        <div class="form-group" id="corp-pepDetails" style="display: none;">
+                            <label class="form-label">If yes, specify name and relationship:</label>
+                            <textarea class="form-textarea" id="corp-pepDetailsText" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <h3 class="form-section-title" style="margin-top: 32px;">Signing Mandate</h3>
+                    <div class="form-grid single-column">
+                        <div class="form-group">
+                            <label class="form-label required">Signing Authority</label>
+                            <select class="form-select" id="corp-signingAuthority" required>
+                                <option value="">Select signing mandate</option>
+                                <option value="single">Single</option>
+                                <option value="either">Either to sign</option>
+                                <option value="joint">All of us jointly</option>
+                                <option value="two">Any two to sign</option>
+                            </select>
+                        </div>
+                        <h3 class="form-section-title">Primary Signatory</h3>
+                        <div class="form-group">
+                            <label class="form-label required">Full Name(s)</label>
+                            <input type="text" class="form-input" id="corp-signName1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Signature</label>
+                            <div class="signature-area" style="padding: 0; position: relative;">
+                                <canvas id="corp-signatureCanvas" style="border: 2px solid var(--border-color); border-radius: 8px; cursor: crosshair; display: block; width: 100%; height: 200px;"></canvas>
+                                <button type="button" class="btn-clear-signature" id="corp-clearSignature">Clear</button>
+                                <button type="button" class="btn-clear-signature" id="corp-uploadSignatureBtn" style="margin-left: 8px;">Upload Image</button>
+                            </div>
+                            <div id="corp-sigUploadZone1" style="display: none; margin-top: 10px; padding: 16px; border: 2px dashed var(--border-color); border-radius: 8px; text-align: center; background: var(--bg-light);">
+                                <p style="margin: 0 0 8px; font-size: 0.9rem; color: var(--text-light);">Upload a signature image (PNG or JPG). It will be drawn onto the canvas above.</p>
+                                <input type="file" id="corp-sigUploadInput1" accept="image/png, image/jpeg, image/jpg" style="font-size: 0.9rem;">
+                            </div>
+                        </div>
+                        <div id="corp-secondarySignatureSection" style="display: none;">
+                            <h3 class="form-section-title">Secondary Signatory</h3>
+                            <div class="form-group">
+                                <label class="form-label required">Full Name(s)</label>
+                                <input type="text" class="form-input" id="corp-signName2">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">Signature</label>
+                                <div class="signature-area" style="padding: 0; position: relative;">
+                                    <canvas id="corp-signatureCanvas2" style="border: 2px solid var(--border-color); border-radius: 8px; cursor: crosshair; display: block; width: 100%; height: 200px;"></canvas>
+                                    <button type="button" class="btn-clear-signature" id="corp-clearSignature2">Clear</button>
+                                    <button type="button" class="btn-clear-signature" id="corp-uploadSignatureBtn2" style="margin-left: 8px;">Upload Image</button>
+                                </div>
+                                <div id="corp-sigUploadZone2" style="display: none; margin-top: 10px; padding: 16px; border: 2px dashed var(--border-color); border-radius: 8px; text-align: center; background: var(--bg-light);">
+                                    <p style="margin: 0 0 8px; font-size: 0.9rem; color: var(--text-light);">Upload a signature image (PNG or JPG). It will be drawn onto the canvas above.</p>
+                                    <input type="file" id="corp-sigUploadInput2" accept="image/png, image/jpeg, image/jpg" style="font-size: 0.9rem;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-grid single-column" style="margin-top: 100px;">
+                        <div class="form-group">
+                            <label class="checkbox-option">
+                                <input type="checkbox" id="corp-agreeTerms" required>
+                                <span>I/We agree to the terms and conditions and certify that all information provided is accurate<span style="color: red"> *</span></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5: Review -->
+                <div class="form-step" id="corp-reviewPage">
+                    <h3 class="form-section-title">Review Your Application</h3>
+                    <p style="color: var(--text-light); margin-bottom: 24px;">Please review your details below before submitting. Use the Previous button to go back and make corrections if needed.</p>
+                    <div id="corp-reviewContent"></div>
+                </div>
+
+                <!-- Step 6: Confirmation -->
+                <div class="form-step" id="corp-confirmationPage">
+                    <div id="corp-confirmSuccess" style="text-align: center; padding: 16px 0 32px;">
+                        <div style="font-size: 3.5rem; margin-bottom: 16px;">✅</div>
+                        <h3 style="font-size: 1.4rem; color: var(--success-green); margin-bottom: 8px;">Application Submitted!</h3>
+                        <p style="color: var(--text-light); margin-bottom: 32px;">Thank you. We have received your corporate account application and will be in touch via email regarding the next steps. Kindly visit our office 
+                            to provide the company stamp and finalize the application process.
+                        </p>
+                        <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 10px;">Your Application Reference ID</p>
+                        <div style="display: inline-flex; align-items: center; gap: 12px; background: var(--bg-light); border: 2px solid var(--primary-blue); border-radius: 10px; padding: 14px 20px; margin-bottom: 10px;">
+                            <span id="corp-confirmAppId" style="font-family: monospace; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.08em; color: var(--primary-blue);"></span>
+                            <button type="button" id="corp-copyAppIdBtn" title="Copy to clipboard" style="background: none; border: 1.5px solid var(--primary-blue); border-radius: 6px; padding: 5px 10px; cursor: pointer; color: var(--primary-blue); font-size: 0.8rem; font-weight: 600;">Copy</button>
+                        </div>
+                        <p id="corp-copyConfirmMsg" style="font-size: 0.82rem; color: var(--success-green); min-height: 1.2em; margin-top: 4px;"></p>
+                        <p style="font-size: 0.82rem; color: var(--text-light); margin-top: 4px;">Please keep this ID — you will need it for all future correspondence with us.</p>
+                        <button type="button" class="btn btn-primary" id="corp-closeConfirmBtn" style="margin-top: 32px;">Close</button>
+                    </div>
+                    <div id="corp-confirmError" style="text-align: center; padding: 16px 0 32px; display: none;">
+                        <div style="font-size: 3.5rem; margin-bottom: 16px;">❌</div>
+                        <h3 style="font-size: 1.4rem; color: var(--error-red); margin-bottom: 8px;">Submission Failed</h3>
+                        <p id="corp-confirmErrorMsg" style="color: var(--text-light); margin-bottom: 32px;"></p>
+                        <button type="button" class="btn btn-primary" id="corp-retrySubmitBtn" style="margin-right: 12px;">Try Again</button>
+                        <button type="button" class="btn btn-secondary" id="corp-closeErrorBtn">Close</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="corp-prevBtn" style="display: none;">Previous</button>
+                <button class="btn btn-primary" id="corp-nextBtn">Begin Application</button>
+            </div>
+
+        </div>
+    </div>
+
 </body>
 </html>

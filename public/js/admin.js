@@ -21,17 +21,24 @@ document.addEventListener('DOMContentLoaded', () => {
 // Load all applications from the server
 async function loadApplications() {
     try {
-        const response = await fetch('/api/cdsc/applications');
-        const data = await response.json();
-        
-        if (data.success) {
-            applications = data.applications;
-            filteredApplications = applications;
-            updateStatistics();
-            renderTable();
-        } else {
-            showError('Failed to load applications');
-        }
+        const [indivRes, corpRes] = await Promise.all([
+            fetch('/api/cdsc/applications'),
+            fetch('/api/cdsc/corporate/applications')
+        ]);
+        const indivData = await indivRes.json();
+        const corpData  = await corpRes.json();
+
+        const individual = (indivData.success ? indivData.applications : [])
+            .map(a => ({ ...a, _type: 'individual' }));
+        const corporate  = (corpData.success  ? corpData.applications  : [])
+            .map(a => ({ ...a, _type: 'corporate' }));
+
+        applications = [...individual, ...corporate]
+            .sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
+
+        filteredApplications = applications;
+        updateStatistics();
+        renderTable();
     } catch (error) {
         console.error('Error loading applications:', error);
         showError('Error loading applications');
@@ -53,27 +60,39 @@ function updateStatistics() {
 
 // Search and filters
 function applyFilters() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const statusFilter = document.getElementById('statusFilter').value;
+    const searchTerm        = document.getElementById('searchInput').value.toLowerCase();
+    const statusFilter      = document.getElementById('statusFilter').value;
     const accountTypeFilter = document.getElementById('accountTypeFilter').value;
-    
+
     filteredApplications = applications.filter(app => {
-        // Search
-        const matchesSearch = !searchTerm || 
-            app.primary_surname.toLowerCase().includes(searchTerm) ||
-            app.primary_other_names.toLowerCase().includes(searchTerm) ||
-            app.primary_email.toLowerCase().includes(searchTerm) ||
-            app.primary_id_number.toLowerCase().includes(searchTerm);
-        
-        // Status filter
+        // Search — cover both individual (primary_surname) and corporate (registered_name) fields
+        const nameStr  = app._type === 'corporate'
+            ? (app.registered_name || '')
+            : `${app.primary_surname || ''} ${app.primary_other_names || ''}`;
+        const emailStr = app._type === 'corporate'
+            ? (app.email || '')
+            : (app.primary_email || '');
+        const idStr    = app._type === 'corporate'
+            ? (app.registration_number || '')
+            : (app.primary_id_number || '');
+
+        const matchesSearch = !searchTerm ||
+            nameStr.toLowerCase().includes(searchTerm) ||
+            emailStr.toLowerCase().includes(searchTerm) ||
+            idStr.toLowerCase().includes(searchTerm) ||
+            (app.gmc_id || '').toLowerCase().includes(searchTerm);
+
         const matchesStatus = !statusFilter || app.status === statusFilter;
-        
-        // Account type filter
-        const matchesAccountType = !accountTypeFilter || app.account_type === accountTypeFilter;
-        
+
+        // Account type filter: 'corporate' matches corporate apps,
+        // 'individual' matches both individual and joint (same form)
+        const matchesAccountType = !accountTypeFilter ||
+            (accountTypeFilter === 'corporate'  && app._type === 'corporate') ||
+            (accountTypeFilter === 'individual' && app._type === 'individual');
+
         return matchesSearch && matchesStatus && matchesAccountType;
     });
-    
+
     renderTable();
 }
 
@@ -95,52 +114,145 @@ function renderTable() {
     emptyState.style.display = 'none';
     table.style.display = 'table';
     
-    tbody.innerHTML = filteredApplications.map(app => `
+    tbody.innerHTML = filteredApplications.map(app => {
+    const isCorp = app._type === 'corporate';
+    const name   = isCorp
+        ? (app.registered_name || '—')
+        : `${app.primary_surname}, ${app.primary_other_names}`;
+    const email  = isCorp ? (app.email || '—') : app.primary_email;
+    const phone  = isCorp
+        ? `${app.country_code || ''} ${app.phone || ''}`.trim()
+        : `${app.primary_country_code} ${app.primary_phone}`;
+    const accountTypeLabel = isCorp ? 'Corporate' : 'Personal';
+    const applicantTypeLabel = isCorp ? '—' : capitalize(app.account_type); // individual / joint
+
+    return `
         <tr>
-            <td>#${app.id}</td>
+            <td>${app.gmc_id || '#' + app.id}</td>
             <td>${formatDate(app.submission_date)}</td>
-            <td>${app.primary_surname}, ${app.primary_other_names}</td>
-            <td>${capitalize(app.account_type)}</td>
-            <td>${app.primary_email}</td>
-            <td>${app.primary_country_code} ${app.primary_phone}</td>
+            <td>${name}</td>
+            <td>${accountTypeLabel}</td>
+            <td>${applicantTypeLabel}</td>
+            <td>${email}</td>
+            <td>${phone}</td>
             <td><span class="status-badge status-${app.status}">${capitalize(app.status)}</span></td>
             <td>
                 <div class="action-buttons">
-                    <button class="btn btn-primary btn-sm view-btn" data-id="${app.id}">View</button>
-                    <button class="btn btn-secondary btn-sm pdf-btn" data-id="${app.id}">PDF</button>
-                    <button class="btn btn-danger btn-sm delete-btn" data-id="${app.id}">Delete</button>
+                    <button class="btn btn-primary btn-sm view-btn" data-id="${app.id}" data-type="${app._type}">View</button>
+                    <button class="btn btn-secondary btn-sm pdf-btn" data-id="${app.id}" data-type="${app._type}">PDF</button>
+                    <button class="btn btn-danger btn-sm delete-btn" data-id="${app.id}" data-type="${app._type}">Delete</button>
                 </div>
             </td>
         </tr>
-    `).join('');
+    `;
+    }).join('');
 
     // Event delegation for action buttons
     tbody.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            const id = parseInt(this.getAttribute('data-id'));
-            viewDetails(id);
+            viewDetails(parseInt(this.getAttribute('data-id')), this.getAttribute('data-type'));
         });
     });
     tbody.querySelectorAll('.pdf-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            const id = parseInt(this.getAttribute('data-id'));
-            downloadPDF(id);
+            downloadPDF(parseInt(this.getAttribute('data-id')), this.getAttribute('data-type'));
         });
     });
     tbody.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            const id = parseInt(this.getAttribute('data-id'));
-            deleteApplication(id);
+            deleteApplication(parseInt(this.getAttribute('data-id')), this.getAttribute('data-type'));
         });
     });
 }
 
 // View application details in modal
-function viewDetails(id) {
-    const app = applications.find(a => a.id === id);
+function viewDetails(id, type) {
+    const app = applications.find(a => a.id === id && a._type === type);
     if (!app) return;
-    
+    const isCorp = type === 'corporate';
     const modalBody = document.getElementById('modalBody');
+
+    if (isCorp) {
+        modalBody.innerHTML = `
+            <div class="detail-grid">
+                <div class="detail-group full-width">
+                    <div class="detail-label">Application ID</div>
+                    <div class="detail-value">${app.gmc_id || '#' + app.id}</div>
+                </div>
+                <div class="detail-group">
+                    <div class="detail-label">Submission Date</div>
+                    <div class="detail-value">${formatDate(app.submission_date)}</div>
+                </div>
+                <div class="detail-group">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value"><span class="status-badge status-${app.status}">${capitalize(app.status)}</span></div>
+                </div>
+            </div>
+
+            <h3 class="section-title">Company Details</h3>
+            <div class="detail-grid">
+                <div class="detail-group"><div class="detail-label">Registered Name</div><div class="detail-value">${app.registered_name}</div></div>
+                <div class="detail-group"><div class="detail-label">Registration Number</div><div class="detail-value">${app.registration_number}</div></div>
+                <div class="detail-group"><div class="detail-label">Date of Registration</div><div class="detail-value">${app.date_of_registration}</div></div>
+                <div class="detail-group"><div class="detail-label">Investor Category</div><div class="detail-value">${app.investor_category}</div></div>
+                <div class="detail-group"><div class="detail-label">Country of Registration</div><div class="detail-value">${app.country_of_registration}</div></div>
+                <div class="detail-group"><div class="detail-label">KRA PIN</div><div class="detail-value">${app.kra_pin}</div></div>
+                <div class="detail-group"><div class="detail-label">Phone</div><div class="detail-value">${app.country_code} ${app.phone}</div></div>
+                <div class="detail-group"><div class="detail-label">Email</div><div class="detail-value">${app.email}</div></div>
+                <div class="detail-group full-width"><div class="detail-label">Physical Location</div><div class="detail-value">${app.physical_plot}, ${app.physical_road}, ${app.town_city}</div></div>
+                ${app.postal_address ? `<div class="detail-group"><div class="detail-label">Postal Address</div><div class="detail-value">${app.postal_address}</div></div>` : ''}
+                <div class="detail-group"><div class="detail-label">Source of Funds</div><div class="detail-value">${app.fund_source}</div></div>
+            </div>
+
+            <h3 class="section-title">Primary Signatory</h3>
+            <div class="detail-grid">
+                <div class="detail-group"><div class="detail-label">Name</div><div class="detail-value">${app.sig1_other_names} ${app.sig1_surname}</div></div>
+                <div class="detail-group"><div class="detail-label">Designation</div><div class="detail-value">${app.sig1_designation}</div></div>
+                <div class="detail-group"><div class="detail-label">ID Number</div><div class="detail-value">${app.sig1_id_number}</div></div>
+                <div class="detail-group"><div class="detail-label">KRA PIN</div><div class="detail-value">${app.sig1_kra_pin}</div></div>
+                <div class="detail-group"><div class="detail-label">Phone</div><div class="detail-value">${app.sig1_country_code} ${app.sig1_phone}</div></div>
+                <div class="detail-group"><div class="detail-label">Email</div><div class="detail-value">${app.sig1_email}</div></div>
+            </div>
+
+            ${app.sig2_surname ? `
+            <h3 class="section-title">Secondary Signatory</h3>
+            <div class="detail-grid">
+                <div class="detail-group"><div class="detail-label">Name</div><div class="detail-value">${app.sig2_other_names} ${app.sig2_surname}</div></div>
+                <div class="detail-group"><div class="detail-label">Designation</div><div class="detail-value">${app.sig2_designation}</div></div>
+                <div class="detail-group"><div class="detail-label">ID Number</div><div class="detail-value">${app.sig2_id_number}</div></div>
+                <div class="detail-group"><div class="detail-label">KRA PIN</div><div class="detail-value">${app.sig2_kra_pin}</div></div>
+                <div class="detail-group"><div class="detail-label">Phone</div><div class="detail-value">${app.sig2_country_code} ${app.sig2_phone}</div></div>
+                <div class="detail-group"><div class="detail-label">Email</div><div class="detail-value">${app.sig2_email}</div></div>
+            </div>` : ''}
+
+            <h3 class="section-title">Payment Details</h3>
+            <div class="detail-grid">
+                <div class="detail-group"><div class="detail-label">Payment Method</div><div class="detail-value">${capitalize(app.payment_method)} Bank</div></div>
+                <div class="detail-group"><div class="detail-label">Bank Name</div><div class="detail-value">${app.bank_name}</div></div>
+                <div class="detail-group"><div class="detail-label">Account Number</div><div class="detail-value">${app.account_number}</div></div>
+                <div class="detail-group"><div class="detail-label">Account Name</div><div class="detail-value">${app.account_name}</div></div>
+                ${app.branch_code ? `<div class="detail-group"><div class="detail-label">Branch Code</div><div class="detail-value">${app.branch_code}</div></div>` : ''}
+                ${app.swift_code  ? `<div class="detail-group"><div class="detail-label">SWIFT Code</div><div class="detail-value">${app.swift_code}</div></div>`  : ''}
+                <div class="detail-group"><div class="detail-label">Tax Exempt</div><div class="detail-value">${app.is_tax_exempt === 'Yes' ? 'Yes' : 'No'}</div></div>
+            </div>
+
+            <h3 class="section-title">Declaration</h3>
+            <div class="detail-grid">
+                <div class="detail-group"><div class="detail-label">PEP Status</div><div class="detail-value">${app.is_pep === 'Yes' ? 'Yes' : 'No'}</div></div>
+                <div class="detail-group"><div class="detail-label">Signing Mandate</div><div class="detail-value">${capitalize(app.signing_mandate)}</div></div>
+                <div class="detail-group"><div class="detail-label">Signatories</div><div class="detail-value">${app.signer_names}</div></div>
+            </div>
+
+            <h3 class="section-title">Actions</h3>
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <button class="btn btn-primary" id="approveBtn">Approve</button>
+                <button class="btn btn-danger" id="rejectBtn">Reject</button>
+                <button class="btn btn-secondary" id="downloadPdfBtn">Download PDF</button>
+            </div>
+        `;
+
+    } else {
+
     modalBody.innerHTML = `
         <div class="detail-grid">
             <div class="detail-group full-width">
@@ -428,7 +540,7 @@ function viewDetails(id) {
             <button class="btn btn-danger" id="rejectBtn">Reject</button>
             <button class="btn btn-secondary" id="downloadPdfBtn">Download PDF</button>
         </div>
-    `;
+    `;}
     
     document.getElementById('detailsModal').classList.add('active');
 
@@ -438,17 +550,17 @@ function viewDetails(id) {
     const downloadPdfBtn = document.getElementById('downloadPdfBtn');
     if (approveBtn) {
         approveBtn.addEventListener('click', function() {
-            updateStatus(app.id, 'approved');
+            updateStatus(app.id, 'approved', type);
         });
     }
     if (rejectBtn) {
         rejectBtn.addEventListener('click', function() {
-            updateStatus(app.id, 'rejected');
+            updateStatus(app.id, 'rejected', type);
         });
     }
     if (downloadPdfBtn) {
         downloadPdfBtn.addEventListener('click', function() {
-            downloadPDF(app.id);
+            downloadPDF(app.id, type);
         });
     }
 }
@@ -477,22 +589,16 @@ document.getElementById('detailsModal').addEventListener('click', function(e) {
 
 
 // Update application status
-async function updateStatus(id, status) {
-    if (!confirm(`Are you sure you want to ${status} this application?`)) {
-        return;
-    }
-    
+async function updateStatus(id, status, type) {
+    if (!confirm(`Are you sure you want to ${status} this application?`)) return;
+    const base = type === 'corporate' ? '/api/cdsc/corporate/applications' : '/api/cdsc/applications';
     try {
-        const response = await fetch(`/api/cdsc/applications/${id}/status`, {
+        const response = await fetch(`${base}/${id}/status`, {
             method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status })
         });
-        
         const data = await response.json();
-        
         if (data.success) {
             alert(`Application ${status} successfully!`);
             closeDetailsModal();
@@ -507,23 +613,15 @@ async function updateStatus(id, status) {
 }
 
 // Download filled PDF
-
-async function downloadPDF(id) {
+async function downloadPDF(id, type) {
+    const base = type === 'corporate' ? '/api/cdsc/corporate/applications' : '/api/cdsc/applications';
     try {
-        // Fetch PDF info to check tax exemption status
-        const response = await fetch(`/api/cdsc/applications/${id}/pdf`);
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-            const data = await response.json();
-            if (data.taxExempt && data.taxCertPath) {
-                showDownloadDialog(id, data.message);
-            } else {
-                // Fallback: just download PDF
-                window.open(`/api/cdsc/applications/${id}/pdf?forceDownload=1`, '_blank');
-            }
+        const response = await fetch(`${base}/${id}/pdf`);
+        const data = await response.json();
+        if (data.success) {
+            showDownloadDialog(id, type, data);
         } else {
-            // If not JSON, it's the PDF file
-            window.open(`/api/cdsc/applications/${id}/pdf`, '_blank');
+            alert('Error preparing download');
         }
     } catch (error) {
         console.error('Error downloading PDF:', error);
@@ -531,66 +629,81 @@ async function downloadPDF(id) {
     }
 }
 
-// Show a custom dialog with two download buttons
-function showDownloadDialog(id, message) {
-    // Remove any existing dialog
+// Show download options 
+function showDownloadDialog(id, type, data) {
+    const base = type === 'corporate' ? '/api/cdsc/corporate/applications' : '/api/cdsc/applications';
     let existing = document.getElementById('downloadDialog');
     if (existing) existing.remove();
 
+    // Build KRA cert sub-list from whichever fields came back true
+    const kraLabels = type === 'corporate'
+        ? { company: 'Company', sig1: 'Signatory 1', sig2: 'Signatory 2' }
+        : { primary: 'Primary Applicant', secondary: 'Secondary Applicant' };
+
+    const kraItems = Object.entries(data.kraCerts || {})
+        .filter(([, available]) => available)
+        .map(([key]) => `
+            <button class="btn btn-secondary kra-cert-btn"
+                    style="margin-left:1rem;font-size:0.9em;"
+                    data-which="${key}">
+                ${kraLabels[key]}
+            </button>`)
+        .join('');
+
+    const kraSection = kraItems
+        ? `<div>
+               <div style="font-weight:500;margin-top:0.5rem;margin-bottom:0.5rem;">KRA PIN Certificates</div>
+               <div style="display:flex;flex-direction:column;gap:0.5rem;">${kraItems}</div>
+           </div>`
+        : `<button class="btn btn-secondary" disabled>KRA Certificates (none uploaded)</button>`;
+
+    const taxBtnHtml = data.hasTaxCert
+        ? `<button id="downloadTaxCertBtn" class="btn btn-secondary">Download Tax Exemption Certificate</button>`
+        : '';
+
     const dialog = document.createElement('div');
     dialog.id = 'downloadDialog';
-    dialog.style.position = 'fixed';
-    dialog.style.top = '0';
-    dialog.style.left = '0';
-    dialog.style.width = '100vw';
-    dialog.style.height = '100vh';
-    dialog.style.background = 'rgba(0,0,0,0.4)';
-    dialog.style.display = 'flex';
-    dialog.style.alignItems = 'center';
-    dialog.style.justifyContent = 'center';
-    dialog.style.zIndex = '9999';
-
+    dialog.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
     dialog.innerHTML = `
-        <div style="background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 16px rgba(0,0,0,0.2); min-width: 320px; max-width: 90vw;">
-            <h3 style="margin-top:0;">${message || 'Download Documents'}</h3>
-            <div style="display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0;">
-                <button id="downloadTaxCertBtn" class="btn btn-secondary">Download Tax Certificate</button>
-                <button id="downloadMainPdfBtn" class="btn btn-primary">Download CDSC Application Form</button>
+        <div style="background:#fff;padding:2rem;border-radius:8px;box-shadow:0 2px 16px rgba(0,0,0,0.2);min-width:340px;max-width:90vw;">
+            <h3 style="margin-top:0;">Download Documents</h3>
+            <div style="display:flex;flex-direction:column;gap:1rem;margin:1.5rem 0;">
+                <button id="downloadMainPdfBtn" class="btn btn-primary">Download Application Form (PDF)</button>
+                ${kraSection}
+                ${taxBtnHtml}
             </div>
-            <button id="closeDownloadDialogBtn" class="btn btn-light" style="margin-top: 0.5rem; margin-left: auto; margin-right: auto; display: block;">Close</button>
+            <button id="closeDownloadDialogBtn" class="btn btn-light" style="margin:0.5rem auto;display:block;">Close</button>
         </div>
     `;
 
     document.body.appendChild(dialog);
 
-    document.getElementById('downloadTaxCertBtn').onclick = function() {
-        window.open(`/api/cdsc/applications/${id}/tax-certificate`, '_blank');
-    };
-    document.getElementById('downloadMainPdfBtn').onclick = function() {
-        window.open(`/api/cdsc/applications/${id}/pdf?forceDownload=1`, '_blank');
-    };
-    document.getElementById('closeDownloadDialogBtn').onclick = function() {
-        dialog.remove();
-    };
-    // Also close dialog on click outside
-    dialog.addEventListener('click', function(e) {
-        if (e.target === dialog) dialog.remove();
+    document.getElementById('downloadMainPdfBtn').addEventListener('click', () => window.open(`${base}/${id}/pdf?forceDownload=1`, '_blank'));
+    document.getElementById('downloadTaxCertBtn')?.addEventListener('click', () => window.open(`${base}/${id}/tax-certificate`, '_blank'));
+    document.getElementById('closeDownloadDialogBtn').addEventListener('click', () => dialog.remove());
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            dialog.remove();
+        }
     });
+
+    dialog.querySelectorAll('.kra-cert-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            window.open(`${base}/${id}/kra-certificate?which=${this.dataset.which}`, '_blank');
+        });
+    });
+
+    dialog.addEventListener('click', e => { if (e.target === dialog) dialog.remove(); });
 }
 
 // Delete application
-async function deleteApplication(id) {
-    if (!confirm('Are you sure you want to delete this application? This action cannot be undone.')) {
-        return;
-    }
-    
+async function deleteApplication(id, type) {
+    if (!confirm('Are you sure you want to delete this application? This action cannot be undone.')) return;
+    const base = type === 'corporate' ? '/api/cdsc/corporate/applications' : '/api/cdsc/applications';
     try {
-        const response = await fetch(`/api/cdsc/applications/${id}`, {
-            method: 'DELETE'
-        });
-        
+        const response = await fetch(`${base}/${id}`, { method: 'DELETE' });
         const data = await response.json();
-        
         if (data.success) {
             alert('Application deleted successfully!');
             loadApplications();
@@ -631,5 +744,3 @@ function showError(message) {
         <p>${message}</p>
     `;
 }
-
-

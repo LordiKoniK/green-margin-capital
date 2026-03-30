@@ -127,6 +127,7 @@
     font-weight: 700;
     margin-bottom: 8px;
     letter-spacing: -0.01em;
+    color: white;
 }
 
 .modal-header p {
@@ -155,7 +156,13 @@
 
 .close-modal:hover {
     background: rgba(255, 255, 255, 0.25);
-    transform: rotate(90deg);
+}
+
+.close-modal span {
+    display: inline-block;
+    position: relative;
+    top: -2px; 
+    line-height: 1;
 }
 
 /* Progress Bar */
@@ -571,7 +578,7 @@ canvas {
     position: relative;
 }
 
-#bankSuggestions {
+.bankSuggestions {
     position: absolute;
     top: 100%;
     left: 0;

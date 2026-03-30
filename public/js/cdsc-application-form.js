@@ -56,7 +56,7 @@ function updateProgress() {
 
     // Initialize bank autocomplete at step 4:
     if (individualForm.currentStep === 4) {
-        setTimeout(() => setupBankAutocomplete('bankNameInput','bankSuggestions'), 100);
+        setTimeout(() => setupBankAutocomplete('bankNameInput','bankSuggestions','paymentMethod'), 100);
     }
 
     // Initialize canvas when reaching step 5
@@ -1101,20 +1101,12 @@ setupUploadZone('kraPinCertInput2', 'kraPinCertPreview2', 'pre-kra-cert-upload2'
 
 document.addEventListener('DOMContentLoaded', scrollToTop);
 
-// Open application form
-document.addEventListener('DOMContentLoaded', function() {
-    const openAccountBtn = document.querySelector('.btn-hero');
-    if (openAccountBtn) {
-        openAccountBtn.addEventListener('click', openModal);
-    }
-});
-
 // Close application form
 document.addEventListener('DOMContentLoaded', function() {
-    const closeAccountBtn = document.querySelector('.close-modal');
-    if (closeAccountBtn) {
-        closeAccountBtn.addEventListener('click', closeModal);
-    }
+    const closeAccountBtn = document.querySelectorAll('.close-modal');
+    closeAccountBtn.forEach(function(btn) {
+        btn.addEventListener('click', closeModal);
+    });
 });
 
 document.addEventListener('DOMContentLoaded', function() {

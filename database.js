@@ -16,15 +16,13 @@ const pool = mysql.createPool({
 // ==============================
 
 async function insertApplication(data) {
-  const [result] = await pool.query(
-    'INSERT INTO applications SET ?',
-    data
+  const [seq] = await pool.query(
+    "INSERT INTO application_sequences (type) VALUES ('individual')"
   );
-  const [rows] = await pool.query(
-    'SELECT gmc_id FROM applications WHERE id = ?',
-    [result.insertId]
-  );
-  return rows[0]?.gmc_id;
+  const gmcId = 'GMC' + String(seq.insertId).padStart(4, '0');
+  data.gmc_id = gmcId;
+  await pool.query('INSERT INTO applications SET ?', data);
+  return gmcId;
 }
 
 async function getAllApplications() {
@@ -53,6 +51,52 @@ async function updateApplicationStatus(id, status, notes = null) {
 async function deleteApplication(id) {
   const [result] = await pool.query(
     'DELETE FROM applications WHERE id = ?',
+    [id]
+  );
+  return result;
+}
+
+
+// ==============================
+// CORPORATE APPLICATIONS
+// ==============================
+
+async function insertCorporateApplication(data) {
+  const [seq] = await pool.query(
+    "INSERT INTO application_sequences (type) VALUES ('corporate')"
+  );
+  const gmcId = 'GMC' + String(seq.insertId).padStart(4, '0');
+  data.gmc_id = gmcId;
+  await pool.query('INSERT INTO corporate_applications SET ?', data);
+  return gmcId;
+}
+
+async function getAllCorporateApplications() {
+  const [rows] = await pool.query(
+    'SELECT * FROM corporate_applications ORDER BY submission_date DESC'
+  );
+  return rows;
+}
+
+async function getCorporateApplication(id) {
+  const [rows] = await pool.query(
+    'SELECT * FROM corporate_applications WHERE id = ?',
+    [id]
+  );
+  return rows[0];
+}
+
+async function updateCorporateApplicationStatus(id, status, notes = null) {
+  const [result] = await pool.query(
+    'UPDATE corporate_applications SET status = ?, notes = ? WHERE id = ?',
+    [status, notes, id]
+  );
+  return result;
+}
+
+async function deleteCorporateApplication(id) {
+  const [result] = await pool.query(
+    'DELETE FROM corporate_applications WHERE id = ?',
     [id]
   );
   return result;
@@ -277,17 +321,26 @@ async function getCategories() {
 
 module.exports = {
   pool,
+
   insertApplication,
   getAllApplications,
   getApplication,
   updateApplicationStatus,
   deleteApplication,
+
+  insertCorporateApplication,
+  getAllCorporateApplications,
+  getCorporateApplication,
+  updateCorporateApplicationStatus,
+  deleteCorporateApplication,
+
   insertContactMessage,
   getAllContactMessages,
   getContactMessage,
   updateContactMessageStatus,
   deleteContactMessage,
   getMessageCounts,
+  
   insertNewsItem,
   getAllNews,
   getPublishedNews,

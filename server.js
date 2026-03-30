@@ -8,7 +8,7 @@ const cors = require('cors');
 const fs = require('fs');
 const multer = require('multer');
 const db = require('./database');
-const { fillCDSCForm, generateCDSCFormPDF } = require('./pdfFiller');
+const { fillCDSCForm, fillCorporateForm } = require('./pdfFiller');
 const basicAuth = require('express-basic-auth');
 
 
@@ -176,6 +176,11 @@ app.use('/admin', basicAuth({
 }));
 
 app.use('/api/cdsc/applications', basicAuth({
+    users: { 'admin': 'greenmnocap' },
+    challenge: true
+}));
+
+app.use('/api/cdsc/corporate/applications', basicAuth({
     users: { 'admin': 'greenmnocap' },
     challenge: true
 }));
@@ -514,48 +519,38 @@ app.delete('/api/cdsc/applications/:id', async (req, res) => {
 app.get('/api/cdsc/applications/:id/pdf', async (req, res) => {
   try {
     const application = await db.getApplication(req.params.id);
-    
     if (!application) {
       return res.status(404).json({ success: false, message: 'Application not found' });
     }
 
-    // Check tax exemption status unless forceDownload is set
     const forceDownload = req.query.forceDownload === '1' || req.query.forceDownload === 'true';
-    if (!forceDownload && (application.is_tax_exempt === 'Yes' || application.is_tax_exempt === true)) {
+    if (!forceDownload) {
       return res.json({
         success: true,
-        taxExempt: true,
-        message: 'Download tax exemption certificate?',
-        taxCertPath: application.tax_cert_path,
+        hasTaxCert:       !!(application.is_tax_exempt === 'Yes' && application.tax_cert_path),
+        kraCerts: {
+          primary:   !!application.primary_kra_cert_path,
+          secondary: !!application.secondary_kra_cert_path
+        },
         pdfAvailable: true
       });
     }
 
     const pdfPath = path.join(__dirname, 'generated-pdfs', `application-${req.params.id}.pdf`);
-
-
-    // Error handling
     try {
       await fillCDSCForm(application, pdfPath);
     } catch (fillError) {
       console.log('Error filling PDF:', fillError.message);
     }
-
-    // Send the PDF file
     res.download(pdfPath, `CDSC_Application_${req.params.id}.pdf`, (err) => {
       if (err) {
         console.error('Error sending PDF:', err);
         res.status(500).json({ success: false, message: 'Error sending PDF' });
       }
     });
-
   } catch (error) {
     console.error('Error generating PDF:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error generating PDF',
-      error: error.message 
-    });
+    res.status(500).json({ success: false, message: 'Error generating PDF', error: error.message });
   }
 });
 
@@ -576,6 +571,256 @@ app.get('/api/cdsc/applications/:id/tax-certificate', async (req, res) => {
   } catch (error) {
     console.error('Error downloading tax certificate:', error);
     res.status(500).json({ success: false, message: 'Error downloading tax certificate', error: error.message });
+  }
+});
+
+// Download KRA PIN certificate (individual/joint)
+app.get('/api/cdsc/applications/:id/kra-certificate', async (req, res) => {
+  try {
+    const application = await db.getApplication(req.params.id);
+    if (!application) {
+      return res.status(404).json({ success: false, message: 'Application not found' });
+    }
+    const which = req.query.which || 'primary';
+    const fieldMap = {
+      primary:   'primary_kra_cert_path',
+      secondary: 'secondary_kra_cert_path'
+    };
+    const field = fieldMap[which];
+    if (!field || !application[field]) {
+      return res.status(404).json({ success: false, message: 'KRA certificate not found' });
+    }
+    const certPath = path.join(__dirname, application[field]);
+    const label = which === 'secondary' ? 'Secondary' : 'Primary';
+    res.download(certPath, `KRA_Certificate_${label}_${req.params.id}${path.extname(certPath)}`, (err) => {
+      if (err) {
+        console.error('Error sending KRA certificate:', err);
+        res.status(500).json({ success: false, message: 'Error sending KRA certificate' });
+      }
+    });
+  } catch (error) {
+    console.error('Error downloading KRA certificate:', error);
+    res.status(500).json({ success: false, message: 'Error downloading KRA certificate', error: error.message });
+  }
+});
+
+
+// ==========================================
+// CORPORATE APPLICATION ROUTES
+// ==========================================
+
+// Public: Submit corporate application
+app.post('/api/cdsc/corporate/submit', upload.fields([
+  { name: 'signatureImage', maxCount: 1 },
+  { name: 'secondarySignatureImage', maxCount: 1 },
+  { name: 'corpKraCertificate', maxCount: 1 },
+  { name: 'taxCertificate', maxCount: 1 },
+  { name: 'sig1PassportPhoto', maxCount: 1 },
+  { name: 'sig1KraCertificate', maxCount: 1 },
+  { name: 'sig2PassportPhoto', maxCount: 1 },
+  { name: 'sig2KraCertificate', maxCount: 1 }
+]), async (req, res) => {
+  try {
+    const data = JSON.parse(req.body.data);
+
+    if (req.files['signatureImage'])
+      data.signature_path = req.files['signatureImage'][0].path;
+    if (req.files['secondarySignatureImage'])
+      data.secondary_signature_path = req.files['secondarySignatureImage'][0].path;
+    if (req.files['corpKraCertificate'])
+      data.kra_cert_path = req.files['corpKraCertificate'][0].path;
+    if (req.files['taxCertificate'])
+      data.tax_cert_path = req.files['taxCertificate'][0].path;
+    if (req.files['sig1PassportPhoto'])
+      data.sig1_passport_photo_path = req.files['sig1PassportPhoto'][0].path;
+    if (req.files['sig1KraCertificate'])
+      data.sig1_kra_cert_path = req.files['sig1KraCertificate'][0].path;
+    if (req.files['sig2PassportPhoto'])
+      data.sig2_passport_photo_path = req.files['sig2PassportPhoto'][0].path;
+    if (req.files['sig2KraCertificate'])
+      data.sig2_kra_cert_path = req.files['sig2KraCertificate'][0].path;
+
+    const applicationId = await db.insertCorporateApplication(data);
+
+    res.json({
+      success: true,
+      message: 'Corporate application submitted successfully!',
+      applicationId
+    });
+  } catch (error) {
+    console.error('Error submitting corporate application:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error submitting corporate application',
+      error: error.message
+    });
+  }
+});
+
+// Get all corporate applications
+app.get('/api/cdsc/corporate/applications', async (req, res) => {
+  try {
+    const applications = await db.getAllCorporateApplications();
+    res.json({ success: true, applications });
+  } catch (error) {
+    console.error('Error fetching corporate applications:', error);
+    res.status(500).json({ success: false, message: 'Error fetching corporate applications' });
+  }
+});
+
+// Get single corporate application
+app.get('/api/cdsc/corporate/applications/:id', async (req, res) => {
+  try {
+    const application = await db.getCorporateApplication(req.params.id);
+    if (application) {
+      res.json({ success: true, application });
+    } else {
+      res.status(404).json({ success: false, message: 'Application not found' });
+    }
+  } catch (error) {
+    console.error('Error fetching corporate application:', error);
+    res.status(500).json({ success: false, message: 'Error fetching corporate application' });
+  }
+});
+
+// Update corporate application status
+app.patch('/api/cdsc/corporate/applications/:id/status', async (req, res) => {
+  try {
+    const { status, notes } = req.body;
+    await db.updateCorporateApplicationStatus(req.params.id, status, notes);
+    res.json({ success: true, message: 'Status updated successfully' });
+  } catch (error) {
+    console.error('Error updating corporate status:', error);
+    res.status(500).json({ success: false, message: 'Error updating status' });
+  }
+});
+
+// Delete corporate application
+app.delete('/api/cdsc/corporate/applications/:id', async (req, res) => {
+  try {
+    const application = await db.getCorporateApplication(req.params.id);
+    if (!application) {
+      return res.status(404).json({ success: false, message: 'Application not found' });
+    }
+
+    const fileFields = [
+      'signature_path', 'secondary_signature_path',
+      'kra_cert_path', 'tax_cert_path',
+      'sig1_passport_photo_path', 'sig1_kra_cert_path',
+      'sig2_passport_photo_path', 'sig2_kra_cert_path'
+    ];
+
+    fileFields.forEach(field => {
+      const filePath = application[field];
+      if (filePath && typeof filePath === 'string') {
+        const absPath = path.isAbsolute(filePath) ? filePath : path.join(__dirname, filePath);
+        fs.unlink(absPath, err => {
+          if (err && err.code !== 'ENOENT')
+            console.error(`Error deleting file (${field}):`, absPath, err.message);
+        });
+      }
+    });
+
+    await db.deleteCorporateApplication(req.params.id);
+    res.json({ success: true, message: 'Corporate application and associated files deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting corporate application:', error);
+    res.status(500).json({ success: false, message: 'Error deleting corporate application' });
+  }
+});
+
+// Generate filled PDF for a corporate application
+app.get('/api/cdsc/corporate/applications/:id/pdf', async (req, res) => {
+  try {
+    const application = await db.getCorporateApplication(req.params.id);
+    if (!application) {
+      return res.status(404).json({ success: false, message: 'Application not found' });
+    }
+
+    const forceDownload = req.query.forceDownload === '1' || req.query.forceDownload === 'true';
+    if (!forceDownload) {
+      return res.json({
+        success: true,
+        hasTaxCert: !!(application.is_tax_exempt === 'Yes' && application.tax_cert_path),
+        kraCerts: {
+          company: !!application.kra_cert_path,
+          sig1:    !!application.sig1_kra_cert_path,
+          sig2:    !!application.sig2_kra_cert_path
+        },
+        pdfAvailable: true
+      });
+    }
+
+    const pdfPath = path.join(__dirname, 'generated-pdfs', `corporate-application-${req.params.id}.pdf`);
+    try {
+      await fillCorporateForm(application, pdfPath);
+    } catch (fillError) {
+      console.log('Error filling corporate PDF:', fillError.message);
+    }
+    res.download(pdfPath, `CDSC_Corporate_Application_${req.params.id}.pdf`, (err) => {
+      if (err) {
+        console.error('Error sending corporate PDF:', err);
+        res.status(500).json({ success: false, message: 'Error sending PDF' });
+      }
+    });
+  } catch (error) {
+    console.error('Error generating corporate PDF:', error);
+    res.status(500).json({ success: false, message: 'Error generating PDF', error: error.message });
+  }
+});
+
+// Download corporate tax exemption certificate
+app.get('/api/cdsc/corporate/applications/:id/tax-certificate', async (req, res) => {
+  try {
+    const application = await db.getCorporateApplication(req.params.id);
+    if (!application || !application.tax_cert_path) {
+      return res.status(404).json({ success: false, message: 'Tax certificate not found' });
+    }
+    const certPath = path.join(__dirname, application.tax_cert_path);
+    res.download(certPath, `Corporate_Tax_Exemption_Certificate_${req.params.id}${path.extname(certPath)}`, (err) => {
+      if (err) {
+        console.error('Error sending tax certificate:', err);
+        res.status(500).json({ success: false, message: 'Error sending tax certificate' });
+      }
+    });
+  } catch (error) {
+    console.error('Error downloading corporate tax certificate:', error);
+    res.status(500).json({ success: false, message: 'Error downloading tax certificate', error: error.message });
+  }
+});
+
+// Download KRA PIN certificate (corporate)
+app.get('/api/cdsc/corporate/applications/:id/kra-certificate', async (req, res) => {
+  try {
+    const application = await db.getCorporateApplication(req.params.id);
+    if (!application) {
+      return res.status(404).json({ success: false, message: 'Application not found' });
+    }
+    const which = req.query.which || 'company';
+    const fieldMap = {
+      company: 'kra_cert_path',
+      sig1:    'sig1_kra_cert_path',
+      sig2:    'sig2_kra_cert_path'
+    };
+    const labelMap = {
+      company: 'Company',
+      sig1:    'Signatory_1',
+      sig2:    'Signatory_2'
+    };
+    const field = fieldMap[which];
+    if (!field || !application[field]) {
+      return res.status(404).json({ success: false, message: 'KRA certificate not found' });
+    }
+    const certPath = path.join(__dirname, application[field]);
+    res.download(certPath, `KRA_Certificate_${labelMap[which]}_${req.params.id}${path.extname(certPath)}`, (err) => {
+      if (err) {
+        console.error('Error sending KRA certificate:', err);
+        res.status(500).json({ success: false, message: 'Error sending KRA certificate' });
+      }
+    });
+  } catch (error) {
+    console.error('Error downloading KRA certificate:', error);
+    res.status(500).json({ success: false, message: 'Error downloading KRA certificate', error: error.message });
   }
 });
 

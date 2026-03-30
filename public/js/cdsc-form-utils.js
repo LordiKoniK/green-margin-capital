@@ -1,4 +1,67 @@
-// GENERIC FUNCTIONS/DATA TO BE USED BY ALL APPLICATION FORMS
+// GENERIC FUNCTIONS/DATA TO BE USED BY ALL APPLICATION FORMS/MAIN PAGE
+
+// Form type selector 
+document.addEventListener('DOMContentLoaded', function() {
+    const openAccountBtn = document.querySelector('.btn-hero');
+    if (openAccountBtn) {
+        openAccountBtn.addEventListener('click', openAccountTypeSelector);
+    }
+});
+
+function openAccountTypeSelector() {
+    document.getElementById('accountTypeSelectorOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeAccountTypeSelector() {
+    document.getElementById('accountTypeSelectorOverlay').classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
+
+function proceedFromSelector() {
+    const selected = document.querySelector('input[name="accountTypeSelector"]:checked')?.value;
+    if (!selected) {
+        const err = document.getElementById('selectorError');
+        if (err) err.style.display = 'block';
+        return;
+    }
+    closeAccountTypeSelector();
+    if (selected === 'corporate') {
+        openCorporateModal();
+    } else {
+        openModal();
+    }
+}
+
+// Open application type picker
+document.addEventListener('DOMContentLoaded', function() {
+    const openAccountBtn = document.querySelector('.btn-hero');
+    if (openAccountBtn) {
+        openAccountBtn.addEventListener('click', openAccountTypeSelector);
+    }
+});
+
+// Application type event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('selectorCloseBtn')?.addEventListener('click', closeAccountTypeSelector);
+    document.getElementById('selectorCancelBtn')?.addEventListener('click', closeAccountTypeSelector);
+    document.getElementById('selectorContinueBtn')?.addEventListener('click', proceedFromSelector);
+
+    // Highlight selected card with border colour
+    document.querySelectorAll('input[name="accountTypeSelector"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('input[name="accountTypeSelector"]').forEach(r => {
+                r.closest('label').style.borderColor = '';
+            });
+            this.closest('label').style.borderColor = 'var(--primary-green)';
+            document.getElementById('selectorError').style.display = 'none';
+        });
+    });
+
+    // Set initial highlight on the pre-checked option
+    const defaultChecked = document.querySelector('input[name="accountTypeSelector"]:checked');
+    if (defaultChecked) defaultChecked.closest('label').style.borderColor = 'var(--primary-green)';
+});
 
 // Scroll back to top with call to action button
 function scrollToTop() {
@@ -279,28 +342,44 @@ fetch('../assets/KenyaBanks.json')
     .catch(error => console.error('Error loading bank data:', error));
 
 // Bank autocomplete functionality
-function setupBankAutocomplete(bankInputId, bankSuggestionList) {
+function setupBankAutocomplete(bankInputId, bankSuggestionList, radioGroupName) {
     const bankInput = document.getElementById(bankInputId);
     const suggestionsList = document.getElementById(bankSuggestionList);
     let selectingSuggestion = false;
 
-    bankInput.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
+    // Helper to check if the specified payment method group is set to Domestic
+    function isDomesticSelected() {
+        const radios = document.getElementsByName(radioGroupName);
+        for (let i = 0; i < radios.length; i++) {
+            if (radios[i].checked && radios[i].value.trim().toLowerCase() === 'domestic') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function isInternationalSelected() {
+        const radios = document.getElementsByName(radioGroupName);
+        for (let i = 0; i < radios.length; i++) {
+            if (radios[i].checked && radios[i].value.trim().toLowerCase() === 'international') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Store references to listeners so we can remove them
+    function inputListener(e) {
+        const searchTerm = bankInput.value.toLowerCase();
         suggestionsList.innerHTML = '';
-        
         if (searchTerm.length < 2) {
             suggestionsList.style.display = 'none';
             return;
         }
-        
-        // Get bank names
         const uniqueBanks = [...new Set(bankData.map(item => item['Bank Name']))];
-        
-        // Filter banks that match the search term
         const matches = uniqueBanks.filter(bank => 
             bank.toLowerCase().includes(searchTerm)
-        ).slice(0, 8); // Limit to 8 suggestions
-        
+        ).slice(0, 8);
         if (matches.length > 0) {
             matches.forEach(bank => {
                 const li = document.createElement('li');
@@ -315,15 +394,15 @@ function setupBankAutocomplete(bankInputId, bankSuggestionList) {
                     suggestionsList.innerHTML = '';
                 });
                 suggestionsList.appendChild(li);
+                //console.log('Created HTML: '+ li.outerHTML);
             });
             suggestionsList.style.display = 'block';
         } else {
             suggestionsList.style.display = 'none';
         }
-    });
+    }
 
-    // Prevent users from moving on without selecting a valid bank
-    bankInput.addEventListener('blur', function() {
+    function blurListener(e) {
         setTimeout(function() {
             if (selectingSuggestion) {
                 selectingSuggestion = false;
@@ -335,14 +414,54 @@ function setupBankAutocomplete(bankInputId, bankSuggestionList) {
             }
             suggestionsList.style.display = 'none';
         }, 100);
-    });
+    }
 
-    // Close suggestions when clicking outside
-    document.addEventListener('click', function(e) {
+    function outsideClickListener(e) {
         if (e.target !== bankInput && e.target !== suggestionsList) {
             suggestionsList.style.display = 'none';
         }
-    });
+    }
+
+    // Enable autocomplete listeners
+    function enableAutocomplete() {
+        bankInput.addEventListener('input', inputListener);
+        bankInput.addEventListener('blur', blurListener);
+        document.addEventListener('click', outsideClickListener);
+    }
+
+    // Disable autocomplete listeners and clear suggestions, but do NOT clear the field
+    function disableAutocomplete() {
+        bankInput.removeEventListener('input', inputListener);
+        bankInput.removeEventListener('blur', blurListener);
+        document.removeEventListener('click', outsideClickListener);
+        suggestionsList.style.display = 'none';
+        suggestionsList.innerHTML = '';
+    }
+
+    // Listen for changes on both radio groups
+    function attachRadioListeners() {
+        const radios = document.getElementsByName(radioGroupName);
+        function onRadioChange(e) {
+            if (isDomesticSelected()) {
+                enableAutocomplete();
+            } else if (isInternationalSelected()) {
+                disableAutocomplete();
+            } else {
+                disableAutocomplete();
+            }
+        }
+        radios.forEach ? radios.forEach(r => r.addEventListener('change', onRadioChange)) : Array.from(radios).forEach(r => r.addEventListener('change', onRadioChange));
+    }
+
+    // Initial setup
+    if (isDomesticSelected()) {
+        enableAutocomplete();
+    } else if (isInternationalSelected()) {
+        disableAutocomplete();
+    } else {
+        disableAutocomplete();
+    }
+    attachRadioListeners();
 }
 
 function validateBranchCode(bankInputId, branchInputId, resultDivId) {
@@ -936,6 +1055,17 @@ function initSignatureCanvas(canvasId) {
     // Only resize if there's no content to preserve — resizing always clears the canvas
     if (!hasSnapshot) {
         resizeCanvas(canvas);
+    }else{
+        // Dimensions are preserved from the snapshot, but we still need
+        // to re-apply the DPI scale transform so drawing coordinates are correct
+        const dpr = window.devicePixelRatio || 1;
+        const ctx = freshCanvas.getContext('2d');
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(dpr, dpr);
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
     }
 
     // Remove old event listeners by cloning the node

@@ -12,33 +12,6 @@ const path = require('path');
  */
 
 /**
- * Check drawing params
- * @param {PDFPage} page - The PDF page to draw on
- * @param {number} x - X coordinate
- * @param {number} y - Y coordinate
- * @param {number} size - Size of the checkmark (default: 10)
- */
-
-// Checkbox fields are not selectable by name for insertion, so we draw the ticks manually instead
-function drawCheckmark(page, x, y, size = 10) {
-  const start = { x: x - size / 2, y: y };
-  const mid = { x: x - size / 8, y: y - size / 3 };
-  const end = { x: x + size / 2, y: y + size / 2 };
-  page.drawLine({
-    start: start,
-    end: mid,
-    thickness: 2,
-    color: rgb(0, 0, 0),
-  });
-  page.drawLine({
-    start: mid,
-    end: end,
-    thickness: 2,
-    color: rgb(0, 0, 0),
-  });
-}
-
-/**
  * Date drawing params
  * @param {PDFPage} page - The PDF page to draw on
  * @param {PDFFont} font - The font to use
@@ -51,7 +24,7 @@ function drawCheckmark(page, x, y, size = 10) {
  */
 
 // Date fields are digit-split boxes, hence also must be drawn manually
-function drawDateInBoxes(page, font, dateStr, startX, y, boxWidth = 12, boxSpacing = 2, fontSize = 10) {
+function drawDateInBoxes(page, font, dateStr, startX, y, boxWidth = 11.2, boxSpacing = 0, fontSize = 10) {
   if (dateStr instanceof Date) {
     // Convert SQL date object
     dateStr = dateStr.toISOString().slice(0, 10);
@@ -123,7 +96,7 @@ async function fillCDSCForm(applicationData, outputPath) {
 
     const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica); // Embed Helvetica font for drawing dates
 
-    // Function to set field values
+    // Helper: set a text field by name
     const setField = (fieldName, value) => {
       try {
         const field = form.getTextField(fieldName);
@@ -134,6 +107,17 @@ async function fillCDSCForm(applicationData, outputPath) {
         console.log(`Error`, error);
       }
     };
+
+    // ── Helper: tick a checkbox by field name ──
+    const tickCheckbox = (fieldName) => {
+      try {
+        const field = form.getCheckBox(fieldName);
+        if (field) field.check();
+      } catch (error) {
+        console.log(`tickCheckbox: field "${fieldName}" not found or not a checkbox — use drawCheckmark fallback`);
+      }
+    };
+
 
     // Account Type
     setField('CDA CODE', applicationData.cda_code);
@@ -235,8 +219,130 @@ async function fillCDSCForm(applicationData, outputPath) {
     setField('Name', applicationData.signer_names);
     setField('Name_3', applicationData.signer_names);
 
+    // ====================================
+    // CHECKBOX FIELDS
+    // ====================================
+     
+    // Account Type 
+    if (applicationData.account_type === 'individual') {
+      tickCheckbox('Check Box232'); 
+    } else if (applicationData.account_type === 'joint') {
+      tickCheckbox('Check Box233'); 
+      }
+    
+    // Primary Gender 
+    if (applicationData.primary_gender === 'male') {
+      tickCheckbox('Check Box234'); 
+    } else if (applicationData.primary_gender === 'female') {
+      tickCheckbox('Check Box235'); 
+    }
+    
+    // Investor Category 
+    if (applicationData.primary_investor_category === 'LI') {
+      tickCheckbox('Check Box238'); 
+    } else if (applicationData.primary_investor_category === 'FI') {
+      tickCheckbox('Check Box239'); 
+    } else if (applicationData.primary_investor_category === 'EI') {
+      tickCheckbox('Check Box242'); 
+    }
+    
+    // Primary ID Type 
+    if (applicationData.primary_id_type === 'national') {
+      tickCheckbox('Check Box236');
+    } else if (applicationData.primary_id_type === 'ea') {
+      tickCheckbox('Check Box237');
+    } else if (applicationData.primary_id_type === 'passport') {
+      tickCheckbox('Check Box240');
+    } else if (applicationData.primary_id_type === 'alien') {
+      tickCheckbox('Check Box241');
+    }
+    
+    // PEP Status 
+    if (applicationData.is_pep === 'Yes' || applicationData.is_pep === true) {
+      tickCheckbox('Check Box268');
+    } else {
+      tickCheckbox('Check Box269'); // No
+    }
+    
+    // Payment Method 
+    if (applicationData.payment_method === 'domestic') {
+      tickCheckbox('Check Box254');
+    } else if (applicationData.payment_method === 'international') {
+      tickCheckbox('Check Box255');
+    } else if (applicationData.payment_method === 'mobile') {
+      tickCheckbox('Check Box256');
+    }
 
 
+    // International bank currencies
+    const currencyBoxes = {
+      'EUR': 'Check Box257',
+      'USD': 'Check Box258',
+      'GBP': 'Check Box259',
+      'KES': 'Check Box260',
+      'USH': 'Check Box261',
+      'TZSH': 'Check Box262',
+      'RFRANC': 'Check Box263'
+    };
+
+    if (applicationData.currency) {
+      const selectedCurrencies = applicationData.currency.split(',').map(c => c.trim().toUpperCase());
+      selectedCurrencies.forEach(curr => {
+        if (currencyBoxes[curr]) {
+          const box = currencyBoxes[curr];
+          tickCheckbox(box);
+        }
+      });
+    }
+    
+    // Tax Exemption Status 
+    if (applicationData.is_tax_exempt === 'Yes' || applicationData.is_tax_exempt === true) {
+      tickCheckbox('Check Box252'); // Yes
+    } else {
+      tickCheckbox('Check Box253'); // No
+    }
+    
+    // Signing Mandate 
+    if (applicationData.signing_mandate === 'single') {
+      tickCheckbox('Check Box264');
+    } else if (applicationData.signing_mandate === 'either') {
+      tickCheckbox('Check Box265');
+    } else if (applicationData.signing_mandate === 'joint') {
+      tickCheckbox('Check Box266');
+    } else if (applicationData.signing_mandate === 'two') {
+      tickCheckbox('Check Box267');
+    }
+    
+    // If joint account, add secondary client checkboxes
+    if (applicationData.account_type === 'joint') {
+      // Secondary Gender
+      if (applicationData.secondary_gender === 'male') {
+        tickCheckbox('Check Box243');
+      } else if (applicationData.secondary_gender === 'female') {
+        tickCheckbox('Check Box244');
+      }
+      
+      // Secondary Investor Category
+      if (applicationData.secondary_investor_category === 'LI') {
+        tickCheckbox('Check Box246');
+      } else if (applicationData.secondary_investor_category === 'FI') {
+        tickCheckbox('Check Box248');
+      } else if (applicationData.secondary_investor_category === 'EI') {
+        tickCheckbox('Check Box251');
+      }
+    }
+
+    // Secondary ID Type 
+    if (applicationData.secondary_id_type === 'national') {
+      tickCheckbox('Check Box245');
+    } else if (applicationData.secondary_id_type === 'ea') {
+      tickCheckbox('Check Box247');
+    } else if (applicationData.secondary_id_type === 'passport') {
+      tickCheckbox('Check Box249');
+    } else if (applicationData.secondary_id_type === 'alien') {
+      tickCheckbox('Check Box250');
+    }
+    
     // Get pages for manual item drawing (before flattening)
     const pages = pdfDoc.getPages();
     const page1 = pages[0];
@@ -244,134 +350,6 @@ async function fillCDSCForm(applicationData, outputPath) {
     const page3 = pages.length > 2 ? pages[2] : page1;
 
     form.flatten(); // Flatten the form to prevent images appearing behind fields
-
-    // ====================================
-    // DRAW CHECKMARKS FOR CHECKBOX FIELDS
-    // ====================================
-     
-    // Account Type 
-    if (applicationData.account_type === 'individual') {
-      drawCheckmark(page1, 212, 697, 8); 
-    } else if (applicationData.account_type === 'joint') {
-      drawCheckmark(page1, 338, 697, 8); 
-    }
-    
-    // Primary Gender 
-    if (applicationData.primary_gender === 'male') {
-      drawCheckmark(page1, 114, 630, 8); // Example: Male
-    } else if (applicationData.primary_gender === 'female') {
-      drawCheckmark(page1, 174, 630, 8); // Example: Female
-    }
-    
-    // Investor Category 
-    if (applicationData.primary_investor_category === 'LI') {
-      drawCheckmark(page1, 258, 564, 8);
-    } else if (applicationData.primary_investor_category === 'FI') {
-      drawCheckmark(page1, 367, 564, 8);
-    } else if (applicationData.primary_investor_category === 'EI') {
-      drawCheckmark(page1, 488, 564, 8);
-    }
-    
-    // Primary ID Type 
-    const primaryIdTypeCoords = {
-      'national': { x: 203, y: 580 },
-      'ea': { x: 298, y: 580 },
-      'passport': { x: 393, y: 580 },
-      'alien': { x: 488, y: 580 }
-    };
-    if (primaryIdTypeCoords[applicationData.primary_id_type]) {
-      const coords = primaryIdTypeCoords[applicationData.primary_id_type];
-      drawCheckmark(page1, coords.x, coords.y, 8);
-    }
-    
-    // PEP Status 
-    if (applicationData.is_pep === 'Yes' || applicationData.is_pep === true) {
-      drawCheckmark(page2, 51, 307, 8); // Yes
-    } else {
-      drawCheckmark(page2, 116, 307, 8); // No
-    }
-    
-    // Payment Method 
-    const paymentCoords = {
-      'domestic': { x: 254 , y: 655 },
-      'international': { x: 403, y: 655 },
-      'mobile': { x: 578, y: 655 }
-    };
-    if (paymentCoords[applicationData.payment_method]) {
-      const coords = paymentCoords[applicationData.payment_method];
-      drawCheckmark(page2, coords.x, coords.y, 8);
-    }
-
-    // International bank currencies
-    const currencyCoords = {
-      'EUR': { x: 218, y: 563 },
-      'USD': { x: 275, y: 563 },
-      'GBP': { x: 335, y: 563 },
-      'KES': { x: 394, y: 563 },
-      'USH': { x: 454, y: 563 },
-      'TZSH': { x: 514, y: 563 },
-      'RFRANC': { x: 578, y: 563 }
-    };
-
-    if (applicationData.currency) {
-      const selectedCurrencies = applicationData.currency.split(',').map(c => c.trim().toUpperCase());
-      selectedCurrencies.forEach(curr => {
-        if (currencyCoords[curr]) {
-          const coords = currencyCoords[curr];
-          drawCheckmark(page2, coords.x, coords.y, 8);
-        }
-      });
-    }
-    
-    // Tax Exemption Status 
-    if (applicationData.is_tax_exempt === 'Yes' || applicationData.is_tax_exempt === true) {
-      drawCheckmark(page2, 123, 712, 8); // Yes
-    } else {
-      drawCheckmark(page2, 194, 712, 8); // No
-    }
-    
-    // Signing Mandate 
-    const mandateCoords = {
-      'single': { x: 63, y: 444 },
-      'either': { x: 226, y: 444 },
-      'joint': { x: 397, y: 444 },
-      'two': { x: 574, y: 444 }
-    };
-    if (mandateCoords[applicationData.signing_mandate]) {
-      const coords = mandateCoords[applicationData.signing_mandate];
-      drawCheckmark(page2, coords.x, coords.y, 8);
-    }
-    
-    // If joint account, add secondary client checkboxes
-    if (applicationData.account_type === 'joint') {
-      // Secondary Gender
-      if (applicationData.secondary_gender === 'male') {
-        drawCheckmark(page1, 114, 309, 8);
-      } else if (applicationData.secondary_gender === 'female') {
-        drawCheckmark(page1, 174, 309, 8);
-      }
-      
-      // Secondary Investor Category
-      if (applicationData.secondary_investor_category === 'LI') {
-        drawCheckmark(page1, 258, 243, 8);
-      } else if (applicationData.secondary_investor_category === 'FI') {
-        drawCheckmark(page1, 367, 243, 8);
-      } else if (applicationData.secondary_investor_category === 'EI') {
-        drawCheckmark(page1, 488, 243, 8);
-      }
-    }
-
-    // Secondary ID Type 
-    const secondaryIdTypeCoords = {
-      'national': { x: 203, y: 259 },
-      'ea': { x: 298, y: 259 },
-      'passport': { x: 393, y: 259 },
-      'alien': { x: 488, y: 259 }
-    };
-    if (secondaryIdTypeCoords[applicationData.secondary_id_type]) {
-      const coords = secondaryIdTypeCoords[applicationData.secondary_id_type];
-      drawCheckmark(page1, coords.x, coords.y, 8);
-    }
 
     // Handle date fields
     // Format: drawDateInBoxes(page, font, dateStr, startX, y, boxWidth, boxSpacing, fontSize)
@@ -580,6 +558,297 @@ async function fillCDSCForm(applicationData, outputPath) {
   }
 }
 
+
+async function fillCorporateForm(applicationData, outputPath) {
+  try {
+    const templatePath = path.join(__dirname, 'public', 'assets', 'CDS_1_3_CORPORATE_ACCOUNT_OPENING_FORM_1.pdf');
+    const existingPdfBytes = await fs.readFile(templatePath);
+
+    const pdfDoc = await PDFDocument.load(existingPdfBytes);
+    const form = pdfDoc.getForm();
+    const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+    // ── Helper: set a text field by name ──
+    const setField = (fieldName, value) => {
+      try {
+        const field = form.getTextField(fieldName);
+        if (field && value) field.setText(String(value));
+      } catch (error) {
+        console.log(`setField error for "${fieldName}":`, error.message);
+      }
+    };
+
+    // ── Helper: tick a checkbox by field name ──
+    const tickCheckbox = (fieldName) => {
+      try {
+        const field = form.getCheckBox(fieldName);
+        if (field) field.check();
+      } catch (error) {
+        console.log(`tickCheckbox: field "${fieldName}" not found or not a checkbox — use drawCheckmark fallback`);
+      }
+    };
+
+
+    // ── Company Details ──
+    setField('CDA CODE', applicationData.cda_code);
+    setField('CDS ACCOUNT NUMBER NEWEXISTING', applicationData.cds_account_number);
+    setField('Registered Name', applicationData.registered_name);
+    setField('Registration Number', applicationData.registration_number);
+    setField('KRA PIN', applicationData.kra_pin);
+    setField('Email Address', applicationData.email);
+    setField('Telephone Number', applicationData.phone);
+    setField('Country of Registration', applicationData.country_of_registration);
+    setField('Physical Location PlotBuilding Name', applicationData.physical_plot);
+    setField('Physical Location RoadStreet', applicationData.physical_road);
+    setField('Physical Location TownCity', applicationData.town_city);
+    setField('Postal Code', applicationData.postal_code);
+    setField('Postal Address', applicationData.postal_address);
+    setField('Source of Investment Funds', applicationData.fund_source);
+
+    // ── Payment Details ──
+    setField('Bank Name', applicationData.bank_name);
+    setField('Account Number', applicationData.account_number);
+    setField('Account Name', applicationData.account_name);
+
+    if (applicationData.payment_method === 'domestic') {
+      setField('Branch Code Domestic Banks', applicationData.branch_code);
+    } else if (applicationData.payment_method === 'international') {
+      setField('Bank Swift Code International Banks', applicationData.swift_code);
+      setField('Indicate any other currency', applicationData.other_currency);
+    }
+
+    // ── Primary Signatory ──
+    setField('Surname', applicationData.sig1_surname);
+    setField('Other Names', applicationData.sig1_other_names);
+    setField('Text299', applicationData.sig1_designation);
+    setField('IDPassport Number', applicationData.sig1_id_number);
+    setField('NationalityCitizenship', applicationData.sig1_nationality);
+    setField('Country of Residence', applicationData.sig1_country_of_residence);
+    setField('KRA PIN_2', applicationData.sig1_kra_pin);
+    setField('Country Code', applicationData.sig1_country_code);
+    setField('Telephone Number_2', applicationData.sig1_phone);
+    setField('Email Address_2', applicationData.sig1_email);
+    setField('Physical Residential Address CountyState EstateCourt RoadStreet HouseFlat Number', applicationData.sig1_address);
+    setField('Postal Address_2', applicationData.sig1_postal_address);
+    setField('Postal Code_2', applicationData.sig1_postal_code);
+    setField('CityTown', applicationData.sig1_town_city);
+
+    // ── Secondary Signatory (if present) ──
+    if (applicationData.sig2_surname) {
+      setField('Surname_2', applicationData.sig2_surname);
+      setField('Other Names_2', applicationData.sig2_other_names);
+      setField('Text298', applicationData.sig2_designation);
+      setField('IDPassport Number_2', applicationData.sig2_id_number);
+      setField('NationalityCitizenship_2', applicationData.sig2_nationality);
+      setField('Country of Residence_2', applicationData.sig2_country_of_residence);
+      setField('KRA PIN_3', applicationData.sig2_kra_pin);
+      setField('Country Code_2', applicationData.sig2_country_code);
+      setField('Telephone Number_3', applicationData.sig2_phone);
+      setField('Email Address_3', applicationData.sig2_email);
+      setField('ARE YOU OR ANY OTHER PERSON CONNECTED WITH THE APPLICATION CLASSIFIED AS A POLITICALLY', applicationData.sig2_address);
+      setField('Postal Address_3', applicationData.sig2_postal_address);
+      setField('Postal Code_3', applicationData.sig2_postal_code);
+      setField('CityTown_2', applicationData.sig2_town_city);
+    }
+
+    // ── Declaration signer names ──
+    setField('Text295', applicationData.signer_names);
+    setField('Text297', applicationData.secondary_signer_names || '');
+
+    // ── PEP details ──
+    if (applicationData.is_pep === 'Yes') {
+      setField('If yes specify the name of the person and the relationship', applicationData.pep_details);
+    }
+
+
+    // =================================
+    // CHECKBOX FIELDS 
+    // =================================
+
+    // ── Investor Category ──
+    if (applicationData.investor_category === 'LC') {
+      tickCheckbox('Check Box317');
+    } else if (applicationData.investor_category === 'FC') {
+      tickCheckbox('Check Box319');
+    } else if (applicationData.investor_category === 'EC') {
+      tickCheckbox('Check Box320');
+    }
+
+    // ── Payment Method ──
+    if (applicationData.payment_method === 'domestic') {
+      tickCheckbox('Check Box324');
+    } else if (applicationData.payment_method === 'international') {
+      tickCheckbox('Check Box325');
+    }
+
+    // ── International bank currencies ──
+    if (applicationData.currency) {
+      const selectedCurrencies = applicationData.currency.split(',').map(c => c.trim().toUpperCase());
+      const currencyCheckboxNames = {
+        'EUR':    'Check Box332',
+        'USD':    'Check Box331',
+        'GBP':    'Check Box330',
+        'KES':    'Check Box329',
+        'USH':    'Check Box328',
+        'TZSH':   'Check Box327',
+        'RFRANC': 'Check Box326'
+      };
+      selectedCurrencies.forEach(curr => {
+        if (currencyCheckboxNames[curr]) {
+          tickCheckbox(currencyCheckboxNames[curr]);
+        }
+      });
+    }
+
+    // ── Tax Exempt ──
+    if (applicationData.is_tax_exempt === 'Yes') {
+      tickCheckbox('Check Box321');
+    } else {
+      tickCheckbox('Check Box323');
+    }
+
+    // ── Primary signatory ID type ──
+    const sig1IdTypeCheckboxes = {
+      'national': 'Check Box333',
+      'ea':       'Check Box334',
+      'passport': 'Check Box335',
+      'alien':    'Check Box336'
+    };
+    if (sig1IdTypeCheckboxes[applicationData.sig1_id_type]) {
+      tickCheckbox(sig1IdTypeCheckboxes[applicationData.sig1_id_type]);
+    }
+
+    // ── Secondary signatory ID type ──
+    if (applicationData.sig2_id_type) {
+      const sig2IdTypeCheckboxes = {
+        'national': 'Check Box337',
+        'ea':       'Check Box338',
+        'passport': 'Check Box339',
+        'alien':    'Check Box340'
+      };
+      if (sig2IdTypeCheckboxes[applicationData.sig2_id_type]) {
+        tickCheckbox(sig2IdTypeCheckboxes[applicationData.sig2_id_type]);
+      }
+    }
+
+    // ── PEP status ──
+    if (applicationData.is_pep === 'Yes') {
+      tickCheckbox('Check Box341');
+    } else {
+      tickCheckbox('Check Box342');
+    }
+
+    // =================================
+    // NON-SETTABLE FIELDS 
+    // =================================
+
+
+    const pages = pdfDoc.getPages();
+    const page1 = pages[0];
+    const page2 = pages.length > 1 ? pages[1] : page1;
+    const page3 = pages.length > 2 ? pages[2] : page1;
+
+    form.flatten();
+
+    // ── Date fields ──
+    if (applicationData.date_of_registration) {
+      drawDateInBoxes(page1, helveticaFont, applicationData.date_of_registration, 495, 583); 
+    }
+    if (applicationData.sig1_dob) {
+      drawDateInBoxes(page1, helveticaFont, applicationData.sig1_dob, 90, 138); 
+    }
+    if (applicationData.sig1_passport_expiry) {
+      drawDateInBoxes(page1, helveticaFont, applicationData.sig1_passport_expiry, 401, 170); 
+    }
+    if (applicationData.sig2_dob) {
+      drawDateInBoxes(page2, helveticaFont, applicationData.sig2_dob, 90, 627); 
+    }
+    if (applicationData.sig2_passport_expiry) {
+      drawDateInBoxes(page2, helveticaFont, applicationData.sig2_passport_expiry, 401, 659); 
+    }
+    if (applicationData.signature_date) {
+      drawDateInBoxes(page2, helveticaFont, applicationData.signature_date, 495, 158); 
+      if (applicationData.sig2_surname) {
+        drawDateInBoxes(page2, helveticaFont, applicationData.signature_date, 495, 109); 
+      }
+    }
+
+    // ── Signatures ──
+    if (applicationData.signature_path) {
+      try {
+        const sigBytes = await fs.readFile(path.join(__dirname, applicationData.signature_path));
+        const sigImage = await pdfDoc.embedPng(sigBytes);
+        const sigScale = 0.2;
+        page2.drawImage(sigImage, {
+          x: 271, y: 129, 
+          width: sigImage.width * sigScale,
+          height: sigImage.height * sigScale,
+        });
+      } catch (error) {
+        console.error('Error embedding primary signature:', error);
+      }
+    }
+
+    if (applicationData.secondary_signature_path) {
+      try {
+        const sig2Bytes = await fs.readFile(path.join(__dirname, applicationData.secondary_signature_path));
+        const sig2Image = await pdfDoc.embedPng(sig2Bytes);
+        const sig2Scale = 0.2;
+        page2.drawImage(sig2Image, {
+          x: 271, y: 83, 
+          width: sig2Image.width * sig2Scale,
+          height: sig2Image.height * sig2Scale,
+        });
+      } catch (error) {
+        console.error('Error embedding secondary signature:', error);
+      }
+    }
+
+    // ── Signatory passport photos ──
+    const photoFields = [
+      { pathKey: 'sig1_passport_photo_path', page: page1, boxLeft: 499, boxBottom: 120, boxRight: 587, boxTop: 230 },  
+      { pathKey: 'sig2_passport_photo_path', page: page2, boxLeft: 499, boxBottom: 610, boxRight: 587, boxTop: 719 }, 
+    ];
+
+    for (const { pathKey, page: targetPage, boxLeft, boxBottom, boxRight, boxTop } of photoFields) {
+      if (applicationData[pathKey]) {
+        try {
+          const photoPath = path.join(__dirname, applicationData[pathKey]);
+          const photoBytes = await fs.readFile(photoPath);
+          const photoImage = photoPath.toLowerCase().endsWith('.png')
+            ? await pdfDoc.embedPng(photoBytes)
+            : await pdfDoc.embedJpg(photoBytes);
+
+          const maxWidth  = boxRight - boxLeft;
+          const maxHeight = boxTop - boxBottom;
+          const scale     = Math.min(maxWidth / photoImage.width, maxHeight / photoImage.height, 1);
+          const photoW    = photoImage.width  * scale;
+          const photoH    = photoImage.height * scale;
+
+          targetPage.drawImage(photoImage, {
+            x: boxLeft + (maxWidth - photoW) / 2,
+            y: boxBottom + (maxHeight - photoH) / 2,
+            width:  photoW,
+            height: photoH,
+          });
+        } catch (error) {
+          console.error(`Error embedding photo (${pathKey}):`, error);
+        }
+      }
+    }
+
+    const pdfBytes = await pdfDoc.save();
+    await fs.writeFile(outputPath, pdfBytes);
+    console.log(`Corporate PDF filled successfully: ${outputPath}`);
+    return outputPath;
+
+  } catch (error) {
+    console.error('Error filling corporate PDF:', error);
+    throw error;
+  }
+}
+
 module.exports = {
-  fillCDSCForm
+  fillCDSCForm,
+  fillCorporateForm
 };
