@@ -174,7 +174,7 @@ pm2 save
 ## To-Do
 
 - [ ] Add automatic email sending to support@greenmargincapital for contact form
-- [ ] Implement CMS for news section
+- [✔] Implement CMS for news section
 - [ ] Add analytics tracking
 - [ ] Set up automated backups
 
