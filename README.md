@@ -1,6 +1,6 @@
 # Green Margin Capital Website
 
-Green Margin Capital was suffering from a severe website performance shortage, as the previous developer made them a site using WordPress and containing thousands upon thousands of lines worth of redundant and unnecessary code, resulting in questionable page content and incredibly slow loading speeds. This is a new website made for them, with more modern styling, efficient code usage to optimise load times and a much simpler codebase (with guiding comments) to allow for changes to easily be made further down the line if necessary. Developed by Njihia Muranga in conjunction with Green Margin Capital.
+Green Margin Capital was suffering from a severe website performance shortage, as the previous developer made them a site using WordPress containing thousands upon thousands of lines worth of redundant and unnecessary code, resulting in questionable page content and incredibly slow loading speeds. This is a new website made for the stockbroker, with more modern styling, efficient code usage to optimise load times and a much simpler codebase (with guiding comments) to allow for changes to easily be made by other developers further down the line if necessary. Developed by Njihia Muranga in conjunction with Green Margin Capital.
 
 ## Features
 
